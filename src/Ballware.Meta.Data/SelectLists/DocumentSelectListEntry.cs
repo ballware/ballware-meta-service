@@ -1,0 +1,8 @@
+namespace Ballware.Meta.Data.SelectLists;
+
+public class DocumentSelectListEntry
+{
+    public Guid Id { get; set; }
+    public string? Name { get; set; }
+    public int State { get; set; }
+}
