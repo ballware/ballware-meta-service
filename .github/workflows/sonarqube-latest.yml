@@ -13,6 +13,14 @@ concurrency:
 jobs:
   sonarqube:
     runs-on: ubuntu-latest    
+    services:
+      azuresql:
+        image: mcr.microsoft.com/azure-sql-edge
+        ports:
+          - 1433:1433
+        env:
+          ACCEPT_EULA: 1
+          MSSQL_SA_PASSWORD: ${{ secrets.TEST_META_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,6 +40,6 @@ jobs:
       - name: Build solution for SonarQube
         run: dotnet build ballware-meta-service.sln --no-incremental
       - name: Run tests with coverage report        
-        run: dotnet dotcover test ballware-meta-service.sln --dcReportType=HTML
+        run: dotnet dotcover test ballware-meta-service.sln --dcReportType=HTML --environment ConnectionStrings__MetaConnection='${{ secrets.TEST_META_CONNECTIONSTRING }}'
       - name: End SonarQube scan
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}" 
