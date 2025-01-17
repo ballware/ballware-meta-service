@@ -45,7 +45,7 @@ public class PageController : ControllerBase
         {
             return NotFound();
         }
-        
+
         return Ok(page);
     }
 }

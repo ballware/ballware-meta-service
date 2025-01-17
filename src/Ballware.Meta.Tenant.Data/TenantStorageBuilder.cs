@@ -5,11 +5,11 @@ namespace Ballware.Meta.Tenant.Data;
 public class TenantStorageBuilder
 {
     public IServiceCollection Services { get; }
-    public IStorageProviderRegistry ProviderRegistry { get; }
+    public IProviderRegistry ProviderRegistry { get; }
 
-    internal TenantStorageBuilder(IServiceCollection services, IStorageProviderRegistry storageProviderRegistry)
+    internal TenantStorageBuilder(IServiceCollection services, IProviderRegistry providerRegistry)
     {
         Services = services;
-        ProviderRegistry = storageProviderRegistry;
+        ProviderRegistry = providerRegistry;
     }
 }

@@ -8,4 +8,4 @@ public enum MlModelTypes : int
 {
     Undefined = 0,
     Regression = 1
-}    
+}

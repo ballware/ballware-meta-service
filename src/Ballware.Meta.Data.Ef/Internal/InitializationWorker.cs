@@ -20,7 +20,7 @@ class InitializationWorker : IHostedService
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
-    {   
+    {
         await using var scope = ServiceProvider.CreateAsyncScope();
 
         var options = scope.ServiceProvider.GetRequiredService<StorageOptions>();
@@ -29,7 +29,7 @@ class InitializationWorker : IHostedService
         {
             var context = scope.ServiceProvider.GetRequiredService<MetaDbContext>();
 
-            await context.Database.MigrateAsync(cancellationToken);    
+            await context.Database.MigrateAsync(cancellationToken);
         }
 
         if (options.AutoSeedAdminTenant)

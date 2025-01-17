@@ -3,7 +3,7 @@ namespace Ballware.Meta.Service.Dtos;
 public class MetaEntityDto
 {
     public Guid Id { get; set; }
-    
+
     public bool Meta { get; set; }
 
     public string? Application { get; set; }

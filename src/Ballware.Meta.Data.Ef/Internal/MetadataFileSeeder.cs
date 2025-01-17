@@ -22,27 +22,27 @@ class MetadataFileSeeder : IMetadataSeeder
 {
     private IServiceProvider Services { get; }
     private string? SeedPath { get; }
-    
+
     private Stream ReadSeedFile(string filename)
     {
         if (SeedPath == null || !File.Exists(Path.Combine(SeedPath, filename)))
         {
             throw new ArgumentException($"SeedPath or file doesn't exist: {filename}");
         }
-        
+
         return new FileStream(Path.Combine(SeedPath, filename), FileMode.Open, FileAccess.Read, FileShare.Read);
     }
-    
+
     private Stream? ReadOptionalSeedFile(string filename)
     {
         if (SeedPath == null || !File.Exists(Path.Combine(SeedPath, filename)))
         {
             return null;
         }
-        
+
         return new FileStream(Path.Combine(SeedPath, filename), FileMode.Open, FileAccess.Read, FileShare.Read);
     }
-    
+
     public MetadataFileSeeder(IServiceProvider services, string? seedPath)
     {
         Services = services;
@@ -52,29 +52,29 @@ class MetadataFileSeeder : IMetadataSeeder
     public async Task<Guid?> GetAdminTenantIdAsync()
     {
         var fileStream = ReadSeedFile("admin-tenant.json");
-        
+
         using var textReader = new StreamReader(fileStream);
-        
+
         var tenants = JsonConvert.DeserializeObject<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
         var tenant = tenants?.FirstOrDefault();
 
         return tenant?.Id;
     }
-    
+
     public async Task<Guid?> SeedAdminTenantAsync()
     {
         await using var fileStream = ReadSeedFile("admin-tenant.json");
         using var textReader = new StreamReader(fileStream);
-        
+
         var tenants = JsonConvert.DeserializeObject<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
         var tenant = tenants?.FirstOrDefault();
-        
+
         if (tenant != null)
         {
             await Services.GetRequiredService<IRepository<Tenant>>().SaveAsync(null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
-            
+
             var tenantId = tenant.Id;
-            
+
             await GenericSeedAsync<Document>(tenantId, "admin-document.json");
             await GenericSeedAsync<Documentation>(tenantId, "admin-documentation.json");
             await GenericSeedAsync<EntityMetadata>(tenantId, "admin-entity.json");
@@ -88,7 +88,7 @@ class MetadataFileSeeder : IMetadataSeeder
             await GenericSeedAsync<Statistic>(tenantId, "admin-statistic.json");
             await GenericSeedAsync<Subscription>(tenantId, "admin-subscription.json");
         }
-        
+
         return tenant?.Id;
     }
 
@@ -96,18 +96,18 @@ class MetadataFileSeeder : IMetadataSeeder
     {
         await using var fileStream = ReadSeedFile("customer-tenant.json");
         using var textReader = new StreamReader(fileStream);
-        
+
         var tenants = JsonConvert.DeserializeObject<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
         var tenant = tenants?.FirstOrDefault();
-        
+
         if (tenant != null)
         {
             tenant.Id = tenantId;
             tenant.Name = name;
-            
+
             await Services.GetRequiredService<IRepository<Tenant>>().SaveAsync(null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
         }
-        
+
         await GenericSeedAsync<Document>(tenantId, "customer-document.json");
         await GenericSeedAsync<Documentation>(tenantId, "customer-documentation.json");
         await GenericSeedAsync<EntityMetadata>(tenantId, "customer-entity.json");
@@ -130,19 +130,19 @@ class MetadataFileSeeder : IMetadataSeeder
         {
             return;
         }
-        
+
         using var textReader = new StreamReader(fileStream);
-        
+
         var items = JsonConvert.DeserializeObject<IEnumerable<TEntity>>(await textReader.ReadToEndAsync());
 
         if (items == null)
         {
             return;
         }
-        
+
         foreach (var item in items)
         {
-            await Services.GetRequiredService<ITenantableRepository<TEntity>>().SaveAsync(tenantId, null,"seed", ImmutableDictionary<string, object>.Empty, item);
+            await Services.GetRequiredService<ITenantableRepository<TEntity>>().SaveAsync(tenantId, null, "seed", ImmutableDictionary<string, object>.Empty, item);
         }
     }
 }

@@ -110,12 +110,12 @@ public class MetaDbContext : DbContext
         modelBuilder.Entity<Page>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
         modelBuilder.Entity<Page>().HasIndex(d => new { d.TenantId });
         modelBuilder.Entity<Page>().HasIndex(d => new { d.TenantId, d.Identifier }).IsUnique();
-        
+
         modelBuilder.Entity<MlModel>().HasKey(d => d.Id);
         modelBuilder.Entity<MlModel>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
         modelBuilder.Entity<MlModel>().HasIndex(d => new { d.TenantId });
         modelBuilder.Entity<MlModel>().HasIndex(d => new { d.TenantId, d.Identifier }).IsUnique();
-        
+
         modelBuilder.Entity<Job>().HasKey(d => d.Id);
         modelBuilder.Entity<Job>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
         modelBuilder.Entity<Job>().HasIndex(d => new { d.TenantId });

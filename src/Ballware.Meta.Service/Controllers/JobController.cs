@@ -32,14 +32,14 @@ public class JobController : ControllerBase
     private IPrincipalUtils PrincipalUtils { get; }
     private IJobMetaRepository MetaRepository { get; }
     private ITenantMetaRepository TenantMetaRepository { get; }
-    
+
     public JobController(IPrincipalUtils principalUtils, IJobMetaRepository metaRepository, ITenantMetaRepository tenantMetaRepository)
     {
         PrincipalUtils = principalUtils;
         MetaRepository = metaRepository;
         TenantMetaRepository = tenantMetaRepository;
     }
-    
+
     [HttpGet]
     [Route("pendingjobsforuser")]
     [ApiExplorerSettings(GroupName = "meta")]
@@ -57,15 +57,15 @@ public class JobController : ControllerBase
         var tenantId = PrincipalUtils.GetUserTenandId(User);
 
         var tenantMeta = await TenantMetaRepository.ByIdAsync(tenantId);
-        
+
         if (tenantMeta == null)
         {
             return NotFound();
         }
-        
+
         return Ok(await MetaRepository.PendingJobsForUser(tenantMeta, currentUserId));
     }
-    
+
     [HttpPost]
     [Route("createjobfortenantbehalfofuser/{tenant}/{user}")]
     [ApiExplorerSettings(GroupName = "service")]
@@ -81,17 +81,17 @@ public class JobController : ControllerBase
     public async Task<IActionResult> CreateJobForTenantBehalfOfUser(Guid tenant, Guid user, [FromBody] JobCreatePayload data)
     {
         var tenantMeta = await TenantMetaRepository.ByIdAsync(tenant);
-        
+
         if (tenantMeta == null)
         {
             return NotFound();
         }
-        
+
         var job = await MetaRepository.CreateJobAsync(tenantMeta, user, data.Scheduler, data.Identifier, data.Options);
 
         return Ok(job);
     }
-    
+
     [HttpPost]
     [Route("updatejobfortenantbehalfofuser/{tenant}/{user}")]
     [ApiExplorerSettings(GroupName = "service")]
@@ -107,15 +107,15 @@ public class JobController : ControllerBase
     public async Task<IActionResult> UpdateJobForTenantBehalfOfUser(Guid tenant, Guid user, [FromBody] JobUpdatePayload data)
     {
         var tenantMeta = await TenantMetaRepository.ByIdAsync(tenant);
-        
+
         if (tenantMeta == null)
         {
             return NotFound();
         }
-        
+
         var job = await MetaRepository.UpdateJobAsync(tenantMeta, user, data.Id, data.State, data.Result);
 
         return Ok(job);
     }
-    
+
 }

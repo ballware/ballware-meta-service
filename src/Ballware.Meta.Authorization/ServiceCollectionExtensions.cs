@@ -6,10 +6,10 @@ namespace Ballware.Meta.Authorization;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddBallwareAuthorizationUtils(this IServiceCollection services, string tenantClaim, string userIdClaim)
+    public static IServiceCollection AddBallwareAuthorizationUtils(this IServiceCollection services, string tenantClaim, string userIdClaim, string rightClaim)
     {
-        services.AddSingleton<IPrincipalUtils>(new DefaultPrincipalUtils(tenantClaim, userIdClaim));
-        
+        services.AddSingleton<IPrincipalUtils>(new DefaultPrincipalUtils(tenantClaim, userIdClaim, rightClaim));
+
         return services;
     }
 }

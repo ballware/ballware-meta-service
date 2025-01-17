@@ -23,7 +23,7 @@ public class MlModelController : ControllerBase
         ModelMetaRepository = modelMetaRepository;
         TenantMetaRepository = tenantMetaRepository;
     }
-    
+
     [HttpGet]
     [Route("metadatabytenantandid/{tenant}/{id}")]
     [ApiExplorerSettings(GroupName = "service")]
@@ -44,12 +44,12 @@ public class MlModelController : ControllerBase
         {
             return NotFound();
         }
-        
+
         var model = await ModelMetaRepository.MetadataByTenantAndIdAsync(tenantMeta, id);
 
         return Ok(model);
     }
-    
+
     [HttpGet]
     [Route("metadatabytenantandidentifier/{tenant}/{identifier}")]
     [ApiExplorerSettings(GroupName = "service")]
@@ -65,17 +65,17 @@ public class MlModelController : ControllerBase
     public async Task<IActionResult> ModelMetadataByTenantAndIdentifier(Guid tenant, string identifier)
     {
         var tenantMeta = await TenantMetaRepository.ByIdAsync(tenant);
-        
+
         if (tenantMeta == null)
         {
             return NotFound();
         }
-        
+
         var model = await ModelMetaRepository.MetadataByTenantAndIdentifierAsync(tenantMeta, identifier);
 
         return Ok(model);
     }
-    
+
     [HttpPost]
     [Route("savetrainingstatebehalfofuser/{tenant}/{user}")]
     [ApiExplorerSettings(GroupName = "service")]
@@ -91,14 +91,14 @@ public class MlModelController : ControllerBase
     public async Task<IActionResult> SaveTrainingStateBehalfOfUser(Guid tenant, Guid user, [FromBody] MlModelTrainingState trainingState)
     {
         var tenantMeta = await TenantMetaRepository.ByIdAsync(tenant);
-        
+
         if (tenantMeta == null)
         {
             return NotFound();
         }
-        
+
         await ModelMetaRepository.SaveTrainingStateAsync(tenantMeta, user, trainingState);
-        
+
         return Ok();
     }
 }

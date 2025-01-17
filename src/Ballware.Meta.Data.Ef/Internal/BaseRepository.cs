@@ -12,7 +12,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
 {
     protected IMapper Mapper { get; }
     protected MetaDbContext Context { get; }
-    
+
     protected BaseRepository(IMapper mapper, MetaDbContext dbContext)
     {
         Mapper = mapper;
@@ -43,9 +43,9 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
     {
         return value;
     }
-    
-    protected virtual void BeforeSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, bool insert) {}
-    protected virtual void AfterSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, TPersistable persistable, bool insert) {}
+
+    protected virtual void BeforeSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, bool insert) { }
+    protected virtual void AfterSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, TPersistable persistable, bool insert) { }
     protected virtual RemoveResult RemovePreliminaryCheck(Guid? userId, IDictionary<string, object> claims,
         IDictionary<string, object> removeParams)
     {
@@ -55,10 +55,11 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
             Messages = Array.Empty<string>()
         };
     }
-    
+
     protected virtual void BeforeRemove(Guid? userId, IDictionary<string, object> claims,
-        TPersistable persistable) {}
-    
+        TPersistable persistable)
+    { }
+
     public Task<IEnumerable<TEditable>> AllAsync(string identifier, IDictionary<string, object> claims)
     {
         return Task.Run(() => Context.Set<TPersistable>().AsEnumerable().Select(Mapper.Map<TEditable>));
@@ -88,7 +89,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         return Task.Run(() =>
         {
             var instance = New(identifier, claims, null);
-            
+
             return Mapper.Map<TEditable>(instance);
         });
     }
@@ -98,7 +99,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         return Task.Run(() =>
         {
             var instance = New(identifier, claims, queryParams);
-            
+
             return Mapper.Map<TEditable>(instance);
         });
     }
@@ -108,14 +109,14 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         var persistedItem = await Context.Set<TPersistable>()
             .FirstOrDefaultAsync(t => t.Uuid == value.Id);
 
-        var insert = persistedItem == null; 
-        
+        var insert = persistedItem == null;
+
         BeforeSave(userId, identifier, claims, value, insert);
-        
+
         if (persistedItem == null)
         {
             persistedItem = Mapper.Map<TPersistable>(value);
-            
+
             if (persistedItem is IAuditable auditable)
             {
                 auditable.CreatorId = userId;
@@ -129,18 +130,18 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         else
         {
             Mapper.Map(value, persistedItem);
-            
+
             if (persistedItem is IAuditable auditable)
             {
                 auditable.LastChangerId = userId;
                 auditable.LastChangeStamp = DateTime.Now;
             }
-            
+
             Context.Set<TPersistable>().Update(persistedItem);
         }
-        
+
         AfterSave(userId, identifier, claims, value, persistedItem, insert);
-        
+
         await Context.SaveChangesAsync();
     }
 
@@ -152,7 +153,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         {
             return result;
         }
-        
+
         if (removeParams.TryGetValue("Id", out var idParam) && Guid.TryParse(idParam.ToString(), out Guid id))
         {
             var persistedItem = await Context.Set<TPersistable>()
@@ -160,14 +161,14 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
 
             if (persistedItem != null)
             {
-                BeforeRemove(userId, claims, persistedItem);    
-                
+                BeforeRemove(userId, claims, persistedItem);
+
                 Context.Set<TPersistable>().Remove(persistedItem);
 
                 await Context.SaveChangesAsync();
             }
         }
-        
+
         return new RemoveResult() { Result = true, Messages = Array.Empty<string>() };
     }
 
@@ -175,14 +176,14 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         Func<TEditable, Task<bool>> authorized)
     {
         using var textReader = new StreamReader(importStream);
-        
+
         var items = JsonConvert.DeserializeObject<IEnumerable<TEditable>>(await textReader.ReadToEndAsync());
 
         if (items == null)
         {
             return;
         }
-        
+
         foreach (var item in items)
         {
             if (await authorized(item))

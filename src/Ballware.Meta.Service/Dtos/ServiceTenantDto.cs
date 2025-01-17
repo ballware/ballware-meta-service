@@ -5,13 +5,13 @@ public class ServiceTenantDto
     public Guid Id { get; set; }
     public required string Name { get; set; }
     public string? RightsCheckScript { get; set; }
-    
+
     public string? ServerScriptDefinitions { get; set; }
 
     public bool ManagedDatabase { get; set; }
 
     public required string Provider { get; set; }
-    
+
     public string? Server { get; set; }
 
     public string? Catalog { get; set; }

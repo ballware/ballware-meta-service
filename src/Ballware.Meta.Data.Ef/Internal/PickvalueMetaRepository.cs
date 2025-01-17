@@ -7,7 +7,7 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class PickvalueMetaRepository : TenantableBaseRepository<Public.Pickvalue, Persistables.Pickvalue>, IPickvalueMetaRepository
 {
-    public PickvalueMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) {}
+    public PickvalueMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
 
     public async Task<IEnumerable<PickvalueSelectEntry>> SelectListForEntityFieldAsync(Guid tenantId, string entity, string field)
     {
@@ -23,9 +23,9 @@ class PickvalueMetaRepository : TenantableBaseRepository<Public.Pickvalue, Persi
         return await Task.Run(() => Context.Pickvalues.SingleOrDefault(p =>
                 p.TenantId == tenantId && p.Entity == entity && p.Field == field && p.Value == value)
             .As(p => p != null ? new PickvalueSelectEntry { Id = p.Uuid, Name = p.Text, Value = p.Value } : null));
-        
+
     }
-    
+
     public Task<string> GenerateListQueryAsync(Guid tenantId)
     {
         return Task.FromResult($"select Entity, Field, Value, Text, Sorting from Pickvalue where TenantId='{tenantId}'");

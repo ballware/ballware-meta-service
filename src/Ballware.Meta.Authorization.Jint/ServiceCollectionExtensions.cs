@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<ITenantRightsChecker, JavascriptTenantRightsChecker>();
         services.AddSingleton<IEntityRightsChecker, JavascriptEntityRightsChecker>();
-        
+
         return services;
     }
 

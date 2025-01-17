@@ -8,16 +8,17 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBallwareTenantStorage(this IServiceCollection services,
         Action<TenantStorageBuilder>? configureOptions = null)
     {
-        var defaultStorageProviderRegistry = new DefaultStorageProviderRegistry();
-        
-        services.AddSingleton<IStorageProviderRegistry>(defaultStorageProviderRegistry);
+        var defaultStorageProviderRegistry = new DefaultProviderRegistry();
+
+        services.AddSingleton<IProviderRegistry>(defaultStorageProviderRegistry);
         services.AddSingleton<ITenantStorageProvider, TenantStorageProviderProxy>();
+        services.AddSingleton<ITenantLookupProvider, TenantLookupProviderProxy>();
 
         if (configureOptions != null)
         {
             configureOptions(new TenantStorageBuilder(services, defaultStorageProviderRegistry));
         }
-        
+
         return services;
     }
 }

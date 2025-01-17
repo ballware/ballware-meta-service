@@ -4,7 +4,7 @@ namespace Ballware.Meta.Data.Repository;
 
 public interface IJobMetaRepository : ITenantableRepository<Public.Job>
 {
-    Task<IEnumerable<Public.Job>> PendingJobsForUser(Public.Tenant tenant, Guid userId);    
+    Task<IEnumerable<Public.Job>> PendingJobsForUser(Public.Tenant tenant, Guid userId);
 
     Task<Public.Job> CreateJobAsync(Public.Tenant tenant, Guid userId, string scheduler,
         string identifier, string options);

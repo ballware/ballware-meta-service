@@ -8,6 +8,6 @@ public interface IProcessingStateMetaRepository : ITenantableRepository<Public.P
     Task<ProcessingStateSelectListEntry?> SelectByStateAsync(Guid tenantId, string entity, int state);
     Task<IEnumerable<ProcessingStateSelectListEntry>> SelectListPossibleSuccessorsForEntityAsync(Guid tenantId,
         string entity, int state);
-    
+
     Task<string> GenerateListQueryAsync(Guid tenantId);
 }

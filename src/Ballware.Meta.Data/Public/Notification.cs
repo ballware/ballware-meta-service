@@ -7,9 +7,9 @@ namespace Ballware.Meta.Data.Public;
 public class Notification : IEditable
 {
     public Guid Id { get; set; }
-    
+
     public string? Identifier { get; set; }
-    
+
     public string? Name { get; set; }
     public Guid? DocumentId { get; set; }
     public int State { get; set; }

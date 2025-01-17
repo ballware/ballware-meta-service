@@ -52,14 +52,14 @@ public class DocumentController : ControllerBase
         {
             return NotFound();
         }
-        
+
         var documentList = (await MetaRepository.SelectListForTenantAndEntityAsync(tenantId, entity))
                 .ToAsyncEnumerable()
                 .WhereAwait(async d =>
                     await TenantRightsChecker.HasRightAsync(tenantMeta, "meta", "document", claims,
                         $"visiblestate.{d.State}"))
                 .ToEnumerable();
-        
+
         return Ok(documentList);
     }
 

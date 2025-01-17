@@ -22,7 +22,7 @@ public class Statistic : IEntity, IAuditable, ITenantable
 
     [JsonIgnore]
     public virtual string? FetchSql { get; set; }
-    
+
     [JsonIgnore]
     public virtual string? FetchScript { get; set; }
 

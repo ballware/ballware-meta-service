@@ -18,16 +18,16 @@ public class EfMigrationsTest
         builder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings_with_migrations.{builder.Environment.EnvironmentName}.json"), true, true);
         builder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings_with_migrations.local.json"), true, true);
         builder.Configuration.AddEnvironmentVariables();
-        
+
         var storageOptions = builder.Configuration.GetSection("Storage").Get<StorageOptions>();
         var connectionString = builder.Configuration.GetConnectionString("MetaConnection");
-        
+
         Assert.Multiple(() =>
         {
             Assert.That(storageOptions, Is.Not.Null);
             Assert.That(connectionString, Is.Not.Null);
         });
-        
+
         builder.Services.AddBallwareMetaStorage(storageOptions, connectionString);
         builder.Services.AddAutoMapper(config =>
         {

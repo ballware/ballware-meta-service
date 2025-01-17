@@ -3,7 +3,7 @@
 public class Document : IEditable
 {
     public Guid Id { get; set; }
-    
+
     public string? DisplayName { get; set; }
     public string? Entity { get; set; }
     public int State { get; set; }

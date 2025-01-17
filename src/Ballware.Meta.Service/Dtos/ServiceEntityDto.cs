@@ -3,10 +3,10 @@ namespace Ballware.Meta.Service.Dtos;
 public class ServiceEntityDto
 {
     public Guid Id { get; set; }
-    
+
     public bool GeneratedSchema { get; set; }
     public bool NoIdentity { get; set; }
-    
+
     public string? ListQuery { get; set; }
     public string? ByIdQuery { get; set; }
     public string? NewQuery { get; set; }

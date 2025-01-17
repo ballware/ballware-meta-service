@@ -7,7 +7,7 @@ public class Lookup : IEditable
     public bool Meta { get; set; }
     public bool HasParam { get; set; }
     public int Type { get; set; }
-    
+
     public string? Identifier { get; set; }
     public string? Name { get; set; }
 

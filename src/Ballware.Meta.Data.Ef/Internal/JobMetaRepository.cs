@@ -8,15 +8,15 @@ namespace Ballware.Meta.Data.Ef.Internal;
 class JobMetaRepository : TenantableBaseRepository<Public.Job, Persistables.Job>, IJobMetaRepository
 {
     public JobMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
-    
+
     public virtual async Task<IEnumerable<Public.Job>> PendingJobsForUser(Public.Tenant tenant, Guid userId)
     {
         return await Task.FromResult(Context.Jobs.Where(j => j.TenantId == tenant.Id && j.Owner == userId && j.State != JobStates.Finished)
             .Select(j => Mapper.Map<Public.Job>(j)));
     }
-    
+
     public virtual async Task<Public.Job> CreateJobAsync(Public.Tenant tenant, Guid userId, string scheduler, string identifier, string options)
-    {   
+    {
         var job = Context.Jobs.Add(new Persistables.Job()
         {
             TenantId = tenant.Id,
@@ -28,7 +28,7 @@ class JobMetaRepository : TenantableBaseRepository<Public.Job, Persistables.Job>
             Options = options,
             Owner = userId
         });
-        
+
         await Context.SaveChangesAsync();
 
         return Mapper.Map<Public.Job>(job.Entity);
@@ -43,14 +43,14 @@ class JobMetaRepository : TenantableBaseRepository<Public.Job, Persistables.Job>
         {
             throw new Exception("Job not found");
         }
-        
+
         job.State = state;
         job.Result = result;
-        
+
         var jobEntry = Context.Update(job);
-        
+
         await Context.SaveChangesAsync();
-        
+
         return Mapper.Map<Public.Job>(jobEntry.Entity);
     }
 }

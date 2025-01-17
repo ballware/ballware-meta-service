@@ -4,7 +4,7 @@ public class TenantPlaceholderOptions
 {
     public bool ReplaceTenantId { get; private set; }
     public bool ReplaceClaims { get; private set; }
-    
+
     private TenantPlaceholderOptions()
     {
     }

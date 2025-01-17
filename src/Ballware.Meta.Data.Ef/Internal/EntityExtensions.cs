@@ -2,8 +2,8 @@
 
 public static class EntityExtensions
 {
-    public static R As<T,R>(this T source, Func<T,R> converter)
+    public static R As<T, R>(this T source, Func<T, R> converter)
     {
-      return converter(source);
+        return converter(source);
     }
 }

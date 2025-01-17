@@ -12,7 +12,7 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
 {
     protected IMapper Mapper { get; }
     protected MetaDbContext Context { get; }
-    
+
     protected TenantableBaseRepository(IMapper mapper, MetaDbContext dbContext)
     {
         Mapper = mapper;
@@ -25,10 +25,10 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         if (queryParams.TryGetValue("id", out var param))
         {
             var ids = (param as IEnumerable<string>)?.Select(Guid.Parse) ?? new List<Guid>();
-            
+
             query = query.Where(x => ids.Contains(x.Uuid));
         }
-        
+
         return query;
     }
 
@@ -50,9 +50,9 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
     {
         return value;
     }
-    
-    protected virtual void BeforeSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, bool insert) {}
-    protected virtual void AfterSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, TPersistable persistable, bool insert) {}
+
+    protected virtual void BeforeSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, bool insert) { }
+    protected virtual void AfterSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, TPersistable persistable, bool insert) { }
     protected virtual RemoveResult RemovePreliminaryCheck(Guid? userId, IDictionary<string, object> claims,
         IDictionary<string, object> removeParams)
     {
@@ -62,10 +62,11 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
             Messages = Array.Empty<string>()
         };
     }
-    
+
     protected virtual void BeforeRemove(Guid? userId, IDictionary<string, object> claims,
-        TPersistable persistable) {}
-    
+        TPersistable persistable)
+    { }
+
     public Task<IEnumerable<TEditable>> AllAsync(Guid tenantId, string identifier, IDictionary<string, object> claims)
     {
         return Task.Run(() => Context.Set<TPersistable>().Where(t => t.TenantId == tenantId).AsEnumerable().Select(Mapper.Map<TEditable>));
@@ -95,9 +96,9 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         return Task.Run(() =>
         {
             var instance = New(identifier, claims, null);
-            
+
             instance.TenantId = tenantId;
-            
+
             return Mapper.Map<TEditable>(instance);
         });
     }
@@ -107,9 +108,9 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         return Task.Run(() =>
         {
             var instance = New(identifier, claims, queryParams);
-            
+
             instance.TenantId = tenantId;
-            
+
             return Mapper.Map<TEditable>(instance);
         });
     }
@@ -119,10 +120,10 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         var persistedItem = await Context.Set<TPersistable>()
             .FirstOrDefaultAsync(t => t.TenantId == tenantId && t.Uuid == value.Id);
 
-        var insert = persistedItem == null; 
-        
+        var insert = persistedItem == null;
+
         BeforeSave(userId, identifier, claims, value, insert);
-        
+
         if (persistedItem == null)
         {
             persistedItem = Mapper.Map<TPersistable>(value);
@@ -141,18 +142,18 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         else
         {
             Mapper.Map(value, persistedItem);
-            
+
             if (persistedItem is IAuditable auditable)
             {
                 auditable.LastChangerId = userId;
                 auditable.LastChangeStamp = DateTime.Now;
             }
-            
+
             Context.Set<TPersistable>().Update(persistedItem);
         }
-        
+
         AfterSave(userId, identifier, claims, value, persistedItem, insert);
-        
+
         await Context.SaveChangesAsync();
     }
 
@@ -164,7 +165,7 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         {
             return result;
         }
-        
+
         if (removeParams.TryGetValue("Id", out var idParam) && Guid.TryParse(idParam.ToString(), out Guid id))
         {
             var persistedItem = await Context.Set<TPersistable>()
@@ -172,14 +173,14 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
 
             if (persistedItem != null)
             {
-                BeforeRemove(userId, claims, persistedItem);    
-                
+                BeforeRemove(userId, claims, persistedItem);
+
                 Context.Set<TPersistable>().Remove(persistedItem);
 
                 await Context.SaveChangesAsync();
             }
         }
-        
+
         return new RemoveResult() { Result = true, Messages = Array.Empty<string>() };
     }
 
@@ -187,14 +188,14 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         Func<TEditable, Task<bool>> authorized)
     {
         using var textReader = new StreamReader(importStream);
-        
+
         var items = JsonConvert.DeserializeObject<IEnumerable<TEditable>>(await textReader.ReadToEndAsync());
 
         if (items == null)
         {
             return;
         }
-        
+
         foreach (var item in items)
         {
             if (await authorized(item))

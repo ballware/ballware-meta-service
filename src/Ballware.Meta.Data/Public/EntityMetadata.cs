@@ -6,7 +6,7 @@ public class EntityQueryEntry
 {
     [JsonProperty("identifier")]
     public string? Identifier { get; set; }
-    
+
     [JsonProperty("query")]
     public string? Query { get; set; }
 }
@@ -181,7 +181,7 @@ public class EntityMetadata : IEditable
     public string? RemovePreliminaryCheckScript { get; set; }
 
     public string? ListScript { get; set; }
-    
+
     public string? RemoveScript { get; set; }
 
     public string? ByIdScript { get; set; }
@@ -202,7 +202,7 @@ public class EntityMetadata : IEditable
     public string? StateAllowedScript { get; set; }
 
     public string? Indices { get; set; }
-    
+
     public IEnumerable<ProcessingState> States { get; set; } = Array.Empty<ProcessingState>();
     public IEnumerable<EntityRight> Rights { get; set; } = Array.Empty<EntityRight>();
     public IEnumerable<Pickvalue> Pickvalues { get; set; } = Array.Empty<Pickvalue>();

@@ -37,7 +37,7 @@ public class PickvalueController : ControllerBase
     public virtual async Task<IActionResult> SelectListForEntityAndField(string entity, string field)
     {
         var tenantId = PrincipalUtils.GetUserTenandId(User);
-        
+
         return Ok(await Repository.SelectListForEntityFieldAsync(tenantId, entity, field));
     }
 

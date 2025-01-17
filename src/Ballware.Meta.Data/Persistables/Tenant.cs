@@ -23,7 +23,7 @@ public class Tenant : IEntity, IAuditable
     public bool ManagedDatabase { get; set; }
 
     public string? Provider { get; set; }
-    
+
     public string? Server { get; set; }
 
     public string? Catalog { get; set; }

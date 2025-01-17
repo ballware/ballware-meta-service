@@ -9,7 +9,7 @@ public static class MapperConfigurationExtensions
         this IMapperConfigurationExpression configuration)
     {
         configuration.AddProfile<StorageMappingProfile>();
-        
+
         return configuration;
     }
 }

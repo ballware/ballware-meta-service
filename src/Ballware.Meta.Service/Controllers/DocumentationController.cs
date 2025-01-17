@@ -45,7 +45,7 @@ public class DocumentationController : ControllerBase
         {
             return NoContent();
         }
-        
+
         return Content(content);
     }
 

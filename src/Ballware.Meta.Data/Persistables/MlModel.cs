@@ -15,18 +15,18 @@ public class MlModel : IEntity, IAuditable, ITenantable
 
     [JsonIgnore]
     public virtual Guid TenantId { get; set; }
-    
+
     public virtual string? Identifier { get; set; }
-    
+
     public virtual MlModelTypes Type { get; set; }
-    
+
     [JsonIgnore]
     public virtual string? TrainSql { get; set; }
-    
+
     public virtual MlModelTrainingStates TrainState { get; set; }
-    
+
     public virtual string? TrainResult { get; set; }
-    
+
     public virtual string? Options { get; set; }
 
     [JsonIgnore]

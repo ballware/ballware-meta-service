@@ -52,7 +52,7 @@ public class EntityController : ControllerBase
         {
             return NotFound();
         }
-        
+
         return Ok(Mapper.Map<MetaEntityDto>(result));
     }
 

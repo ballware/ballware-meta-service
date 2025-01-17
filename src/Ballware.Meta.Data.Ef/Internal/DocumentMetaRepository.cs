@@ -8,11 +8,11 @@ namespace Ballware.Meta.Data.Ef.Internal;
 class DocumentMetaRepository : TenantableBaseRepository<Public.Document, Persistables.Document>, IDocumentMetaRepository
 {
     public DocumentMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
-    
+
     public virtual async Task<Public.Document?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id)
     {
         var result = await Context.Documents.SingleOrDefaultAsync(d => d.TenantId == tenantId && d.Uuid == id);
-        
+
         return result != null ? Mapper.Map<Public.Document>(result) : null;
     }
 

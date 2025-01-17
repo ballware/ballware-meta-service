@@ -12,20 +12,20 @@ public class MetaDbConnectionFactory : IMetaDbConnectionFactory
     {
         ConnectionString = connectionString;
     }
-    
+
     public IDbConnection OpenConnection()
     {
         var connection = new SqlConnection(ConnectionString);
-        
+
         connection.Open();
 
         return connection;
     }
-    
+
     public async Task<IDbConnection> OpenConnectionAsync()
     {
         var connection = new SqlConnection(ConnectionString);
-        
+
         await connection.OpenAsync();
 
         return connection;

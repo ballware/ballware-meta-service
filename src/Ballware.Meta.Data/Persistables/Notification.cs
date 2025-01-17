@@ -19,7 +19,7 @@ public class Notification : IEntity, IAuditable, ITenantable
     [Required]
     [MaxLength(128)]
     public virtual string? Identifier { get; set; }
-    
+
     public virtual string? Name { get; set; }
     public virtual Guid? DocumentId { get; set; }
     public virtual int State { get; set; }

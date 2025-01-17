@@ -117,8 +117,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             builder.AddSqlServerTenantDataStorage();
         });
-        
-        Services.AddBallwareAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim);
+
+        Services.AddBallwareAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareJintRightsChecker();
 
         if (swaggerOptions != null)
@@ -130,7 +130,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     Title = "ballware Meta API",
                     Version = "v1"
                 });
-                
+
                 c.SwaggerDoc("service", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
                     Title = "ballware Service API",

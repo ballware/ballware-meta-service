@@ -90,12 +90,12 @@ public class TenantController : ControllerBase
         var tenantConnectionString = TenantStorageProvider.GetConnectionString(tenantObject);
 
         var schemaDefinitions = new List<ReportDatasourceDefinition>();
-        
+
         schemaDefinitions.Add(await CreateMetaSchemaDefinitionAsync(tenantObject, metaConnectionString));
         schemaDefinitions.Add(await CreateLookupSchemaDefinitionAsync(tenantObject, tenantConnectionString));
         schemaDefinitions.Add(await CreateMetaLookupSchemaDefinitionAsync(tenantObject, metaConnectionString));
         schemaDefinitions.AddRange(await CreateTenantSchemaDefinitionsAsync(tenantObject, tenantConnectionString));
-        
+
         return Ok(schemaDefinitions);
     }
 
@@ -134,8 +134,8 @@ public class TenantController : ControllerBase
                 }
             }
         };
-    } 
-    
+    }
+
     private async Task<ReportDatasourceDefinition> CreateLookupSchemaDefinitionAsync(Data.Public.Tenant tenant, string tenantConnectionString)
     {
         return new ReportDatasourceDefinition
@@ -163,11 +163,11 @@ public class TenantController : ControllerBase
                 .Select(l => new ReportDatasourceTable
                 {
                     Name = l.Identifier,
-                    Query = !string.IsNullOrEmpty(l.ListQuery) 
-                        ? TenantStorageProvider.ApplyTenantPlaceholder(tenant, l.ListQuery, 
+                    Query = !string.IsNullOrEmpty(l.ListQuery)
+                        ? TenantStorageProvider.ApplyTenantPlaceholder(tenant, l.ListQuery,
                             TenantPlaceholderOptions.Create()
                                 .WithReplaceTenantId()
-                                .WithReplaceClaims()) 
+                                .WithReplaceClaims())
                         : l.ListQuery
                 })
         };
@@ -177,7 +177,7 @@ public class TenantController : ControllerBase
         string tenantConnectionString)
     {
         var result = new List<ReportDatasourceDefinition>();
-        
+
         var tenantSchemaDefinitions = tenant.ReportSchemaDefinition?.ToReportSchemaDefinition();
 
         foreach (var schemaDefinition in tenantSchemaDefinitions ?? new List<ReportDatasourceDefinition>())
@@ -208,7 +208,7 @@ public class TenantController : ControllerBase
 
             result.Add(schemaDefinition);
         }
-        
+
         return result;
     }
 }

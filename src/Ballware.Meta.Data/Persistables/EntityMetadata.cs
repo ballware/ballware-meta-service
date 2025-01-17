@@ -41,7 +41,7 @@ public class EntityMetadata : IEntity, IAuditable, ITenantable
     public string? RemovePreliminaryCheckScript { get; set; }
 
     public string? ListScript { get; set; }
-    
+
     public string? RemoveScript { get; set; }
 
     public string? ByIdScript { get; set; }

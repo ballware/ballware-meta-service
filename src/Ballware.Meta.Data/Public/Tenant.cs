@@ -41,7 +41,7 @@ public class Tenant : IEditable
     public bool ManagedDatabase { get; set; }
 
     public string? Provider { get; set; }
-    
+
     public string? Server { get; set; }
 
     public string? Catalog { get; set; }
