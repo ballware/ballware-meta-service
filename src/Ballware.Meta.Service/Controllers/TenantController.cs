@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data;
+using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Tenant.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -53,7 +54,7 @@ public class TenantController : ControllerBase
       OperationId = "MetadataForTenantById"
     )]
     [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Tenant metadata", typeof(Meta.Data.Tenant), new[] { MimeMapping.KnownMimeTypes.Json })]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Tenant metadata", typeof(Data.Public.Tenant), new[] { MimeMapping.KnownMimeTypes.Json })]
     public async Task<IActionResult> MetadataForTenant(Guid tenant)
     {
         var tenantId = PrincipalUtils.GetUserTenandId(User);
@@ -115,7 +116,7 @@ public class TenantController : ControllerBase
         return Ok(await TenantMetaRepository.AllowedTenantsAsync(claims));
     }
 
-    private async Task<ReportDatasourceDefinition> CreateMetaSchemaDefinitionAsync(Data.Tenant tenant,
+    private async Task<ReportDatasourceDefinition> CreateMetaSchemaDefinitionAsync(Data.Public.Tenant tenant,
         string metaConnectionString)
     {
         return new ReportDatasourceDefinition
@@ -125,23 +126,23 @@ public class TenantController : ControllerBase
             Tables = new[]
             {
                 new ReportDatasourceTable
-                    { Name = "Pickvalue", Query = await PickvalueMetaRepository.GenerateListQueryAsync(tenant.Uuid) },
+                    { Name = "Pickvalue", Query = await PickvalueMetaRepository.GenerateListQueryAsync(tenant.Id) },
                 new ReportDatasourceTable
                 {
                     Name = "ProcessingState",
-                    Query = await ProcessingStateMetaRepository.GenerateListQueryAsync(tenant.Uuid)
+                    Query = await ProcessingStateMetaRepository.GenerateListQueryAsync(tenant.Id)
                 }
             }
         };
     } 
     
-    private async Task<ReportDatasourceDefinition> CreateLookupSchemaDefinitionAsync(Data.Tenant tenant, string tenantConnectionString)
+    private async Task<ReportDatasourceDefinition> CreateLookupSchemaDefinitionAsync(Data.Public.Tenant tenant, string tenantConnectionString)
     {
         return new ReportDatasourceDefinition
         {
             Name = "Lookups",
             ConnectionString = tenantConnectionString,
-            Tables = (await LookupMetaRepository.AllForTenantAsync(tenant.Uuid))
+            Tables = (await LookupMetaRepository.AllForTenantAsync(tenant.Id))
                 .Where(l => !l.Meta && !l.HasParam)
                 .Select(l => new ReportDatasourceTable
                 {
@@ -151,13 +152,13 @@ public class TenantController : ControllerBase
         };
     }
 
-    private async Task<ReportDatasourceDefinition> CreateMetaLookupSchemaDefinitionAsync(Data.Tenant tenant, string metaConnectionString)
+    private async Task<ReportDatasourceDefinition> CreateMetaLookupSchemaDefinitionAsync(Data.Public.Tenant tenant, string metaConnectionString)
     {
         return new ReportDatasourceDefinition
         {
             Name = "MetaLookups",
             ConnectionString = metaConnectionString,
-            Tables = (await LookupMetaRepository.AllForTenantAsync(tenant.Uuid))
+            Tables = (await LookupMetaRepository.AllForTenantAsync(tenant.Id))
                 .Where(l => l.Meta && !l.HasParam)
                 .Select(l => new ReportDatasourceTable
                 {
@@ -172,7 +173,7 @@ public class TenantController : ControllerBase
         };
     }
 
-    private async Task<IEnumerable<ReportDatasourceDefinition>> CreateTenantSchemaDefinitionsAsync(Data.Tenant tenant,
+    private async Task<IEnumerable<ReportDatasourceDefinition>> CreateTenantSchemaDefinitionsAsync(Data.Public.Tenant tenant,
         string tenantConnectionString)
     {
         var result = new List<ReportDatasourceDefinition>();
@@ -187,7 +188,7 @@ public class TenantController : ControllerBase
             {
                 if (!string.IsNullOrEmpty(table.Entity))
                 {
-                    var entityMeta = await EntityMetaRepository.ByEntityAsync(tenant.Uuid, table.Entity);
+                    var entityMeta = await EntityMetaRepository.ByEntityAsync(tenant.Id, table.Entity);
 
                     if (entityMeta != null)
                     {

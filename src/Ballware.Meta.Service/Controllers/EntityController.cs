@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Net;
+using AutoMapper;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Ballware.Meta.Service.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +18,13 @@ namespace Ballware.Meta.Service.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class EntityController : ControllerBase
 {
+    private IMapper Mapper { get; }
     private IPrincipalUtils PrincipalUtils { get; }
     private IEntityMetaRepository Repository { get; }
 
-    public EntityController(IPrincipalUtils principalUtils, IEntityMetaRepository repository)
+    public EntityController(IMapper mapper, IPrincipalUtils principalUtils, IEntityMetaRepository repository)
     {
+        Mapper = mapper;
         PrincipalUtils = principalUtils;
         Repository = repository;
     }
@@ -35,7 +39,7 @@ public class EntityController : ControllerBase
     )]
     [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
     [SwaggerResponse((int)HttpStatusCode.NotFound)]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Entity metadata for client operations", typeof(EntityMetadata), new[] { MimeMapping.KnownMimeTypes.Json })]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Entity metadata for client operations", typeof(MetaEntityDto), new[] { MimeMapping.KnownMimeTypes.Json })]
     public async Task<IActionResult> MetadataForEntity(
       [SwaggerParameter("Entity metadata identifier")] string entity
     )
@@ -49,7 +53,7 @@ public class EntityController : ControllerBase
             return NotFound();
         }
         
-        return Ok(result);
+        return Ok(Mapper.Map<MetaEntityDto>(result));
     }
 
     [HttpGet]

@@ -1,30 +1,31 @@
+using AutoMapper;
+using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class MlModelMetaRepository : IMlModelMetaRepository
+class MlModelMetaRepository : TenantableBaseRepository<Public.MlModel, Persistables.MlModel>, IMlModelMetaRepository
 {
-    private MetaDbContext DbContext { get; }
-
-    public MlModelMetaRepository(MetaDbContext dbContext)
-    {
-        DbContext = dbContext;
-    }
+    public MlModelMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
     
-    public virtual async Task<MlModel?> MetadataByTenantAndIdAsync(Tenant tenant, Guid id)
+    public virtual async Task<Public.MlModel?> MetadataByTenantAndIdAsync(Public.Tenant tenant, Guid id)
     {
-        return await DbContext.MlModels.SingleOrDefaultAsync(d => d.TenantId == tenant.Uuid && d.Uuid == id);
-    }
-    
-    public virtual async Task<MlModel?> MetadataByTenantAndIdentifierAsync(Tenant tenant, string identifier) {
+        var result = await Context.MlModels.SingleOrDefaultAsync(d => d.TenantId == tenant.Id && d.Uuid == id);
         
-        return await DbContext.MlModels.SingleOrDefaultAsync(d => d.TenantId == tenant.Uuid && d.Identifier == identifier);
+        return result != null ? Mapper.Map<Public.MlModel>(result) : null;
+    }
+    
+    public virtual async Task<Public.MlModel?> MetadataByTenantAndIdentifierAsync(Public.Tenant tenant, string identifier) {
+        
+        var result = await Context.MlModels.SingleOrDefaultAsync(d => d.TenantId == tenant.Id && d.Identifier == identifier);
+        
+        return result != null ? Mapper.Map<Public.MlModel>(result) : null;
     }
 
-    public virtual async Task SaveTrainingStateAsync(Tenant tenant, Guid userId, MlModelTrainingState state)
+    public virtual async Task SaveTrainingStateAsync(Public.Tenant tenant, Guid userId, MlModelTrainingState state)
     {
-        var model = await DbContext.MlModels.SingleOrDefaultAsync(j => j.TenantId == tenant.Uuid && j.Uuid == state.Id);
+        var model = await Context.MlModels.SingleOrDefaultAsync(j => j.TenantId == tenant.Id && j.Uuid == state.Id);
 
         if (model == null)
         {
@@ -36,7 +37,8 @@ class MlModelMetaRepository : IMlModelMetaRepository
         model.LastChangerId = userId;
         model.LastChangeStamp = DateTime.Now;
         
-        DbContext.Update(model);
-        await DbContext.SaveChangesAsync();
+        Context.Update(model);
+        
+        await Context.SaveChangesAsync();
     }
 }

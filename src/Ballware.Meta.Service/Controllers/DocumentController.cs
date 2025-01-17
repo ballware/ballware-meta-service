@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Net;
 using Ballware.Meta.Authorization;
-using Ballware.Meta.Data;
+using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -109,7 +110,7 @@ public class DocumentController : ControllerBase
     [SwaggerResponse((int)HttpStatusCode.OK, "Save Document")]
     public async Task<IActionResult> SaveDocumentBehalfOfuser(Guid tenant, Guid user, [FromBody] Document document)
     {
-        await MetaRepository.SaveAsync(tenant, document, user);
+        await MetaRepository.SaveAsync(tenant, user, "primary", ImmutableDictionary<string, object>.Empty, document);
 
         return Ok();
     }
@@ -127,7 +128,7 @@ public class DocumentController : ControllerBase
     [SwaggerResponse((int)HttpStatusCode.OK, "Document template", typeof(Document), new[] { MimeMapping.KnownMimeTypes.Json })]
     public async Task<IActionResult> DocumentTemplateByTenant(Guid tenant, Guid user)
     {
-        var document = await MetaRepository.NewAsync(tenant, user);
+        var document = await MetaRepository.NewAsync(tenant, "primary", ImmutableDictionary<string, object>.Empty);
 
         return Ok(document);
     }

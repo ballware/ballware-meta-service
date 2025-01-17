@@ -2,7 +2,7 @@ using Ballware.Meta.Data.SelectLists;
 
 namespace Ballware.Meta.Data.Repository;
 
-public interface IProcessingStateMetaRepository
+public interface IProcessingStateMetaRepository : ITenantableRepository<Public.ProcessingState>
 {
     Task<IEnumerable<ProcessingStateSelectListEntry>> SelectListForEntityAsync(Guid tenantId, string entity);
     Task<ProcessingStateSelectListEntry?> SelectByStateAsync(Guid tenantId, string entity, int state);

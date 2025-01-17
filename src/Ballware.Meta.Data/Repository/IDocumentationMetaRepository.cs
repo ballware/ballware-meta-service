@@ -1,6 +1,6 @@
 namespace Ballware.Meta.Data.Repository;
 
-public interface IDocumentationMetaRepository
+public interface IDocumentationMetaRepository : ITenantableRepository<Public.Documentation>
 {
-    Task<Documentation?> ByEntityAndFieldAsync(Guid tenantId, string entity, string field);
+    Task<Public.Documentation?> ByEntityAndFieldAsync(Guid tenantId, string entity, string field);
 }

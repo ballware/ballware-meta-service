@@ -1,6 +1,6 @@
 namespace Ballware.Meta.Data.Repository;
 
-public interface IStatisticMetaRepository
+public interface IStatisticMetaRepository : ITenantableRepository<Public.Statistic>
 {
-    Task<Statistic?> MetadataByIdentifierAsync(Guid tenantId, string identifier);
+    Task<Public.Statistic?> MetadataByIdentifierAsync(Guid tenantId, string identifier);
 }

@@ -1,27 +1,25 @@
+using AutoMapper;
+using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class JobMetaRepository : IJobMetaRepository
+class JobMetaRepository : TenantableBaseRepository<Public.Job, Persistables.Job>, IJobMetaRepository
 {
-    private MetaDbContext DbContext { get; }
-
-    public JobMetaRepository(MetaDbContext dbContext)
+    public JobMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    
+    public virtual async Task<IEnumerable<Public.Job>> PendingJobsForUser(Public.Tenant tenant, Guid userId)
     {
-        DbContext = dbContext;
+        return await Task.FromResult(Context.Jobs.Where(j => j.TenantId == tenant.Id && j.Owner == userId && j.State != JobStates.Finished)
+            .Select(j => Mapper.Map<Public.Job>(j)));
     }
     
-    public virtual async Task<IEnumerable<Job>> PendingJobsForUser(Tenant tenant, Guid userId)
-    {
-        return await Task.FromResult(DbContext.Jobs.Where(j => j.TenantId == tenant.Uuid && j.Owner == userId && j.State != JobStates.Finished));
-    }
-    
-    public virtual async Task<Job> CreateJobAsync(Tenant tenant, Guid userId, string scheduler, string identifier, string options)
-    {
-        var job = DbContext.Jobs.Add(new Job()
+    public virtual async Task<Public.Job> CreateJobAsync(Public.Tenant tenant, Guid userId, string scheduler, string identifier, string options)
+    {   
+        var job = Context.Jobs.Add(new Persistables.Job()
         {
-            TenantId = tenant.Uuid,
+            TenantId = tenant.Id,
             Uuid = Guid.NewGuid(),
             CreatorId = userId,
             CreateStamp = DateTime.Now,
@@ -31,15 +29,15 @@ class JobMetaRepository : IJobMetaRepository
             Owner = userId
         });
         
-        await DbContext.SaveChangesAsync();
+        await Context.SaveChangesAsync();
 
-        return job.Entity;
+        return Mapper.Map<Public.Job>(job.Entity);
     }
 
-    public virtual async Task<Job> UpdateJobAsync(Tenant tenant, Guid userId,
+    public virtual async Task<Public.Job> UpdateJobAsync(Public.Tenant tenant, Guid userId,
         Guid id, JobStates state, string result)
     {
-        var job = await DbContext.Jobs.SingleOrDefaultAsync(j => j.TenantId == tenant.Uuid && j.Uuid == id);
+        var job = await Context.Jobs.SingleOrDefaultAsync(j => j.TenantId == tenant.Id && j.Uuid == id);
 
         if (job == null)
         {
@@ -49,10 +47,10 @@ class JobMetaRepository : IJobMetaRepository
         job.State = state;
         job.Result = result;
         
-        var jobEntry = DbContext.Update(job);
+        var jobEntry = Context.Update(job);
         
-        await DbContext.SaveChangesAsync();
+        await Context.SaveChangesAsync();
         
-        return jobEntry.Entity;
+        return Mapper.Map<Public.Job>(jobEntry.Entity);
     }
 }

@@ -3,6 +3,7 @@ using Ballware.Meta.Authorization.Jint;
 using Ballware.Meta.Data.Ef;
 using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Service.Configuration;
+using Ballware.Meta.Service.Mappings;
 using Ballware.Meta.Tenant.Data;
 using Ballware.Meta.Tenant.Data.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,7 +24,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
     public void InitializeServices()
     {
         CorsOptions? corsOptions = Configuration.GetSection("Cors").Get<CorsOptions>();
-        AuthorizationOptions? authorizationOptions = Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
+        AuthorizationOptions? authorizationOptions =
+            Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         var metaConnectionString = Configuration.GetConnectionString("MetaConnection");
@@ -75,7 +77,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     .Where(c => "scope" == c.Type)
                     .SelectMany(c => c.Value.Split(' '))
                     .Any(s => s.Equals(authorizationOptions.RequiredServiceScope, StringComparison.Ordinal))));
-        
+
         if (corsOptions != null)
         {
             Services.AddCors(options =>
@@ -99,6 +101,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddControllers()
             .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
             .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver());
+
+        Services.AddAutoMapper(config =>
+        {
+            config.AddBallwareStorageMappings();
+            config.AddProfile<MetaApiProfile>();
+            config.AddProfile<ServiceApiProfile>();
+        });
 
         Services.AddBallwareMetaStorage(
             storageOptions,

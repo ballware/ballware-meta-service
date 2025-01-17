@@ -1,19 +1,17 @@
+using AutoMapper;
 using Ballware.Meta.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class PageMetaRepository : IPageMetaRepository
+class PageMetaRepository : TenantableBaseRepository<Public.Page, Persistables.Page>, IPageMetaRepository
 {
-    private MetaDbContext DbContext { get; }
+    public PageMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) {}
     
-    public PageMetaRepository(MetaDbContext dbContext)
+    public virtual async Task<Public.Page?> ByIdentifierAsync(Guid tenantId, string identifier)
     {
-        DbContext = dbContext;
-    }
-    
-    public virtual async Task<Page?> ByIdentifierAsync(Guid tenantId, string identifier)
-    {
-        return await DbContext.Pages.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Identifier == identifier);
+        var result = await Context.Pages.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Identifier == identifier);
+        
+        return result != null ? Mapper.Map<Public.Page>(result) : null;
     }
 }

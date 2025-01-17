@@ -1,9 +1,6 @@
-using System.Data;
-using System.Data.Common;
+using AutoMapper;
 using Ballware.Meta.Caching;
-using Ballware.Meta.Data.Repository;
-using Ballware.Meta.Data.SelectLists;
-using Microsoft.EntityFrameworkCore;
+using Ballware.Meta.Data.Public;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
@@ -11,8 +8,8 @@ class CachableEntityMetaRepository : EntityMetaRepository
 {
     private ITenantAwareEntityCache Cache { get; }
     
-    public CachableEntityMetaRepository(MetaDbContext dbContext, ITenantAwareEntityCache cache) 
-        : base(dbContext)
+    public CachableEntityMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantAwareEntityCache cache) 
+        : base(mapper, dbContext)
     {
         Cache = cache;
     }
@@ -25,7 +22,7 @@ class CachableEntityMetaRepository : EntityMetaRepository
 
             if (result != null && result.Entity != null)
             {
-                Cache.SetItem(tenantId, "entity", result.Uuid.ToString(), result);
+                Cache.SetItem(tenantId, "entity", result.Id.ToString(), result);
                 Cache.SetItem(tenantId, "entity", result.Entity, result);    
             }
         }

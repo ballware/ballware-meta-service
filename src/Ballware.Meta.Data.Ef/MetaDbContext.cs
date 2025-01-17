@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Ballware.Meta.Data.Persistables;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef;
 

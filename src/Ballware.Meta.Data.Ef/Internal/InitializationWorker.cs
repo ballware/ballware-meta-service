@@ -31,6 +31,13 @@ class InitializationWorker : IHostedService
 
             await context.Database.MigrateAsync(cancellationToken);    
         }
+
+        if (options.AutoSeedAdminTenant)
+        {
+            var seeder = scope.ServiceProvider.GetRequiredService<IMetadataSeeder>();
+
+            await seeder.SeedAdminTenantAsync();
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

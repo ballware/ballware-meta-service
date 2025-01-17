@@ -1,30 +1,32 @@
+using AutoMapper;
 using Ballware.Meta.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class LookupMetaRepository : ILookupMetaRepository
+class LookupMetaRepository : TenantableBaseRepository<Public.Lookup, Persistables.Lookup>, ILookupMetaRepository
 {
-    private MetaDbContext DbContext { get; }
+    public LookupMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
     
-    public LookupMetaRepository(MetaDbContext dbContext)
+    public virtual async Task<IEnumerable<Public.Lookup>> AllForTenantAsync(Guid tenantId)
     {
-        DbContext = dbContext;
+        return await Task.FromResult(Context.Lookups.Where(d => d.TenantId == tenantId)
+            .OrderBy(c => c.Name)
+            .Select(l => Mapper.Map<Public.Lookup>(l)));
     }
     
-    public virtual async Task<IEnumerable<Lookup>> AllForTenantAsync(Guid tenantId)
+    public virtual async Task<Public.Lookup?> ByIdAsync(Guid tenantId, Guid id)
     {
-        return await Task.FromResult(DbContext.Lookups.Where(d => d.TenantId == tenantId).OrderBy(c => c.Name));
-    }
-    
-    public virtual async Task<Lookup?> ByIdAsync(Guid tenantId, Guid id)
-    {
-        return await DbContext.Lookups.SingleOrDefaultAsync(e =>
+        var result = await Context.Lookups.SingleOrDefaultAsync(e =>
             e.TenantId == tenantId && e.Uuid == id);
+        
+        return result != null ? Mapper.Map<Public.Lookup>(result) : null;
     }
     
-    public virtual async Task<Lookup?> ByIdentifierAsync(Guid tenantId, string identifier)
+    public virtual async Task<Public.Lookup?> ByIdentifierAsync(Guid tenantId, string identifier)
     {
-        return await DbContext.Lookups.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Identifier == identifier);
+        var result= await Context.Lookups.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Identifier == identifier);
+        
+        return result != null ? Mapper.Map<Public.Lookup>(result) : null;
     }
 }

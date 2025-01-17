@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using Ballware.Meta.Data;
+using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

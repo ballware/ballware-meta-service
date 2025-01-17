@@ -1,19 +1,17 @@
+using AutoMapper;
 using Ballware.Meta.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class StatisticMetaRepository : IStatisticMetaRepository
+class StatisticMetaRepository : TenantableBaseRepository<Public.Statistic, Persistables.Statistic>, IStatisticMetaRepository
 {
-    private MetaDbContext DbContext { get; }
+    public StatisticMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) {}
     
-    public StatisticMetaRepository(MetaDbContext dbContext)
+    public virtual async Task<Public.Statistic?> MetadataByIdentifierAsync(Guid tenantId, string identifier)
     {
-        DbContext = dbContext;
-    }
-    
-    public virtual async Task<Statistic?> MetadataByIdentifierAsync(Guid tenantId, string identifier)
-    {
-        return await DbContext.Statistics.SingleOrDefaultAsync(d => d.TenantId == tenantId && d.Identifier == identifier);
+        var result = await Context.Statistics.SingleOrDefaultAsync(d => d.TenantId == tenantId && d.Identifier == identifier);
+        
+        return result != null ? Mapper.Map<Public.Statistic>(result) : null;
     }
 }

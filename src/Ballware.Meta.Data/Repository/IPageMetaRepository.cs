@@ -1,6 +1,6 @@
 namespace Ballware.Meta.Data.Repository;
 
-public interface IPageMetaRepository
+public interface IPageMetaRepository : ITenantableRepository<Public.Page>
 {
-    Task<Page?> ByIdentifierAsync(Guid tenantId, string identifier);
+    Task<Public.Page?> ByIdentifierAsync(Guid tenantId, string identifier);
 }

@@ -1,10 +1,10 @@
 namespace Ballware.Meta.Data.Repository;
 
-public interface ISubscriptionMetaRepository
+public interface ISubscriptionMetaRepository : ITenantableRepository<Public.Subscription>
 {
-    Task<Subscription?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id);
+    Task<Public.Subscription?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id);
 
-    Task<IEnumerable<Subscription>> GetActiveSubscriptionsByFrequencyAsync(int frequency);
+    Task<IEnumerable<Public.Subscription>> GetActiveSubscriptionsByFrequencyAsync(int frequency);
 
     Task SetLastErrorAsync(Guid tenantId, Guid id, string message);
 }

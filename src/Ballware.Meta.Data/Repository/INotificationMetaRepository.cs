@@ -1,7 +1,7 @@
 namespace Ballware.Meta.Data.Repository;
 
-public interface INotificationMetaRepository
+public interface INotificationMetaRepository : ITenantableRepository<Public.Notification>
 {
-    Task<Notification?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id);
-    Task<Notification?> MetadataByTenantAndIdentifierAsync(Guid tenantId, string identifier);
+    Task<Public.Notification?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id);
+    Task<Public.Notification?> MetadataByTenantAndIdentifierAsync(Guid tenantId, string identifier);
 }

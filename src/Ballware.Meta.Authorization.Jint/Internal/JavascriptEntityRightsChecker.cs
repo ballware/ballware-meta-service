@@ -1,4 +1,4 @@
-using Ballware.Meta.Data;
+using Ballware.Meta.Data.Public;
 using Jint;
 using Newtonsoft.Json;
 

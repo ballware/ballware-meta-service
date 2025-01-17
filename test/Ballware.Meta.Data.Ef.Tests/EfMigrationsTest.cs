@@ -1,7 +1,7 @@
 using Ballware.Meta.Data.Ef.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Ballware.Meta.Data.Ef.Tests;
 
@@ -9,13 +9,14 @@ namespace Ballware.Meta.Data.Ef.Tests;
 public class EfMigrationsTest
 {
     [Test]
-    public async Task Initialization_with_migrations_succeeds()
+    public async Task Initialization_with_migrations_up_succeeds()
     {
         var builder = WebApplication.CreateBuilder();
 
         builder.Configuration.Sources.Clear();
         builder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings_with_migrations.json"), optional: false);
         builder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings_with_migrations.{builder.Environment.EnvironmentName}.json"), true, true);
+        builder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings_with_migrations.local.json"), true, true);
         builder.Configuration.AddEnvironmentVariables();
         
         var storageOptions = builder.Configuration.GetSection("Storage").Get<StorageOptions>();
@@ -28,6 +29,10 @@ public class EfMigrationsTest
         });
         
         builder.Services.AddBallwareMetaStorage(storageOptions, connectionString);
+        builder.Services.AddAutoMapper(config =>
+        {
+            config.AddBallwareStorageMappings();
+        });
 
         var app = builder.Build();
 

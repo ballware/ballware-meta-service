@@ -33,9 +33,23 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="appsettings_with_migrations.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <SeedSourceFiles Include="../../seed/**/*.*"/>
+        <SeedSourceFiles Update="..\..\seed\customer-tenant.json">
+          <Link>seed\customer-tenant.json</Link>
+        </SeedSourceFiles>
+    </ItemGroup>
+    
+    <Target Name="CopySeed" AfterTargets="AfterBuild">
+        <Copy SourceFiles="@(SeedSourceFiles)" DestinationFolder="$(OutDir)seed" SkipUnchangedFiles="true" />
+    </Target>
+
+    <ItemGroup>
+        <None Update="appsettings_with_migrations.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="appsettings_with_migrations.local.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

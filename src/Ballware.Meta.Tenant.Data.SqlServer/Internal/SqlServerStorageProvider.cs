@@ -5,7 +5,7 @@ namespace Ballware.Meta.Tenant.Data.SqlServer.Internal;
 
 class SqlServerStorageProvider : ITenantStorageProvider
 {   
-    public string GetConnectionString(Meta.Data.Tenant tenant)
+    public string GetConnectionString(Meta.Data.Public.Tenant tenant)
     {
         var connectionStringBuilder = new SqlConnectionStringBuilder()
         {
@@ -21,7 +21,7 @@ class SqlServerStorageProvider : ITenantStorageProvider
         return connectionStringBuilder.ConnectionString;
     }
 
-    public IDbConnection OpenConnection(Meta.Data.Tenant tenant)
+    public IDbConnection OpenConnection(Meta.Data.Public.Tenant tenant)
     {
         var connection = new SqlConnection(GetConnectionString(tenant));
         
@@ -30,7 +30,7 @@ class SqlServerStorageProvider : ITenantStorageProvider
         return connection;
     }
 
-    public async Task<IDbConnection> OpenConnectionAsync(Meta.Data.Tenant tenant)
+    public async Task<IDbConnection> OpenConnectionAsync(Meta.Data.Public.Tenant tenant)
     {
         var connection = new SqlConnection(GetConnectionString(tenant));
         
@@ -39,7 +39,7 @@ class SqlServerStorageProvider : ITenantStorageProvider
         return connection;
     }
 
-    public string ApplyTenantPlaceholder(Meta.Data.Tenant tenant, string source, TenantPlaceholderOptions options)
+    public string ApplyTenantPlaceholder(Meta.Data.Public.Tenant tenant, string source, TenantPlaceholderOptions options)
     {
         if (!string.IsNullOrEmpty(source))
         {
@@ -48,7 +48,7 @@ class SqlServerStorageProvider : ITenantStorageProvider
 
         if (!string.IsNullOrEmpty(source) && options.ReplaceTenantId)
         {
-            source = source.Replace("@tenantId", $"'{tenant.Uuid}'");
+            source = source.Replace("@tenantId", $"'{tenant.Id}'");
         }
 
         if (!string.IsNullOrEmpty(source) && options.ReplaceClaims)
@@ -59,7 +59,7 @@ class SqlServerStorageProvider : ITenantStorageProvider
         return source;
     }
 
-    public Task<string> ApplyTenantPlaceholderAsync(Meta.Data.Tenant tenant, string source, TenantPlaceholderOptions options)
+    public Task<string> ApplyTenantPlaceholderAsync(Meta.Data.Public.Tenant tenant, string source, TenantPlaceholderOptions options)
     {
         return Task.FromResult(ApplyTenantPlaceholder(tenant, source, options));
     }

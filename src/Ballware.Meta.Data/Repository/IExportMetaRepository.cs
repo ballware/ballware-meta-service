@@ -1,10 +1,6 @@
 namespace Ballware.Meta.Data.Repository;
 
-public interface IExportMetaRepository
+public interface IExportMetaRepository : ITenantableRepository<Public.Export>
 {
-    Task<Export?> ByIdAsync(Guid id);
-
-    Task SaveAsync(Guid tenantId, Export export, Guid? userId);
-    
-    Task<Export> NewAsync(Guid tenantId, Guid? userId);
+    Task<Public.Export?> ByIdAsync(Guid id);
 }

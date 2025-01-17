@@ -1,10 +1,10 @@
 namespace Ballware.Meta.Data.Repository;
 
-public interface ILookupMetaRepository
+public interface ILookupMetaRepository : ITenantableRepository<Public.Lookup>
 {
-    Task<IEnumerable<Lookup>> AllForTenantAsync(Guid tenantId);
+    Task<IEnumerable<Public.Lookup>> AllForTenantAsync(Guid tenantId);
 
-    Task<Lookup?> ByIdAsync(Guid tenantId, Guid id);
+    Task<Public.Lookup?> ByIdAsync(Guid tenantId, Guid id);
 
-    Task<Lookup?> ByIdentifierAsync(Guid tenantId, string identifier);
+    Task<Public.Lookup?> ByIdentifierAsync(Guid tenantId, string identifier);
 }

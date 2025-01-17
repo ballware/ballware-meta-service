@@ -1,96 +1,103 @@
 using System.Data;
 using System.Data.Common;
+using AutoMapper;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class EntityMetaRepository : IEntityMetaRepository
+class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Persistables.EntityMetadata>, IEntityMetaRepository
 {
-    private MetaDbContext DbContext { get; }
+    public EntityMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    
+    public virtual async Task<Public.EntityMetadata?> ByIdAsync(Guid tenantId, Guid id)
+    {
+        var result = await Context.Entities.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Uuid == id);
         
-    public EntityMetaRepository(MetaDbContext dbContext)
-    {
-        DbContext = dbContext;
+        return result != null ? Mapper.Map<Public.EntityMetadata>(result) : null;
     }
     
-    public virtual async Task<EntityMetadata?> ByIdAsync(Guid tenantId, Guid id)
+    public virtual async Task<Public.EntityMetadata?> ByEntityAsync(Guid tenantId, string entity)
     {
-        return await DbContext.Entities.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Uuid == id);
-    }
-    
-    public virtual async Task<EntityMetadata?> ByEntityAsync(Guid tenantId, string entity)
-    {
-        return await DbContext.Entities.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Entity == entity);
+        var result = await Context.Entities.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Entity == entity);
+        
+        return result != null ? Mapper.Map<Public.EntityMetadata>(result) : null;
     }
 
-    public EntityMetadata? ByEntity(IDbConnection connection, Guid tenantId, string entity)
+    public Public.EntityMetadata? ByEntity(IDbConnection connection, Guid tenantId, string entity)
     {
-        DbContext.Database.SetDbConnection(connection as DbConnection);
+        Context.Database.SetDbConnection(connection as DbConnection);
 
-        return DbContext.Entities.SingleOrDefault(e => e.TenantId == tenantId && e.Entity == entity);
+        var result = Context.Entities.SingleOrDefault(e => e.TenantId == tenantId && e.Entity == entity);
+        
+        return result != null ? Mapper.Map<Public.EntityMetadata>(result) : null;
     }
     
-    public EntityMetadata? ById(Guid tenantId, Guid id)
+    public Public.EntityMetadata? ById(Guid tenantId, Guid id)
     {
-        return DbContext.Entities.SingleOrDefault(e => e.TenantId == tenantId && e.Uuid == id);
+        var result = Context.Entities.SingleOrDefault(e => e.TenantId == tenantId && e.Uuid == id);
+        
+        return result != null ? Mapper.Map<Public.EntityMetadata>(result) : null;
     }
     
-    public EntityMetadata? ById(IDbConnection connection, Guid tenantId, Guid id)
+    public Public.EntityMetadata? ById(IDbConnection connection, Guid tenantId, Guid id)
     {
-        DbContext.Database.SetDbConnection(connection as DbConnection);
+        Context.Database.SetDbConnection(connection as DbConnection);
 
-        return DbContext.Entities.SingleOrDefault(e => e.TenantId == tenantId && e.Uuid == id);
+        var result = Context.Entities.SingleOrDefault(e => e.TenantId == tenantId && e.Uuid == id);
+        
+        return result != null ? Mapper.Map<Public.EntityMetadata>(result) : null;
     }
     
     public virtual async Task<IEnumerable<EntityRightSelectListEntry>> SelectListEntityRightsAsync(Guid tenantId)
     {
-        return await Task.FromResult(DbContext.EntityRights.Where(r => r.TenantId == tenantId)
+        return await Task.FromResult(Context.EntityRights.Where(r => r.TenantId == tenantId)
             .OrderBy(r => new { r.Container, r.Identifier })
             .Select(r => new EntityRightSelectListEntry
                 { Id = r.Identifier, Name = r.DisplayName, Container = r.Container }));
     }
 
-    public virtual async Task<IEnumerable<CharacteristicAssociation>> CharacteristicAssociationsAsync(Guid tenantId, Guid id)
+    public virtual async Task<IEnumerable<Public.CharacteristicAssociation>> CharacteristicAssociationsAsync(Guid tenantId, Guid id)
     {
         var entityMetadata = await ByIdAsync(tenantId, id);
 
         if (entityMetadata != null)
         {
-            return await Task.FromResult(DbContext.CharacteristicAssociations.Where(c =>
-                c.TenantId == tenantId && c.Entity == entityMetadata.Entity));    
+            return await Task.FromResult(Context.CharacteristicAssociations.Where(c =>
+                c.TenantId == tenantId && c.Entity == entityMetadata.Entity).Select(c => Mapper.Map<Public.CharacteristicAssociation>(c)));    
         }
         
-        return Array.Empty<CharacteristicAssociation>();
+        return Array.Empty<Public.CharacteristicAssociation>();
     }
     
-    public virtual async Task<IEnumerable<CharacteristicAssociation>> CharacteristicAssociationsAsync(IDbConnection connection, Guid tenantId, Guid id)
+    public virtual async Task<IEnumerable<Public.CharacteristicAssociation>> CharacteristicAssociationsAsync(IDbConnection connection, Guid tenantId, Guid id)
     {
-        DbContext.Database.SetDbConnection(connection as DbConnection);
+        Context.Database.SetDbConnection(connection as DbConnection);
         
         var entityMetadata = await ByIdAsync(tenantId, id);
 
         if (entityMetadata != null)
         {
-            return await Task.FromResult(DbContext.CharacteristicAssociations.Where(c =>
-                c.TenantId == tenantId && c.Entity == entityMetadata.Entity));    
+            return await Task.FromResult(Context.CharacteristicAssociations.Where(c =>
+                c.TenantId == tenantId && c.Entity == entityMetadata.Entity).Select(c => Mapper.Map<Public.CharacteristicAssociation>(c)));    
         }
      
-        return Array.Empty<CharacteristicAssociation>();
+        return Array.Empty<Public.CharacteristicAssociation>();
     }
 
-    public virtual IEnumerable<CharacteristicAssociation> CharacteristicAssociations(IDbConnection connection,
+    public virtual IEnumerable<Public.CharacteristicAssociation> CharacteristicAssociations(IDbConnection connection,
         Guid tenantId, Guid id)
     {
         var entityMetadata = ById(tenantId, id);
 
         if (entityMetadata != null)
         {
-            return DbContext.CharacteristicAssociations.Where(c =>
-                c.TenantId == tenantId && c.Entity == entityMetadata.Entity);    
+            return Context.CharacteristicAssociations.Where(c =>
+                c.TenantId == tenantId && c.Entity == entityMetadata.Entity)
+                .Select(c => Mapper.Map<Public.CharacteristicAssociation>(c));    
         }
             
-        return Array.Empty<CharacteristicAssociation>();
+        return Array.Empty<Public.CharacteristicAssociation>();
     }
 }
