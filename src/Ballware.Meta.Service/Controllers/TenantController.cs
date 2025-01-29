@@ -1,8 +1,10 @@
 ﻿using System.Net;
+using AutoMapper;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Meta.Service.Dtos;
 using Ballware.Meta.Tenant.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +18,7 @@ namespace Ballware.Meta.Service.Controllers;
 [Authorize("metaApi", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class TenantController : ControllerBase
 {
+    private IMapper Mapper { get; }
     private IPrincipalUtils PrincipalUtils { get; }
     private IMetaDbConnectionFactory MetaConnectionFactory { get; }
     private ITenantStorageProvider TenantStorageProvider { get; }
@@ -26,6 +29,7 @@ public class TenantController : ControllerBase
     private IEntityMetaRepository EntityMetaRepository { get; }
 
     public TenantController(
+        IMapper mapper,
         IPrincipalUtils principalUtils,
         IMetaDbConnectionFactory metaConnectionFactory,
         ITenantStorageProvider tenantStorageProvider,
@@ -35,6 +39,7 @@ public class TenantController : ControllerBase
         IProcessingStateMetaRepository processingStateMetaRepository,
         IEntityMetaRepository entityRepository)
     {
+        Mapper = mapper;
         PrincipalUtils = principalUtils;
         MetaConnectionFactory = metaConnectionFactory;
         TenantStorageProvider = tenantStorageProvider;
@@ -54,17 +59,47 @@ public class TenantController : ControllerBase
       OperationId = "MetadataForTenantById"
     )]
     [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
-    [SwaggerResponse((int)HttpStatusCode.OK, "Tenant metadata", typeof(Data.Public.Tenant), new[] { MimeMapping.KnownMimeTypes.Json })]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Tenant metadata", typeof(MetaTenantDto), new[] { MimeMapping.KnownMimeTypes.Json })]
     public async Task<IActionResult> MetadataForTenant(Guid tenant)
     {
         var tenantId = PrincipalUtils.GetUserTenandId(User);
 
         if (tenantId != tenant)
             return Forbid();
+        
+        var result = await TenantMetaRepository.ByIdAsync(tenant);
 
-        return Ok(await TenantMetaRepository.ByIdAsync(tenant));
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(Mapper.Map<MetaTenantDto>(result));
     }
 
+    [HttpGet]
+    [Route("servicemetadatafortenant/{tenant}")]
+    [ApiExplorerSettings(GroupName = "service")]
+    [Authorize("serviceApi")]
+    [SwaggerOperation(
+        Summary = "Query metadata for tenant by id",
+        Description = "",
+        OperationId = "ServiceMetadataForTenantById"
+    )]
+    [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Tenant metadata for services", typeof(ServiceTenantDto), new[] { MimeMapping.KnownMimeTypes.Json })]
+    public async Task<IActionResult> ServiceMetadataForTenant(Guid tenant)
+    {   
+        var result = await TenantMetaRepository.ByIdAsync(tenant);
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(Mapper.Map<ServiceTenantDto>(result));
+    }
+    
     [HttpGet]
     [Route("reportdatasourcesfortenant/{tenant}")]
     [Authorize("documentApi")]

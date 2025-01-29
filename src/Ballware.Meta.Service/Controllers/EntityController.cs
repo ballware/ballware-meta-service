@@ -55,6 +55,33 @@ public class EntityController : ControllerBase
 
         return Ok(Mapper.Map<MetaEntityDto>(result));
     }
+    
+    [HttpGet]
+    [Route("metadatabytenantandidentifier/{entity}")]
+    [ApiExplorerSettings(GroupName = "service")]
+    [Authorize("serviceApi")]
+    [SwaggerOperation(
+        Summary = "Query metadata for entity by tenant and identifier",
+        Description = "",
+        OperationId = "MetadataForEntityByTenantdAndIdentifier"
+    )]
+    [SwaggerResponse((int)HttpStatusCode.Unauthorized)]
+    [SwaggerResponse((int)HttpStatusCode.NotFound)]
+    [SwaggerResponse((int)HttpStatusCode.OK, "Entity metadata for service operations", typeof(ServiceEntityDto), new[] { MimeMapping.KnownMimeTypes.Json })]
+    public async Task<IActionResult> MetadataForEntityByTenantAndIdentifier(
+        [SwaggerParameter("Tenant identifier")] Guid tenant,
+        [SwaggerParameter("Entity metadata identifier")] string entity
+    )
+    {
+        var result = await Repository.ByEntityAsync(tenant, entity);
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(Mapper.Map<ServiceEntityDto>(result));
+    }
 
     [HttpGet]
     [Route("selectlistrights")]

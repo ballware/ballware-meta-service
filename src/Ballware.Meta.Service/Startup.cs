@@ -125,6 +125,18 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             Services.AddSwaggerGen(c =>
             {
+                c.CustomSchemaIds((type) =>
+                {
+                    string typeName = type.Name;
+                    
+                    if (typeName.EndsWith("Dto"))
+                    {
+                        typeName = typeName.Replace("Dto", string.Empty);
+                    }
+                    
+                    return typeName;
+                });
+                
                 c.SwaggerDoc("meta", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
                     Title = "ballware Meta API",

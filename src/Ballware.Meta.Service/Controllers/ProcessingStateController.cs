@@ -60,8 +60,8 @@ public class ProcessingStateController : ControllerBase
 
     [HttpGet]
     [Route("selectbystatefortenantandentity/{tenant}/{entity}/{state}")]
-    [Authorize("documentApi")]
-    [ApiExplorerSettings(GroupName = "document")]
+    [Authorize("serviceApi")]
+    [ApiExplorerSettings(GroupName = "service")]
     [SwaggerOperation(
       Summary = "Query single processing state for entity by state value",
       Description = "",

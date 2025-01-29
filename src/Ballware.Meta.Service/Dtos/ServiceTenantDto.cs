@@ -23,4 +23,6 @@ public class ServiceTenantDto
     public string? Password { get; set; }
 
     public string? ReportSchemaDefinition { get; set; }
+    
+    public IEnumerable<ServiceTenantDatabaseObjectDto> Objects { get; set; }
 }

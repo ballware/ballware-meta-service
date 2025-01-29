@@ -4,14 +4,20 @@ public class ServiceEntityDto
 {
     public Guid Id { get; set; }
 
+    public string? Application { get; set; }
+    public string? Entity { get; set; }
+    
+    public ServiceEntityCustomScriptsDto? CustomScripts { get; set; }
+    
     public bool GeneratedSchema { get; set; }
     public bool NoIdentity { get; set; }
-
-    public string? ListQuery { get; set; }
-    public string? ByIdQuery { get; set; }
-    public string? NewQuery { get; set; }
+    
+    public IEnumerable<ServiceEntityCustomFunctionDto> CustomFunctions { get; set; }
+    public IEnumerable<ServiceEntityQueryEntryDto> ListQuery { get; set; }
+    public IEnumerable<ServiceEntityQueryEntryDto> ByIdQuery { get; set; }
+    public IEnumerable<ServiceEntityQueryEntryDto> NewQuery { get; set; }
     public string? ScalarValueQuery { get; set; }
-    public string? SaveStatement { get; set; }
+    public IEnumerable<ServiceEntityQueryEntryDto> SaveStatement { get; set; }
     public string? RemoveStatement { get; set; }
     public string? RemovePreliminaryCheckScript { get; set; }
     public string? ListScript { get; set; }
