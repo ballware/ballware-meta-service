@@ -117,5 +117,12 @@ class StorageMappingProfile : Profile
 
         CreateMap<Persistables.Tenant, Public.Tenant>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        
+        CreateMap<Public.TenantDatabaseObject, Persistables.TenantDatabaseObject>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
+
+        CreateMap<Persistables.TenantDatabaseObject, Public.TenantDatabaseObject>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
     }
 }

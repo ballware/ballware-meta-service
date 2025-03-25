@@ -17,6 +17,13 @@ class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>,
         return result != null ? Mapper.Map<Public.Tenant>(result) : null;
     }
 
+    public virtual async Task<Public.TenantDatabaseObject?> DatabaseObjectByIdAsync(Guid tenant, Guid id)
+    {
+        var result = await Context.TenantDatabaseObjects.SingleOrDefaultAsync(o => o.TenantId == tenant && o.Uuid == id);
+        
+        return result != null ? Mapper.Map<Public.TenantDatabaseObject>(result) : null;
+    }
+
     public virtual async Task<IEnumerable<TenantSelectListEntry>> AllowedTenantsAsync(Dictionary<string, object> claims)
     {
         var queryParams = new Dictionary<string, object>();
