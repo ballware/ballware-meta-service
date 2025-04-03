@@ -9,4 +9,6 @@ public interface IDocumentMetaRepository : ITenantableRepository<Public.Document
     Task<IEnumerable<DocumentSelectListEntry>> SelectListForTenantAsync(Guid tenantId);
 
     Task<IEnumerable<DocumentSelectListEntry>> SelectListForTenantAndEntityAsync(Guid tenantId, string entity);
+    
+    Task<DocumentSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id);
 }

@@ -1,5 +1,6 @@
 using AutoMapper;
 using Ballware.Meta.Data.Repository;
+using Ballware.Meta.Data.SelectLists;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
@@ -30,5 +31,19 @@ class SubscriptionMetaRepository : TenantableBaseRepository<Public.Subscription,
         Context.Update(subscription);
 
         await Context.SaveChangesAsync();
+    }
+    
+    public virtual async Task<IEnumerable<SubscriptionSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
+    {
+        return await Task.FromResult(Context.Subscriptions
+            .Where(p => p.TenantId == tenantId)
+            .Select(d => new SubscriptionSelectListEntry { Id = d.Uuid, NotificationId = d.NotificationId, UserId = d.UserId, Active = d.Active }));
+    }
+    
+    public virtual async Task<SubscriptionSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
+    {
+        return await Context.Subscriptions.Where(r => r.TenantId == tenantId && r.Uuid == id)
+            .Select(d => new SubscriptionSelectListEntry { Id = d.Uuid, NotificationId = d.NotificationId, UserId = d.UserId, Active = d.Active })
+            .FirstOrDefaultAsync();
     }
 }

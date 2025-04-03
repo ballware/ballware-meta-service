@@ -24,6 +24,13 @@ class DocumentMetaRepository : TenantableBaseRepository<Public.Document, Persist
             .OrderBy(c => c.DisplayName)
             .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State }));
     }
+    
+    public virtual async Task<DocumentSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
+    {
+        return await Context.Documents.Where(r => r.TenantId == tenantId && r.Uuid == id)
+            .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State })
+            .FirstOrDefaultAsync();
+    }
 
     public virtual async Task<IEnumerable<DocumentSelectListEntry>> SelectListForTenantAndEntityAsync(Guid tenantId, string entity)
     {

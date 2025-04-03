@@ -50,12 +50,20 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
         return result != null ? Mapper.Map<Public.EntityMetadata>(result) : null;
     }
 
-    public virtual async Task<IEnumerable<EntityRightSelectListEntry>> SelectListEntityRightsAsync(Guid tenantId)
+    public virtual async Task<IEnumerable<EntityRightSelectListEntry>> SelectListEntityRightsForTenantAsync(Guid tenantId)
     {
         return await Task.FromResult(Context.EntityRights.Where(r => r.TenantId == tenantId)
             .OrderBy(r => new { r.Container, r.Identifier })
             .Select(r => new EntityRightSelectListEntry
-            { Id = r.Identifier, Name = r.DisplayName, Container = r.Container }));
+            { Id = r.Uuid, Identifier = r.Identifier, Name = r.DisplayName, Container = r.Container }));
+    }
+    
+    public virtual async Task<EntityRightSelectListEntry?> SelectEntityRightByIdentifierForTenantAsync(Guid tenantId, string identifier)
+    {
+        return await Context.EntityRights.Where(r => r.TenantId == tenantId && r.Identifier == identifier)
+            .Select(r => new EntityRightSelectListEntry
+                { Id = r.Uuid, Identifier = r.Identifier, Name = r.DisplayName, Container = r.Container })
+            .FirstOrDefaultAsync();
     }
 
     public virtual async Task<IEnumerable<Public.CharacteristicAssociation>> CharacteristicAssociationsAsync(Guid tenantId, Guid id)
@@ -99,5 +107,21 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
         }
 
         return Array.Empty<Public.CharacteristicAssociation>();
+    }
+    
+    public virtual async Task<IEnumerable<EntitySelectListEntry>> SelectListForTenantAsync(Guid tenantId)
+    {
+        return await Task.FromResult(Context.Entities.Where(r => r.TenantId == tenantId)
+            .OrderBy(r => new { r.Entity })
+            .Select(r => new EntitySelectListEntry
+                { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName }));
+    }
+    
+    public virtual async Task<EntitySelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
+    {
+        return await Context.Entities.Where(r => r.TenantId == tenantId && r.Uuid == id)
+            .Select(r => new EntitySelectListEntry
+                { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName })
+            .FirstOrDefaultAsync();
     }
 }

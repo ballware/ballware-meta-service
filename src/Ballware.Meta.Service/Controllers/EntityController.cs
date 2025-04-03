@@ -97,6 +97,6 @@ public class EntityController : ControllerBase
     {
         var tenantId = PrincipalUtils.GetUserTenandId(User);
 
-        return Ok(await Repository.SelectListEntityRightsAsync(tenantId));
+        return Ok(await Repository.SelectListEntityRightsForTenantAsync(tenantId));
     }
 }

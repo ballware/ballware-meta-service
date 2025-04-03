@@ -1,6 +1,7 @@
 using AutoMapper;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Repository;
+using Ballware.Meta.Data.SelectLists;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
@@ -41,5 +42,21 @@ class MlModelMetaRepository : TenantableBaseRepository<Public.MlModel, Persistab
         Context.Update(model);
 
         await Context.SaveChangesAsync();
+    }
+    
+    public virtual async Task<IEnumerable<MlModelSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
+    {
+        return await Task.FromResult(Context.MlModels.Where(r => r.TenantId == tenantId)
+            .OrderBy(r => new { r.Identifier })
+            .Select(r => new MlModelSelectListEntry
+                { Id = r.Uuid, Identifier = r.Identifier }));
+    }
+    
+    public virtual async Task<MlModelSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
+    {
+        return await Context.MlModels.Where(r => r.TenantId == tenantId && r.Uuid == id)
+            .Select(r => new MlModelSelectListEntry
+                { Id = r.Uuid, Identifier = r.Identifier })
+            .FirstOrDefaultAsync();
     }
 }

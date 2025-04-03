@@ -1,5 +1,6 @@
 using AutoMapper;
 using Ballware.Meta.Data.Repository;
+using Ballware.Meta.Data.SelectLists;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
@@ -28,5 +29,21 @@ class LookupMetaRepository : TenantableBaseRepository<Public.Lookup, Persistable
         var result = await Context.Lookups.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Identifier == identifier);
 
         return result != null ? Mapper.Map<Public.Lookup>(result) : null;
+    }
+    
+    public virtual async Task<IEnumerable<LookupSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
+    {
+        return await Task.FromResult(Context.Lookups.Where(r => r.TenantId == tenantId)
+            .OrderBy(r => new { r.Identifier })
+            .Select(r => new LookupSelectListEntry
+                { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name }));
+    }
+    
+    public virtual async Task<LookupSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
+    {
+        return await Context.Lookups.Where(r => r.TenantId == tenantId && r.Uuid == id)
+            .Select(r => new LookupSelectListEntry
+                { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name })
+            .FirstOrDefaultAsync();
     }
 }

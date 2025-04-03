@@ -36,4 +36,18 @@ class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>,
         return await Context.Database.GetDbConnection().QueryAsync<TenantSelectListEntry>(
             "select Uuid as Id, Name from Tenant where @claim_allowed_tenant like concat('%', Uuid, '%')", queryParams);
     }
+    
+    public virtual async Task<IEnumerable<TenantSelectListEntry>> SelectListAsync()
+    {
+        return await Task.FromResult(Context.Tenants
+            .OrderBy(d => d.Name)
+            .Select(d => new TenantSelectListEntry { Id = d.Uuid, Name = d.Name }));
+    }
+    
+    public virtual async Task<TenantSelectListEntry?> SelectByIdAsync(Guid id)
+    {
+        return await Context.Tenants.Where(r => r.Uuid == id)
+            .Select(d => new TenantSelectListEntry { Id = d.Uuid, Name = d.Name })
+            .FirstOrDefaultAsync();
+    }
 }
