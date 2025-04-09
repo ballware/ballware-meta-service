@@ -60,6 +60,8 @@ public class DocumentationMetaRepositoryTest : RepositoryBaseTest
 
         var fakeTenantIds = new[] { Guid.NewGuid(), Guid.NewGuid(), TenantId, Guid.NewGuid() };
 
+        List<Guid> fakeValueIds = new List<Guid>();
+        
         foreach (var fakeTenant in fakeTenantIds)
         {
             for (var i = 0; i < 10; i++)
@@ -69,8 +71,13 @@ public class DocumentationMetaRepositoryTest : RepositoryBaseTest
                 fakeValue.Entity = $"fake_items_{fakeTenant.ToString()}_{i}";
                 fakeValue.Field = $"fake_field_{i}";
                 fakeValue.Content = $"fake_content_{i}";
-
+                
                 await repository.SaveAsync(fakeTenant, null, "primary", ImmutableDictionary<string, object>.Empty, fakeValue);
+
+                if (fakeTenant == TenantId)
+                {
+                    fakeValueIds.Add(fakeValue.Id);    
+                }
             }
         }
 
@@ -79,11 +86,17 @@ public class DocumentationMetaRepositoryTest : RepositoryBaseTest
         var actualTenantQueryItems = await repository.QueryAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
         var actualFieldItem = await repository.ByEntityAndFieldAsync(TenantId, $"fake_items_{TenantId.ToString()}_1", "fake_field_1");
 
+        var actualSelectListItems = await repository.SelectListForTenantAsync(TenantId);
+        var actualSelectByIdItem = await repository.SelectByIdForTenantAsync(TenantId, fakeValueIds[0]);
+        
         Assert.Multiple(() =>
         {
             Assert.That(actualTenantItemsCount, Is.EqualTo(10));
             Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10));
             Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10));
+            Assert.That(actualSelectListItems.Count(), Is.EqualTo(10));
+            Assert.That(actualSelectByIdItem, Is.Not.Null);
+            Assert.That(actualSelectByIdItem?.Id, Is.EqualTo(fakeValueIds[0]));
             Assert.That(actualFieldItem?.Entity, Is.EqualTo($"fake_items_{TenantId.ToString()}_1"));
             Assert.That(actualFieldItem?.Field, Is.EqualTo("fake_field_1"));
             Assert.That(actualFieldItem?.Content, Is.EqualTo("fake_content_1"));
