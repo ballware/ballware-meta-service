@@ -26,7 +26,7 @@ class NotificationMetaRepository : TenantableBaseRepository<Public.Notification,
     public virtual async Task<IEnumerable<NotificationSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {
         return await Task.FromResult(Context.Notifications.Where(r => r.TenantId == tenantId)
-            .OrderBy(r => new { r.Identifier })
+            .OrderBy(r => r.Identifier)
             .Select(r => new NotificationSelectListEntry
                 { Id = r.Uuid, Name = r.Name }));
     }

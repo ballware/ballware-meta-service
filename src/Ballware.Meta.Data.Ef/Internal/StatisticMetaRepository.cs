@@ -19,7 +19,7 @@ class StatisticMetaRepository : TenantableBaseRepository<Public.Statistic, Persi
     public virtual async Task<IEnumerable<StatisticSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {
         return await Task.FromResult(Context.Statistics.Where(r => r.TenantId == tenantId)
-            .OrderBy(r => new { r.Identifier })
+            .OrderBy(r => r.Identifier)
             .Select(r => new StatisticSelectListEntry
                 { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name }));
     }

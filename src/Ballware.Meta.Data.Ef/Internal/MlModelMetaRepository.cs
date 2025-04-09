@@ -47,7 +47,7 @@ class MlModelMetaRepository : TenantableBaseRepository<Public.MlModel, Persistab
     public virtual async Task<IEnumerable<MlModelSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {
         return await Task.FromResult(Context.MlModels.Where(r => r.TenantId == tenantId)
-            .OrderBy(r => new { r.Identifier })
+            .OrderBy(r => r.Identifier)
             .Select(r => new MlModelSelectListEntry
                 { Id = r.Uuid, Identifier = r.Identifier }));
     }

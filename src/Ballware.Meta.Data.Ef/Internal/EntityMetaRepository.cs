@@ -53,7 +53,7 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
     public virtual async Task<IEnumerable<EntityRightSelectListEntry>> SelectListEntityRightsForTenantAsync(Guid tenantId)
     {
         return await Task.FromResult(Context.EntityRights.Where(r => r.TenantId == tenantId)
-            .OrderBy(r => new { r.Container, r.Identifier })
+            .OrderBy(r => r.Container).ThenBy(r => r.Identifier)
             .Select(r => new EntityRightSelectListEntry
             { Id = r.Uuid, Identifier = r.Identifier, Name = r.DisplayName, Container = r.Container }));
     }
@@ -112,7 +112,7 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
     public virtual async Task<IEnumerable<EntitySelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {
         return await Task.FromResult(Context.Entities.Where(r => r.TenantId == tenantId)
-            .OrderBy(r => new { r.Entity })
+            .OrderBy(r => r.Entity)
             .Select(r => new EntitySelectListEntry
                 { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName }));
     }

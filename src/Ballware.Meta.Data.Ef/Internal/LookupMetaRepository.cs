@@ -34,7 +34,7 @@ class LookupMetaRepository : TenantableBaseRepository<Public.Lookup, Persistable
     public virtual async Task<IEnumerable<LookupSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {
         return await Task.FromResult(Context.Lookups.Where(r => r.TenantId == tenantId)
-            .OrderBy(r => new { r.Identifier })
+            .OrderBy(r => r.Identifier)
             .Select(r => new LookupSelectListEntry
                 { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name }));
     }

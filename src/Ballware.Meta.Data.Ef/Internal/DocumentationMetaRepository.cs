@@ -21,7 +21,7 @@ class DocumentationMetaRepository : TenantableBaseRepository<Public.Documentatio
     {
         return await Task.FromResult(Context.Documentations
             .Where(p => p.TenantId == tenantId)
-            .OrderBy(c => new { c.Entity, c.Field })
+            .OrderBy(c => c.Entity).ThenBy(c => c.Field)
             .Select(d => new DocumentationSelectListEntry { Id = d.Uuid, Entity = d.Entity, Field = d.Field }));
     }
     
