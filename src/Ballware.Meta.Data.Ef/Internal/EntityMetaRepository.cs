@@ -124,4 +124,12 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
                 { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName })
             .FirstOrDefaultAsync();
     }
+    
+    public virtual async Task<EntitySelectListEntry?> SelectByIdentifierForTenantAsync(Guid tenantId, string identifier)
+    {
+        return await Context.Entities.Where(r => r.TenantId == tenantId && r.Entity == identifier)
+            .Select(r => new EntitySelectListEntry
+                { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName })
+            .FirstOrDefaultAsync();
+    }
 }
