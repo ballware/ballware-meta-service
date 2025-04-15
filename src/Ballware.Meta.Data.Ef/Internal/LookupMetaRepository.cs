@@ -7,7 +7,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class LookupMetaRepository : TenantableBaseRepository<Public.Lookup, Persistables.Lookup>, ILookupMetaRepository
 {
-    public LookupMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public LookupMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Lookup, Persistables.Lookup>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<IEnumerable<Public.Lookup>> AllForTenantAsync(Guid tenantId)
     {

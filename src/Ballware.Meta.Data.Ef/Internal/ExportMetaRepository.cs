@@ -6,7 +6,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class ExportMetaRepository : TenantableBaseRepository<Public.Export, Persistables.Export>, IExportMetaRepository
 {
-    public ExportMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public ExportMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Export, Persistables.Export>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public async Task<Public.Export?> ByIdAsync(Guid id)
     {

@@ -1,5 +1,6 @@
 using AutoMapper;
 using Ballware.Meta.Caching;
+using Ballware.Meta.Data.Repository;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
@@ -7,8 +8,9 @@ class CachableLookupMetaRepository : LookupMetaRepository
 {
     private ITenantAwareEntityCache Cache { get; }
 
-    public CachableLookupMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantAwareEntityCache cache)
-        : base(mapper, dbContext)
+    public CachableLookupMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantAwareEntityCache cache, 
+        ITenantableRepositoryHook<Public.Lookup, Persistables.Lookup>? hook = null)
+        : base(mapper, dbContext, hook)
     {
         Cache = cache;
     }

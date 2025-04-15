@@ -7,7 +7,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class SubscriptionMetaRepository : TenantableBaseRepository<Public.Subscription, Persistables.Subscription>, ISubscriptionMetaRepository
 {
-    public SubscriptionMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public SubscriptionMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Subscription, Persistables.Subscription>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public async Task<Public.Subscription?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id)
     {

@@ -7,7 +7,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class StatisticMetaRepository : TenantableBaseRepository<Public.Statistic, Persistables.Statistic>, IStatisticMetaRepository
 {
-    public StatisticMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public StatisticMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Statistic, Persistables.Statistic>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<Public.Statistic?> MetadataByIdentifierAsync(Guid tenantId, string identifier)
     {

@@ -7,7 +7,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class DocumentMetaRepository : TenantableBaseRepository<Public.Document, Persistables.Document>, IDocumentMetaRepository
 {
-    public DocumentMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public DocumentMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Document, Persistables.Document>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<Public.Document?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id)
     {

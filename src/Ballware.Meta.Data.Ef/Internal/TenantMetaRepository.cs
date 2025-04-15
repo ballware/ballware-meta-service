@@ -8,7 +8,7 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>, ITenantMetaRepository
 {
-    public TenantMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public TenantMetaRepository(IMapper mapper, MetaDbContext dbContext, IRepositoryHook<Public.Tenant, Persistables.Tenant>? hook = null) : base(mapper, dbContext, hook) { }
 
     public virtual async Task<Public.Tenant?> ByIdAsync(Guid id)
     {

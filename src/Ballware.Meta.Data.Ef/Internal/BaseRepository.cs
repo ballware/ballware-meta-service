@@ -13,11 +13,13 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
 {
     protected IMapper Mapper { get; }
     protected MetaDbContext Context { get; }
+    protected IRepositoryHook<TEditable, TPersistable> ? Hook { get; }
 
-    protected BaseRepository(IMapper mapper, MetaDbContext dbContext)
+    protected BaseRepository(IMapper mapper, MetaDbContext dbContext, IRepositoryHook<TEditable, TPersistable>? hook = null)
     {
         Mapper = mapper;
         Context = dbContext;
+        Hook = hook;
     }
 
     protected virtual IQueryable<TPersistable> ListQuery(IQueryable<TPersistable> query, string identifier,
@@ -59,11 +61,28 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         return value;
     }
 
-    protected virtual void BeforeSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, bool insert) { }
-    protected virtual void AfterSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, TPersistable persistable, bool insert) { }
+    protected virtual void BeforeSave(Guid? userId, string identifier, IDictionary<string, object> claims,
+        TEditable value, bool insert)
+    {
+        Hook?.BeforeSave(userId, identifier, claims, value, insert);
+    }
+
+    protected virtual void AfterSave(Guid? userId, string identifier, IDictionary<string, object> claims,
+        TEditable value, TPersistable persistable, bool insert)
+    {
+        Hook?.AfterSave(userId, identifier, claims, value, persistable, insert);
+    }
+    
     protected virtual RemoveResult RemovePreliminaryCheck(Guid? userId, IDictionary<string, object> claims,
         IDictionary<string, object> removeParams)
     {
+        var hookResult = Hook?.RemovePreliminaryCheck(userId, claims, removeParams);
+        
+        if (hookResult != null)
+        {
+            return hookResult.Value;
+        }
+        
         return new RemoveResult()
         {
             Result = true,
@@ -73,7 +92,9 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
 
     protected virtual void BeforeRemove(Guid? userId, IDictionary<string, object> claims,
         TPersistable persistable)
-    { }
+    {
+        Hook?.BeforeRemove(userId, claims, persistable);
+    }
 
     public Task<IEnumerable<TEditable>> AllAsync(string identifier, IDictionary<string, object> claims)
     {

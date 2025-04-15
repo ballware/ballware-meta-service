@@ -7,7 +7,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class NotificationMetaRepository : TenantableBaseRepository<Public.Notification, Persistables.Notification>, INotificationMetaRepository
 {
-    public NotificationMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public NotificationMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Notification, Persistables.Notification>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public async Task<Public.Notification?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id)
     {

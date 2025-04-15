@@ -8,7 +8,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class MlModelMetaRepository : TenantableBaseRepository<Public.MlModel, Persistables.MlModel>, IMlModelMetaRepository
 {
-    public MlModelMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public MlModelMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.MlModel, Persistables.MlModel>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<Public.MlModel?> MetadataByTenantAndIdAsync(Public.Tenant tenant, Guid id)
     {

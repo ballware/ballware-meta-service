@@ -12,11 +12,13 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
 {
     protected IMapper Mapper { get; }
     protected MetaDbContext Context { get; }
+    protected ITenantableRepositoryHook<TEditable, TPersistable>? Hook { get; }
 
-    protected TenantableBaseRepository(IMapper mapper, MetaDbContext dbContext)
+    protected TenantableBaseRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<TEditable, TPersistable>? hook)
     {
         Mapper = mapper;
         Context = dbContext;
+        Hook = hook;
     }
 
     protected virtual IQueryable<TPersistable> ListQuery(IQueryable<TPersistable> query, string identifier,
@@ -58,11 +60,28 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         return value;
     }
 
-    protected virtual void BeforeSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, bool insert) { }
-    protected virtual void AfterSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, TPersistable persistable, bool insert) { }
-    protected virtual RemoveResult RemovePreliminaryCheck(Guid? userId, IDictionary<string, object> claims,
+    protected virtual void BeforeSave(Guid tenantId, Guid? userId, string identifier,
+        IDictionary<string, object> claims, TEditable value, bool insert)
+    {
+        Hook?.BeforeSave(tenantId, userId, identifier, claims, value, insert);
+    }
+
+    protected virtual void AfterSave(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims,
+        TEditable value, TPersistable persistable, bool insert)
+    {
+        Hook?.AfterSave(tenantId, userId, identifier, claims, value, persistable, insert);
+    }
+    
+    protected virtual RemoveResult RemovePreliminaryCheck(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
         IDictionary<string, object> removeParams)
     {
+        var hookResult = Hook?.RemovePreliminaryCheck(tenantId, userId, claims, removeParams);
+        
+        if (hookResult != null)
+        {
+            return hookResult.Value;
+        }
+        
         return new RemoveResult()
         {
             Result = true,
@@ -70,9 +89,11 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         };
     }
 
-    protected virtual void BeforeRemove(Guid? userId, IDictionary<string, object> claims,
+    protected virtual void BeforeRemove(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
         TPersistable persistable)
-    { }
+    {
+        Hook?.BeforeRemove(tenantId, userId, claims, persistable);
+    }
 
     public Task<IEnumerable<TEditable>> AllAsync(Guid tenantId, string identifier, IDictionary<string, object> claims)
     {
@@ -129,7 +150,7 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
 
         var insert = persistedItem == null;
 
-        BeforeSave(userId, identifier, claims, value, insert);
+        BeforeSave(tenantId, userId, identifier, claims, value, insert);
 
         if (persistedItem == null)
         {
@@ -159,14 +180,14 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
             Context.Set<TPersistable>().Update(persistedItem);
         }
 
-        AfterSave(userId, identifier, claims, value, persistedItem, insert);
+        AfterSave(tenantId, userId, identifier, claims, value, persistedItem, insert);
 
         await Context.SaveChangesAsync();
     }
 
     public async Task<RemoveResult> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
     {
-        var result = RemovePreliminaryCheck(userId, claims, removeParams);
+        var result = RemovePreliminaryCheck(tenantId, userId, claims, removeParams);
 
         if (!result.Result)
         {
@@ -180,7 +201,7 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
 
             if (persistedItem != null)
             {
-                BeforeRemove(userId, claims, persistedItem);
+                BeforeRemove(tenantId, userId, claims, persistedItem);
 
                 Context.Set<TPersistable>().Remove(persistedItem);
 

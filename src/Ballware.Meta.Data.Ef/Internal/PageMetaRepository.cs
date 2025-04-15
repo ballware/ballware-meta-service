@@ -7,7 +7,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class PageMetaRepository : TenantableBaseRepository<Public.Page, Persistables.Page>, IPageMetaRepository
 {
-    public PageMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public PageMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Page, Persistables.Page>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<Public.Page?> ByIdentifierAsync(Guid tenantId, string identifier)
     {

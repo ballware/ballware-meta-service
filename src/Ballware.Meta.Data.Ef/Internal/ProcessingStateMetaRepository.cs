@@ -8,7 +8,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class ProcessingStateMetaRepository : TenantableBaseRepository<Public.ProcessingState, Persistables.ProcessingState>, IProcessingStateMetaRepository
 {
-    public ProcessingStateMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public ProcessingStateMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.ProcessingState, Persistables.ProcessingState>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<IEnumerable<ProcessingStateSelectListEntry>> SelectListForEntityAsync(Guid tenantId, string entity)
     {

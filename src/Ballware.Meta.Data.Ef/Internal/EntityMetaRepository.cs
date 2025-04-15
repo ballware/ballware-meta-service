@@ -9,7 +9,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Persistables.EntityMetadata>, IEntityMetaRepository
 {
-    public EntityMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public EntityMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.EntityMetadata, Persistables.EntityMetadata>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<Public.EntityMetadata?> ByIdAsync(Guid tenantId, Guid id)
     {

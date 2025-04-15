@@ -7,7 +7,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class PickvalueMetaRepository : TenantableBaseRepository<Public.Pickvalue, Persistables.Pickvalue>, IPickvalueMetaRepository
 {
-    public PickvalueMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public PickvalueMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Pickvalue, Persistables.Pickvalue>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public async Task<IEnumerable<PickvalueSelectEntry>> SelectListForEntityFieldAsync(Guid tenantId, string entity, string field)
     {

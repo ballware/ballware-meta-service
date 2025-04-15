@@ -7,7 +7,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class JobMetaRepository : TenantableBaseRepository<Public.Job, Persistables.Job>, IJobMetaRepository
 {
-    public JobMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public JobMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Job, Persistables.Job>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<IEnumerable<Public.Job>> PendingJobsForUser(Public.Tenant tenant, Guid userId)
     {
