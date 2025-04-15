@@ -22,11 +22,18 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
     protected virtual IQueryable<TPersistable> ListQuery(IQueryable<TPersistable> query, string identifier,
         IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
-        if (queryParams.TryGetValue("id", out var param))
+        if (queryParams.TryGetValue("id", out var idParam))
         {
-            var ids = (param as IEnumerable<string>)?.Select(Guid.Parse) ?? new List<Guid>();
-
-            query = query.Where(x => ids.Contains(x.Uuid));
+            if (idParam is IEnumerable<string> idValues)
+            {
+                var idList = idValues.Select(Guid.Parse);
+                
+                query = query.Where(t => idList.Contains(t.Uuid));
+            }
+            else if (Guid.TryParse(idParam.ToString(), out var id))
+            {
+                query = query.Where(t => t.Uuid == id);
+            }
         }
 
         return query;

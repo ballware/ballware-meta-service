@@ -4,6 +4,7 @@ using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 
 namespace Ballware.Meta.Data.Ef.Internal;
@@ -22,6 +23,20 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
     protected virtual IQueryable<TPersistable> ListQuery(IQueryable<TPersistable> query, string identifier,
         IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
+        if (queryParams.TryGetValue("id", out var idParam))
+        {
+            if (idParam is IEnumerable<string> idValues)
+            {
+                var idList = idValues.Select(Guid.Parse);
+                
+                query = query.Where(t => idList.Contains(t.Uuid));
+            }
+            else if (Guid.TryParse(idParam.ToString(), out var id))
+            {
+                query = query.Where(t => t.Uuid == id);
+            }
+        }
+        
         return query;
     }
 
