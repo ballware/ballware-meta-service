@@ -12,14 +12,18 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Ballware.Meta.Api\Ballware.Meta.Api.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Authorization.Jint\Ballware.Meta.Authorization.Jint.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Caching\Ballware.Meta.Caching.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Data.Ef\Ballware.Meta.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Tenant.Data.SqlServer\Ballware.Meta.Tenant.Data.SqlServer.csproj" />
+      <ProjectReference Include="..\Ballware.Storage.Client\Ballware.Storage.Client.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="Duende.AccessTokenManagement" Version="3.2.0" />
+      <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" Version="3.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
@@ -27,6 +31,10 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="MimeMapping" Version="3.1.0" />
+      <PackageReference Include="Npgsql" Version="8.0.5" />
+      <PackageReference Include="Quartz" Version="3.8.1" />
+      <PackageReference Include="Quartz.AspNetCore" Version="3.8.1" />
+      <PackageReference Include="Quartz.Serialization.Json" Version="3.8.1" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="7.2.0" />
