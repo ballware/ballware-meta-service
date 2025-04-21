@@ -10,4 +10,6 @@ public interface ITenantMetaRepository : IRepository<Public.Tenant>
     
     Task<IEnumerable<TenantSelectListEntry>> SelectListAsync();
     Task<TenantSelectListEntry?> SelectByIdAsync(Guid id);
+    
+    Task<string> GenerateListQueryAsync();
 }

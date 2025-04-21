@@ -41,5 +41,10 @@ class DocumentMetaRepository : TenantableBaseRepository<Public.Document, Persist
             .OrderBy(c => c.DisplayName)
             .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State }));
     }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, DisplayName as Name, State from Document where TenantId='{tenantId}'");
+    }
 }
 

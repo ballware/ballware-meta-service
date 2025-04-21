@@ -8,4 +8,6 @@ public interface IStatisticMetaRepository : ITenantableRepository<Public.Statist
     
     Task<IEnumerable<StatisticSelectListEntry>> SelectListForTenantAsync(Guid tenantId);
     Task<StatisticSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id);
+    
+    Task<string> GenerateListQueryAsync(Guid tenantId);
 }

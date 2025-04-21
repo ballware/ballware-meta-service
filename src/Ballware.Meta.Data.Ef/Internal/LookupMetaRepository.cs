@@ -47,4 +47,9 @@ class LookupMetaRepository : TenantableBaseRepository<Public.Lookup, Persistable
                 { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name })
             .FirstOrDefaultAsync();
     }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, Identifier, Name from Lookup where TenantId='{tenantId}'");
+    }
 }

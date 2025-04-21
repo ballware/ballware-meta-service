@@ -55,6 +55,15 @@ public static class TenantMetaEndpoint
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {
+        app.MapGet(basePath + "/reportmetadatasourcesfortenant/{tenantId}", HandleReportMetaDatasourcesForTenant)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<ReportDatasourceDefinition>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "ReportDatasources")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query report datasources for tenant");
+        
         return app;
     }
 
@@ -75,5 +84,67 @@ public static class TenantMetaEndpoint
         var claims = principalUtils.GetUserClaims(user);
 
         return Results.Ok(await tenantMetaRepository.AllowedTenantsAsync(claims));
+    }
+    
+    public static async Task<IResult> HandleReportMetaDatasourcesForTenant(IMetaDbConnectionFactory metaDbConnectionFactory, ClaimsPrincipal user,
+        ITenantMetaRepository tenantMetaRepository, 
+        IEntityMetaRepository entityMetaRepository, 
+        ILookupMetaRepository lookupMetaRepository,
+        IDocumentMetaRepository documentMetaRepository,
+        IDocumentationMetaRepository documentationMetaRepository,
+        IMlModelMetaRepository mlModelMetaRepository,
+        INotificationMetaRepository notificationMetaRepository,
+        IPageMetaRepository pageMetaRepository,
+        IStatisticMetaRepository statisticMetaRepository,
+        ISubscriptionMetaRepository subscriptionMetaRepository,
+        IPickvalueMetaRepository pickvalueMetaRepository,
+        IProcessingStateMetaRepository processingStateMetaRepository,
+        Guid tenantId)
+    {
+        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+        
+        var metaConnectionString = metaDbConnectionFactory.ConnectionString;
+        
+        var schemaDefinitions = new List<ReportDatasourceDefinition>();
+
+        var metaSchemaDefinition = new ReportDatasourceDefinition
+        {
+            Name = "Meta",
+            ConnectionString = metaConnectionString,
+            Tables = new[] {
+                new ReportDatasourceTable { Name = "Pickvalue", Query = await pickvalueMetaRepository.GenerateListQueryAsync(tenantId) },
+                new ReportDatasourceTable { Name = "ProcessingState", Query = await processingStateMetaRepository.GenerateListQueryAsync(tenantId) }
+            }
+        };
+
+        schemaDefinitions.Add(metaSchemaDefinition);
+        
+        var metaLookupsSchemaDefinition = new ReportDatasourceDefinition
+        {
+            Name = "MetaLookups",
+            ConnectionString = metaConnectionString,
+            Tables = new []
+                {
+                    new ReportDatasourceTable { Name = "documentLookup", Query = await documentMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "documentationLookup", Query = await documentationMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "entityLookup", Query = await entityMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "lookupLookup", Query = await lookupMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "mlmodelLookup", Query = await mlModelMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "notificationLookup", Query = await notificationMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "pageLookup", Query = await pageMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "statisticLookup", Query = await statisticMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "subscriptionLookup", Query = await subscriptionMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "tenantLookup", Query = await tenantMetaRepository.GenerateListQueryAsync() },
+                    
+                    new ReportDatasourceTable { Name = "entityIdentifierLookup", Query = await entityMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "entityRightLookup", Query = await entityMetaRepository.GenerateRightsListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "entityStateLookup", Query = await processingStateMetaRepository.GenerateListQueryAsync(tenantId) },
+                    new ReportDatasourceTable { Name = "entityPickvalueLookup", Query = await pickvalueMetaRepository.GenerateListQueryAsync(tenantId) },
+                }
+        };
+        
+        schemaDefinitions.Add(metaLookupsSchemaDefinition);
+        
+        return Results.Ok(schemaDefinitions);
     }
 }

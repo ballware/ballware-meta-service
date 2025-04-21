@@ -47,4 +47,9 @@ class SubscriptionMetaRepository : TenantableBaseRepository<Public.Subscription,
             .Select(d => new SubscriptionSelectListEntry { Id = d.Uuid, NotificationId = d.NotificationId, UserId = d.UserId, Active = d.Active })
             .FirstOrDefaultAsync();
     }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, NotificationId, UserId, Active from Subscription where TenantId='{tenantId}'");
+    }
 }

@@ -12,4 +12,6 @@ public interface ISubscriptionMetaRepository : ITenantableRepository<Public.Subs
     
     Task<IEnumerable<SubscriptionSelectListEntry>> SelectListForTenantAsync(Guid tenantId);
     Task<SubscriptionSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id);
+    
+    Task<string> GenerateListQueryAsync(Guid tenantId);
 }

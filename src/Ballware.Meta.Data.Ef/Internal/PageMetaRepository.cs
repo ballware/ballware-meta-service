@@ -32,4 +32,9 @@ class PageMetaRepository : TenantableBaseRepository<Public.Page, Persistables.Pa
                 { Id = r.Uuid, Name = r.Name })
             .FirstOrDefaultAsync();
     }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, Name from Page where TenantId='{tenantId}'");
+    }
 }

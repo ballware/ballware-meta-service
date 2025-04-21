@@ -17,4 +17,7 @@ public interface IEntityMetaRepository : ITenantableRepository<Public.EntityMeta
     
     Task<IEnumerable<EntityRightSelectListEntry>> SelectListEntityRightsForTenantAsync(Guid tenantId);
     Task<EntityRightSelectListEntry?> SelectEntityRightByIdentifierForTenantAsync(Guid tenantId, string identifier);
+    
+    Task<string> GenerateListQueryAsync(Guid tenantId);
+    Task<string> GenerateRightsListQueryAsync(Guid tenantId);
 }

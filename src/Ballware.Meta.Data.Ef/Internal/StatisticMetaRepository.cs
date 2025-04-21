@@ -32,4 +32,9 @@ class StatisticMetaRepository : TenantableBaseRepository<Public.Statistic, Persi
                 { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name })
             .FirstOrDefaultAsync();
     }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, Identifier, Name from Statistic where TenantId='{tenantId}'");
+    }
 }

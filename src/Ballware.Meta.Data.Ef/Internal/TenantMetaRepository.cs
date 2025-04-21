@@ -50,4 +50,9 @@ class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>,
             .Select(d => new TenantSelectListEntry { Id = d.Uuid, Name = d.Name })
             .FirstOrDefaultAsync();
     }
+    
+    public Task<string> GenerateListQueryAsync()
+    {
+        return Task.FromResult($"select Uuid as Id, Name from Tenant");
+    }
 }

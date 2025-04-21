@@ -32,5 +32,10 @@ class DocumentationMetaRepository : TenantableBaseRepository<Public.Documentatio
             .Select(d => new DocumentationSelectListEntry { Id = d.Uuid, Entity = d.Entity, Field = d.Field })
             .FirstOrDefaultAsync();
     }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, Entity, Field from Documentation where TenantId='{tenantId}'");
+    }
 }
 

@@ -12,4 +12,6 @@ public interface IMlModelMetaRepository : ITenantableRepository<Public.MlModel>
     
     Task<IEnumerable<MlModelSelectListEntry>> SelectListForTenantAsync(Guid tenantId);
     Task<MlModelSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id);
+    
+    Task<string> GenerateListQueryAsync(Guid tenantId);
 }

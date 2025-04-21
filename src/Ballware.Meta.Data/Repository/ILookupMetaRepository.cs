@@ -12,4 +12,6 @@ public interface ILookupMetaRepository : ITenantableRepository<Public.Lookup>
     
     Task<IEnumerable<LookupSelectListEntry>> SelectListForTenantAsync(Guid tenantId);
     Task<LookupSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id);
+    
+    Task<string> GenerateListQueryAsync(Guid tenantId);
 }

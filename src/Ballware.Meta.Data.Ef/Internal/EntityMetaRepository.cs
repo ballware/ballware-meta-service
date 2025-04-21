@@ -133,4 +133,14 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
                 { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName })
             .FirstOrDefaultAsync();
     }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, Entity, DisplayName as Name from Entity where TenantId='{tenantId}'");
+    }
+    
+    public Task<string> GenerateRightsListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, Identifier, DisplayName as Name, Container from EntityRight where TenantId='{tenantId}' order by Container, Identifier");
+    }
 }

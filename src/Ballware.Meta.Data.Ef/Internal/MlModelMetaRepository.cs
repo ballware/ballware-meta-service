@@ -60,4 +60,9 @@ class MlModelMetaRepository : TenantableBaseRepository<Public.MlModel, Persistab
                 { Id = r.Uuid, Identifier = r.Identifier })
             .FirstOrDefaultAsync();
     }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, Identifier from MlModel where TenantId='{tenantId}'");
+    }
 }

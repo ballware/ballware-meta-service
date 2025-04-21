@@ -8,4 +8,6 @@ public interface IPageMetaRepository : ITenantableRepository<Public.Page>
     
     Task<IEnumerable<PageSelectListEntry>> SelectListForTenantAsync(Guid tenantId);
     Task<PageSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id);
+    
+    Task<string> GenerateListQueryAsync(Guid tenantId);
 }
