@@ -1,6 +1,6 @@
-﻿namespace Ballware.Meta.Service.Dtos;
+﻿namespace Ballware.Meta.Api.Public;
 
-public class ServiceNotificationDto
+public class ServiceNotification
 {
     public Guid Id { get; set; }
 

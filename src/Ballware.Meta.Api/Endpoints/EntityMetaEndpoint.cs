@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AutoMapper;
+using Ballware.Meta.Api.Public;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
@@ -23,7 +25,7 @@ public static class EntityMetaEndpoint
     {
         app.MapGet(basePath + "/metadataforentity/{identifier}", HandleMetadataByIdentifierAsync)
             .RequireAuthorization(authorizationScope)
-            .Produces<EntityMetadata>()
+            .Produces<MetaEntity>()
             .Produces(StatusCodes.Status401Unauthorized)
             .WithName(apiOperationPrefix + "MetadataByIdentifier")
             .WithGroupName(apiGroup)
@@ -76,16 +78,37 @@ public static class EntityMetaEndpoint
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
+        app.MapGet(basePath + "/servicemetadatafortenantbyidentifier/{tenantId}/{identifier}", HandleServiceMetadataByIdentifierAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<ServiceEntity>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "ServiceMetadataForTenantByIdentifier")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query metadata for entity");
+        
         return app;
     }
     
-    public static async Task<IResult> HandleMetadataByIdentifierAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
+    public static async Task<IResult> HandleMetadataByIdentifierAsync(IMapper mapper, IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
         try
         {
-            return Results.Ok(await repository.ByEntityAsync(tenantId, identifier));
+            return Results.Ok(mapper.Map<MetaEntity>(await repository.ByEntityAsync(tenantId, identifier)));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleServiceMetadataByIdentifierAsync(IMapper mapper, IEntityMetaRepository repository, Guid tenantId, string identifier)
+    {
+        try
+        {
+            return Results.Ok(mapper.Map<ServiceEntity>(await repository.ByEntityAsync(tenantId, identifier)));
         }
         catch (Exception ex)
         {

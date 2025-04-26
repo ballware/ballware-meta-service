@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Ballware.Meta.Service.Dtos;
+namespace Ballware.Meta.Api.Public;
 
 [JsonConverter(typeof(StringEnumConverter))]
 public enum ServiceEntityCustomFunctionTypes
@@ -26,7 +26,7 @@ public enum ServiceEntityCustomFunctionTypes
     Import
 }
 
-public class ServiceEntityCustomFunctionDto
+public class ServiceEntityCustomFunction
 {
     [JsonProperty("id")]
     public string Identifier { get; set; }

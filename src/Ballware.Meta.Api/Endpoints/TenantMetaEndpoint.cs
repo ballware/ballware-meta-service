@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using AutoMapper;
+using Ballware.Meta.Api.Public;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data;
 using Ballware.Meta.Data.Public;
@@ -27,7 +28,7 @@ public static class TenantMetaEndpoint
     {
         app.MapGet(basePath + "/metadatafortenant/{tenantId}", HandleMetadataForTenantAsync)
             .RequireAuthorization(authorizationScope)
-            .Produces<Tenant>()
+            .Produces<MetaTenant>()
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)
@@ -55,9 +56,19 @@ public static class TenantMetaEndpoint
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {
+        app.MapGet(basePath + "/servicemetadatafortenant/{tenantId}", HandleServiceMetadataForTenantAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<ServiceTenant>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(apiOperationPrefix + "ServiceMetadata")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query tenant metadata by id");
+        
         app.MapGet(basePath + "/reportmetadatasourcesfortenant/{tenantId}", HandleReportMetaDatasourcesForTenant)
             .RequireAuthorization(authorizationScope)
-            .Produces<IEnumerable<ReportDatasourceDefinition>>()
+            .Produces<IEnumerable<ServiceTenantReportDatasourceDefinition>>()
             .Produces(StatusCodes.Status401Unauthorized)
             .WithName(apiOperationPrefix + "ReportDatasources")
             .WithGroupName(apiGroup)
@@ -67,7 +78,7 @@ public static class TenantMetaEndpoint
         return app;
     }
 
-    public static async Task<IResult> HandleMetadataForTenantAsync(IPrincipalUtils principalUtils, ClaimsPrincipal user,
+    public static async Task<IResult> HandleMetadataForTenantAsync(IMapper mapper, IPrincipalUtils principalUtils, ClaimsPrincipal user,
         ITenantMetaRepository tenantMetaRepository, Guid tenantId)
     {
         var userTenantId = principalUtils.GetUserTenandId(user);
@@ -75,7 +86,13 @@ public static class TenantMetaEndpoint
         if (userTenantId != tenantId)
             return Results.Forbid();
 
-        return Results.Ok(await tenantMetaRepository.ByIdAsync(tenantId));
+        return Results.Ok(mapper.Map<MetaTenant>(await tenantMetaRepository.ByIdAsync(tenantId)));
+    }
+    
+    public static async Task<IResult> HandleServiceMetadataForTenantAsync(IMapper mapper, IPrincipalUtils principalUtils, ClaimsPrincipal user,
+        ITenantMetaRepository tenantMetaRepository, Guid tenantId)
+    {
+        return Results.Ok(mapper.Map<ServiceTenant>(await tenantMetaRepository.ByIdAsync(tenantId)));
     }
     
     public static async Task<IResult> HandleAllowedTenantsForUserAsync(IPrincipalUtils principalUtils, ClaimsPrincipal user,
@@ -86,7 +103,7 @@ public static class TenantMetaEndpoint
         return Results.Ok(await tenantMetaRepository.AllowedTenantsAsync(claims));
     }
     
-    public static async Task<IResult> HandleReportMetaDatasourcesForTenant(IMetaDbConnectionFactory metaDbConnectionFactory, ClaimsPrincipal user,
+    public static async Task<IResult> HandleReportMetaDatasourcesForTenant(IMapper mapper, IMetaDbConnectionFactory metaDbConnectionFactory, ClaimsPrincipal user,
         ITenantMetaRepository tenantMetaRepository, 
         IEntityMetaRepository entityMetaRepository, 
         ILookupMetaRepository lookupMetaRepository,
@@ -145,6 +162,6 @@ public static class TenantMetaEndpoint
         
         schemaDefinitions.Add(metaLookupsSchemaDefinition);
         
-        return Results.Ok(schemaDefinitions);
+        return Results.Ok(mapper.Map<IEnumerable<ServiceTenantReportDatasourceDefinition>>(schemaDefinitions));
     }
 }

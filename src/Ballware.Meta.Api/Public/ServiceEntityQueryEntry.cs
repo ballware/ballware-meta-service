@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
 
-namespace Ballware.Meta.Service.Dtos;
+namespace Ballware.Meta.Api.Public;
 
-public class ServiceEntityQueryEntryDto
+public class ServiceEntityQueryEntry
 {
     [JsonProperty("identifier")]
     public string? Identifier { get; set; }

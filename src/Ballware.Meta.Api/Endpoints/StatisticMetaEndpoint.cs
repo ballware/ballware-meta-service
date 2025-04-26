@@ -19,7 +19,7 @@ public static class StatisticMetaEndpoint
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
-        app.MapGet(basePath + "/metadataforidentifier", HandleMetadataByIdentifierAsync)
+        app.MapGet(basePath + "/metadataforidentifier/{identifier}", HandleMetadataByIdentifierAsync)
             .RequireAuthorization(authorizationScope)
             .Produces<Statistic>()
             .Produces(StatusCodes.Status401Unauthorized)
@@ -38,6 +38,15 @@ public static class StatisticMetaEndpoint
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
+        app.MapGet(basePath + "/metadatafortenantandidentifier/{tenantId}/{identifier}", HandleMetadataByTenantAndIdentifierAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<Statistic>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "MetadataByTenantAndIdentifier")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query metadata for statistic by tenant and identifier");
+        
         return app;
     }
     
@@ -45,6 +54,18 @@ public static class StatisticMetaEndpoint
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
+        try
+        {
+            return Results.Ok(await repository.MetadataByIdentifierAsync(tenantId, identifier));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(IStatisticMetaRepository repository, Guid tenantId, string identifier)
+    {
         try
         {
             return Results.Ok(await repository.MetadataByIdentifierAsync(tenantId, identifier));

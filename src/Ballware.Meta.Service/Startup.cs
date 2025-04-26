@@ -9,7 +9,6 @@ using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Service.Adapter;
 using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Jobs;
-using Ballware.Meta.Service.Mappings;
 using Ballware.Meta.Tenant.Data;
 using Ballware.Meta.Tenant.Data.SqlServer;
 using Ballware.Storage.Client;
@@ -168,8 +167,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddAutoMapper(config =>
         {
             config.AddBallwareStorageMappings();
-            config.AddProfile<MetaApiProfile>();
-            config.AddProfile<ServiceApiProfile>();
+            config.AddBallwareMetaApiMappings();
         });
         
         Services.AddScoped<IMetaFileStorageAdapter, StorageServiceMetaFileStorageAdapter>();
@@ -252,60 +250,65 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         app.UseAuthorization();
 
-        app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapTenantMetaApi("/api/tenant");
-                endpoints.MapTenantServiceApi("/api/tenant");
-                endpoints.MapEditingApi<Data.Public.Tenant>("/api/tenant", "meta", "tenant", "Tenant", "Tenant");
-                
-                endpoints.MapSubscriptionMetaApi("/api/subscription");
-                endpoints.MapSubscriptionServiceApi("/api/subscription");
-                endpoints.MapTenantableEditingApi<Subscription>("/api/subscription", "meta", "subscription", "Subscription", "Subscription");
-                
-                endpoints.MapStatisticMetaApi("/api/statistic");
-                endpoints.MapStatisticServiceApi("/api/statistic");
-                endpoints.MapTenantableEditingApi<Statistic>("/api/statistic", "meta", "statistic", "Statistic", "Statistic");
-                
-                endpoints.MapProcessingStateMetaApi("/api/processingstate");
-                endpoints.MapProcessingStateServiceApi("/api/processingstate");
-                
-                endpoints.MapPickvalueMetaApi("/api/pickvalue");
-                endpoints.MapPickvalueServiceApi("/api/pickvalue");
-                
-                endpoints.MapPageMetaApi("/api/page");
-                endpoints.MapPageServiceApi("/api/page");
-                endpoints.MapTenantableEditingApi<Page>("/api/page", "meta", "page", "Page", "Page");
-                
-                endpoints.MapNotificationMetaApi("/api/notification");
-                endpoints.MapNotificationServiceApi("/api/notification");
-                endpoints.MapTenantableEditingApi<Notification>("/api/notification", "meta", "notification", "Notification", "Notification");
-                
-                endpoints.MapMlModelMetaApi("/api/mlmodel");
-                endpoints.MapMlModelServiceApi("/api/mlmodel");
-                endpoints.MapTenantableEditingApi<MlModel>("/api/mlmodel", "meta", "mlmodel", "MlModel", "MlModel");
-                
-                endpoints.MapDocumentationMetaApi("/api/documentation");
-                endpoints.MapDocumentationServiceApi("/api/documentation");
-                endpoints.MapTenantableEditingApi<Documentation>("/api/documentation", "meta", "documentation", "Documentation", "Documentation");
-                
-                endpoints.MapJobMetaApi("/api/job");
-                endpoints.MapJobServiceApi("/api/job");
-                endpoints.MapTenantableEditingApi<Job>("/api/job", "meta", "job", "Job", "Job");
+        app.MapTenantMetaApi("/api/tenant");
+        app.MapTenantServiceApi("/api/tenant");
+        app.MapEditingApi<Data.Public.Tenant>("/api/tenant", "meta", "tenant", "Tenant", "Tenant");
+        
+        app.MapSubscriptionMetaApi("/api/subscription");
+        app.MapSubscriptionServiceApi("/api/subscription");
+        app.MapTenantableEditingApi<Subscription>("/api/subscription", "meta", "subscription", "Subscription", "Subscription");
+        
+        app.MapStatisticMetaApi("/api/statistic");
+        app.MapStatisticServiceApi("/api/statistic");
+        app.MapTenantableEditingApi<Statistic>("/api/statistic", "meta", "statistic", "Statistic", "Statistic");
+        
+        app.MapProcessingStateMetaApi("/api/processingstate");
+        app.MapProcessingStateServiceApi("/api/processingstate");
+        
+        app.MapPickvalueMetaApi("/api/pickvalue");
+        app.MapPickvalueServiceApi("/api/pickvalue");
+        
+        app.MapPageMetaApi("/api/page");
+        app.MapPageServiceApi("/api/page");
+        app.MapTenantableEditingApi<Page>("/api/page", "meta", "page", "Page", "Page");
+        
+        app.MapExportMetaApi("/api/export");
+        app.MapExportServiceApi("/api/export");
+        app.MapTenantableEditingApi<Export>("/api/export", "meta", "export", "Export", "Export");
+        
+        app.MapNotificationMetaApi("/api/notification");
+        app.MapNotificationServiceApi("/api/notification");
+        app.MapTenantableEditingApi<Notification>("/api/notification", "meta", "notification", "Notification", "Notification");
+        
+        app.MapNotificationTriggerMetaApi("/api/notificationtrigger");
+        app.MapNotificationTriggerServiceApi("/api/notificationtrigger");
+        app.MapTenantableEditingApi<NotificationTrigger>("/api/notificationtrigger", "meta", "notificationtrigger", "NotificationTrigger", "NotificationTrigger");
+        
+        app.MapMlModelMetaApi("/api/mlmodel");
+        app.MapMlModelServiceApi("/api/mlmodel");
+        app.MapTenantableEditingApi<MlModel>("/api/mlmodel", "meta", "mlmodel", "MlModel", "MlModel");
+        
+        app.MapDocumentationMetaApi("/api/documentation");
+        app.MapDocumentationServiceApi("/api/documentation");
+        app.MapTenantableEditingApi<Documentation>("/api/documentation", "meta", "documentation", "Documentation", "Documentation");
+        
+        app.MapJobMetaApi("/api/job");
+        app.MapJobServiceApi("/api/job");
+        app.MapTenantableEditingApi<Job>("/api/job", "meta", "job", "Job", "Job");
 
-                endpoints.MapLookupMetaApi("/api/lookup");
-                endpoints.MapLookupServiceApi("/api/lookup");
-                endpoints.MapTenantableEditingApi<Lookup>("/api/lookup", "meta", "lookup", "Lookup", "Lookup");
-                
-                endpoints.MapDocumentMetaApi("/api/document");
-                endpoints.MapDocumentServiceApi("/api/document");
-                endpoints.MapTenantableEditingApi<Document>("/api/document", "meta", "document", "Document", "Document");
-                
-                endpoints.MapEntityMetaApi("/api/entity");
-                endpoints.MapEntityServiceApi("/api/entity");
-                endpoints.MapTenantableEditingApi<EntityMetadata>("/api/entity", "meta", "entity", "Entity", "Entity");
-                
-                endpoints.MapSwagger();
-            });
+        app.MapLookupMetaApi("/api/lookup");
+        app.MapLookupServiceApi("/api/lookup");
+        app.MapTenantableEditingApi<Lookup>("/api/lookup", "meta", "lookup", "Lookup", "Lookup");
+        
+        app.MapDocumentMetaApi("/api/document");
+        app.MapDocumentServiceApi("/api/document");
+        app.MapTenantableEditingApi<Document>("/api/document", "meta", "document", "Document", "Document");
+        
+        app.MapEntityMetaApi("/api/entity");
+        app.MapEntityServiceApi("/api/entity");
+        app.MapTenantableEditingApi<EntityMetadata>("/api/entity", "meta", "entity", "Entity", "Entity");
+        
+        app.MapSwagger();
 
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;

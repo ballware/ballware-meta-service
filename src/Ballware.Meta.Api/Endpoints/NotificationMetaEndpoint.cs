@@ -38,6 +38,15 @@ public static class NotificationMetaEndpoint
             .WithTags(apiTag)
             .WithSummary("Query notification metadata by tenant and id");
         
+        app.MapGet(basePath + "/notificationmetadatabytenantandidentifier/{tenantId}/{identifier}", HandleMetadataByTenantAndIdentifierAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<Notification>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "MetadataByTenantAndIdentifier")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query notification metadata by tenant and identifier");
+        
         return app;
     }
     
@@ -46,6 +55,18 @@ public static class NotificationMetaEndpoint
         try
         {
             return Results.Ok(await repository.MetadataByTenantAndIdAsync(tenantId, id));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(IPrincipalUtils principalUtils, INotificationMetaRepository repository, ClaimsPrincipal user, Guid tenantId, string identifier)
+    {
+        try
+        {
+            return Results.Ok(await repository.MetadataByTenantAndIdentifierAsync(tenantId, identifier));
         }
         catch (Exception ex)
         {

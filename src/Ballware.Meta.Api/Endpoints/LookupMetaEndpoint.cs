@@ -31,6 +31,15 @@ public static class LookupMetaEndpoint
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
+        app.MapGet(basePath + "/lookupmetadatabytenantandid/{tenantId}/{id}", HandleMetadataForTenantAndIdAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<Lookup>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "MetadataForTenantAndId")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query lookup metadata by tenant and identifier");
+        
         app.MapGet(basePath + "/lookupmetadatabytenantandidentifier/{tenantId}/{identifier}", HandleMetadataForTenantAndIdentifierAsync)
             .RequireAuthorization(authorizationScope)
             .Produces<Lookup>()
@@ -40,7 +49,30 @@ public static class LookupMetaEndpoint
             .WithTags(apiTag)
             .WithSummary("Query lookup metadata by tenant and identifier");
         
+        app.MapGet(basePath + "/lookupmetadatabytenant/{tenantId}", HandleMetadataForTenantAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<Lookup>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "MetadataForTenant")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query lookup metadata by tenant");
+        
         return app;
+    }
+    
+    public static async Task<IResult> HandleMetadataForTenantAndIdAsync(ILookupMetaRepository repository, Guid tenantId, Guid id)
+    {
+        try
+        {
+            var lookup = await repository.ByIdAsync(tenantId, id);
+
+            return Results.Ok(lookup);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
     }
     
     public static async Task<IResult> HandleMetadataForTenantAndIdentifierAsync(ILookupMetaRepository repository, Guid tenantId, string identifier)
@@ -50,6 +82,20 @@ public static class LookupMetaEndpoint
             var lookup = await repository.ByIdentifierAsync(tenantId, identifier);
 
             return Results.Ok(lookup);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleMetadataForTenantAsync(ILookupMetaRepository repository, Guid tenantId)
+    {
+        try
+        {
+            var lookups = await repository.AllForTenantAsync(tenantId);
+
+            return Results.Ok(lookups);
         }
         catch (Exception ex)
         {

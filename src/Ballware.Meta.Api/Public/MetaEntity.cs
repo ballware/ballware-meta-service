@@ -1,6 +1,6 @@
-namespace Ballware.Meta.Service.Dtos;
+namespace Ballware.Meta.Api.Public;
 
-public class MetaEntityDto
+public class MetaEntity
 {
     public Guid Id { get; set; }
 

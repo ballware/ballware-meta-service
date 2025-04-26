@@ -1,23 +1,23 @@
-namespace Ballware.Meta.Service.Dtos;
+namespace Ballware.Meta.Api.Public;
 
-public class ServiceEntityDto
+public class ServiceEntity
 {
     public Guid Id { get; set; }
 
     public string? Application { get; set; }
     public string? Entity { get; set; }
     
-    public ServiceEntityCustomScriptsDto? CustomScripts { get; set; }
+    public ServiceEntityCustomScripts? CustomScripts { get; set; }
     
     public bool GeneratedSchema { get; set; }
     public bool NoIdentity { get; set; }
     
-    public IEnumerable<ServiceEntityCustomFunctionDto> CustomFunctions { get; set; }
-    public IEnumerable<ServiceEntityQueryEntryDto> ListQuery { get; set; }
-    public IEnumerable<ServiceEntityQueryEntryDto> ByIdQuery { get; set; }
-    public IEnumerable<ServiceEntityQueryEntryDto> NewQuery { get; set; }
+    public IEnumerable<ServiceEntityCustomFunction> CustomFunctions { get; set; }
+    public IEnumerable<ServiceEntityQueryEntry> ListQuery { get; set; }
+    public IEnumerable<ServiceEntityQueryEntry> ByIdQuery { get; set; }
+    public IEnumerable<ServiceEntityQueryEntry> NewQuery { get; set; }
     public string? ScalarValueQuery { get; set; }
-    public IEnumerable<ServiceEntityQueryEntryDto> SaveStatement { get; set; }
+    public IEnumerable<ServiceEntityQueryEntry> SaveStatement { get; set; }
     public string? RemoveStatement { get; set; }
     public string? RemovePreliminaryCheckScript { get; set; }
     public string? ListScript { get; set; }

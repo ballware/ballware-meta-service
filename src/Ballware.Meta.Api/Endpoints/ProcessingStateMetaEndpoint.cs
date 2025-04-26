@@ -58,6 +58,15 @@ public static class ProcessingStateMetaEndpoint
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
+        app.MapGet(basePath + "/selectlistallsuccessorsfortenantandentitybystate/{tenantId}/{identifier}/{state}", HandleSelectListAllSuccessorsForTenantAndEntityByStateAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<ProcessingStateSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectListAllSuccessorsForTenantAndEntityByIdentifier")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query all possible successor processing states for entity by identifier and current state");
+        
         app.MapGet(basePath + "/selectbystatefortenantandentity/{tenantId}/{identifier}/{state}", HandleSelectByStateForTenantAndEntityByIdentifierAsync)
             .RequireAuthorization(authorizationScope)
             .Produces<ProcessingStateSelectListEntry>()
@@ -114,6 +123,18 @@ public static class ProcessingStateMetaEndpoint
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
+        try
+        {
+            return Results.Ok(await repository.SelectListPossibleSuccessorsForEntityAsync(tenantId, identifier, state));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleSelectListAllSuccessorsForTenantAndEntityByStateAsync(IProcessingStateMetaRepository repository, Guid tenantId, string identifier, int state)
+    {
         try
         {
             return Results.Ok(await repository.SelectListPossibleSuccessorsForEntityAsync(tenantId, identifier, state));

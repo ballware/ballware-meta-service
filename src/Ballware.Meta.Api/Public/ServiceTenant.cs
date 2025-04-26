@@ -1,6 +1,6 @@
-namespace Ballware.Meta.Service.Dtos;
+namespace Ballware.Meta.Api.Public;
 
-public class ServiceTenantDto
+public class ServiceTenant
 {
     public Guid Id { get; set; }
     public required string Name { get; set; }
@@ -22,7 +22,5 @@ public class ServiceTenantDto
 
     public string? Password { get; set; }
 
-    public string? ReportSchemaDefinition { get; set; }
-    
-    public IEnumerable<ServiceTenantDatabaseObjectDto> Objects { get; set; }
+    public IEnumerable<ServiceTenantReportDatasourceDefinition> ReportDatasourceDefinitions { get; set; }
 }

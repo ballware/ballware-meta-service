@@ -1,6 +1,6 @@
-namespace Ballware.Meta.Service.Dtos;
+namespace Ballware.Meta.Api.Public;
 
-public class ServiceExportDto
+public class ServiceExport
 {
     public Guid Id { get; set; }
 

@@ -1,6 +1,6 @@
-namespace Ballware.Meta.Service.Dtos;
+namespace Ballware.Meta.Api.Public;
 
-public class MetaTenantDto
+public class MetaTenant
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }
