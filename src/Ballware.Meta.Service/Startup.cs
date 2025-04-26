@@ -181,8 +181,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             builder.AddSqlServerTenantDataStorage();
         });
 
-        Services.AddBallwareAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
-        Services.AddBallwareJintRightsChecker();
+        Services.AddBallwareMetaAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
+        Services.AddBallwareMetaJintRightsChecker();
 
         services.AddEndpointsApiExplorer();
         
