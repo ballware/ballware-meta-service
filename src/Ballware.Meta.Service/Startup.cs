@@ -9,8 +9,6 @@ using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Service.Adapter;
 using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Jobs;
-using Ballware.Meta.Tenant.Data;
-using Ballware.Meta.Tenant.Data.SqlServer;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -175,11 +173,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddBallwareMetaStorage(
             storageOptions,
             metaConnectionString);
-
-        Services.AddBallwareTenantStorage(builder =>
-        {
-            builder.AddSqlServerTenantDataStorage();
-        });
 
         Services.AddBallwareMetaAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareMetaJintRightsChecker();
