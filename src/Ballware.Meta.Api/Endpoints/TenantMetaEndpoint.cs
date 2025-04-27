@@ -70,10 +70,10 @@ public static class TenantMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<IEnumerable<ServiceTenantReportDatasourceDefinition>>()
             .Produces(StatusCodes.Status401Unauthorized)
-            .WithName(apiOperationPrefix + "ReportDatasources")
+            .WithName(apiOperationPrefix + "ReportMetaDatasources")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
-            .WithSummary("Query report datasources for tenant");
+            .WithSummary("Query report meta datasources for tenant");
         
         return app;
     }
