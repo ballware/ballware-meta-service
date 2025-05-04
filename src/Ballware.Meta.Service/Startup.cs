@@ -8,9 +8,12 @@ using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Service.Adapter;
 using Ballware.Meta.Service.Configuration;
+using Ballware.Meta.Service.Extensions;
 using Ballware.Meta.Service.Jobs;
+using Ballware.Schema.Client;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
@@ -29,6 +32,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
     public void InitializeServices()
     {
+        services.Configure<JsonOptions>(options =>
+        {
+            options.SerializerOptions.PropertyNamingPolicy = null; // = PascalCase
+        });
+        
         CorsOptions? corsOptions = Configuration.GetSection("Cors").Get<CorsOptions>();
         AuthorizationOptions? authorizationOptions =
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
@@ -36,6 +44,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         
         ServiceClientOptions? storageClientOptions = Configuration.GetSection("StorageClient").Get<ServiceClientOptions>();
+        ServiceClientOptions? schemaClientOptions = Configuration.GetSection("SchemaClient").Get<ServiceClientOptions>();
         
         var metaConnectionString = Configuration.GetConnectionString("MetaConnection");
 
@@ -54,6 +63,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddOptionsWithValidateOnStart<ServiceClientOptions>()
             .Bind(Configuration.GetSection("StorageClient"))
             .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<ServiceClientOptions>()
+            .Bind(Configuration.GetSection("SchemaClient"))
+            .ValidateDataAnnotations();
 
         if (authorizationOptions == null || storageOptions == null || string.IsNullOrEmpty(metaConnectionString))
         {
@@ -63,6 +76,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         if (storageClientOptions == null)
         {
             throw new ConfigurationException("Required configuration for storageClient is missing");
+        }
+        
+        if (schemaClientOptions == null)
+        {
+            throw new ConfigurationException("Required configuration for schemaClient is missing");
         }
 
         Services.AddLogging();
@@ -156,11 +174,32 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.Scope = storageClientOptions.Scopes;
             });
         
+        Services.AddClientCredentialsTokenManagement()
+            .AddClient("schema", client =>
+            {
+                client.TokenEndpoint = schemaClientOptions.TokenEndpoint;
+
+                client.ClientId = schemaClientOptions.ClientId;
+                client.ClientSecret = schemaClientOptions.ClientSecret;
+
+                client.Scope = schemaClientOptions.Scopes;
+            });
+        
         Services.AddHttpClient<BallwareStorageClient>(client =>
             {
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })
             .AddClientCredentialsTokenHandler("storage");
+        
+        Services.AddHttpClient<BallwareSchemaClient>(client =>
+            {
+                client.BaseAddress = new Uri(schemaClientOptions.ServiceUrl);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            })
+            .AddClientCredentialsTokenHandler("schema");
         
         Services.AddAutoMapper(config =>
         {
@@ -169,6 +208,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         });
         
         Services.AddScoped<IMetaFileStorageAdapter, StorageServiceMetaFileStorageAdapter>();
+        Services.AddScoped<IRepositoryHook<Ballware.Meta.Data.Public.Tenant, Ballware.Meta.Data.Persistables.Tenant>, GenericSchemaTenantRepositoryHook>();
+        Services.AddScoped<ITenantableRepositoryHook<Ballware.Meta.Data.Public.EntityMetadata, Ballware.Meta.Data.Persistables.EntityMetadata>, GenericSchemaEntityRepositoryHook>();
         
         Services.AddBallwareMetaStorage(
             storageOptions,

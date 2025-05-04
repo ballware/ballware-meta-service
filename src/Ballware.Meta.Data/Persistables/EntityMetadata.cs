@@ -62,6 +62,7 @@ public class EntityMetadata : IEntity, IAuditable, ITenantable
     public string? StateAllowedScript { get; set; }
 
     public string? Indices { get; set; }
+    public string? ProviderModelDefinition { get; set; }
 
     public Guid? CreatorId { get; set; }
 

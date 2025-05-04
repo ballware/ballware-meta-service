@@ -35,10 +35,10 @@ public class ServiceEntityCustomFunction
     public ServiceEntityCustomFunctionTypes Type { get; set; }
     
     [JsonProperty("options")]
-    public ServiceEntityCustomFunctionOptionsDto? Options { get; set; }
+    public ServiceEntityCustomFunctionOptions? Options { get; set; }
 }
 
-public class ServiceEntityCustomFunctionOptionsDto
+public class ServiceEntityCustomFunctionOptions
 {
     [JsonProperty("format")]
     public string? Format { get; set; }

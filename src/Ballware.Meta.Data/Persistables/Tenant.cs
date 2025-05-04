@@ -35,6 +35,8 @@ public class Tenant : IEntity, IAuditable
     public string? Password { get; set; }
 
     public string? ReportSchemaDefinition { get; set; }
+    
+    public string? ProviderModelDefinition { get; set; }
 
     public Guid? CreatorId { get; set; }
 

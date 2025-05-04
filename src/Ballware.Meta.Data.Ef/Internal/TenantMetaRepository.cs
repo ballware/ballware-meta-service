@@ -8,20 +8,34 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>, ITenantMetaRepository
 {
-    public TenantMetaRepository(IMapper mapper, MetaDbContext dbContext, IRepositoryHook<Public.Tenant, Persistables.Tenant>? hook = null) : base(mapper, dbContext, hook) { }
+    public TenantMetaRepository(IMapper mapper, MetaDbContext dbContext,
+        IRepositoryHook<Public.Tenant, Persistables.Tenant>? hook = null) : base(mapper, dbContext, hook)
+    {
+        
+    }
 
     public virtual async Task<Public.Tenant?> ByIdAsync(Guid id)
     {
         var result = await Context.Tenants.SingleOrDefaultAsync(t => t.Uuid == id);
 
-        return result != null ? Mapper.Map<Public.Tenant>(result) : null;
+        IEnumerable<Public.TenantDatabaseObject>? databaseObjects = null;
+        
+        if (result != null)
+        {
+            databaseObjects = await this.DatabaseObjectsByTenantAsync(result.Uuid);
+        }
+        
+        return result != null ? Mapper.Map<Public.Tenant>(result, opts =>
+        {
+            opts.Items["DatabaseObjects"] = databaseObjects ?? [];
+        }) : null;
     }
 
-    public virtual async Task<Public.TenantDatabaseObject?> DatabaseObjectByIdAsync(Guid tenant, Guid id)
+    public virtual async Task<IEnumerable<Public.TenantDatabaseObject>> DatabaseObjectsByTenantAsync(Guid tenant)
     {
-        var result = await Context.TenantDatabaseObjects.SingleOrDefaultAsync(o => o.TenantId == tenant && o.Uuid == id);
+        var results = Context.TenantDatabaseObjects.Where(o => o.TenantId == tenant);
         
-        return result != null ? Mapper.Map<Public.TenantDatabaseObject>(result) : null;
+        return Mapper.Map<IEnumerable<Public.TenantDatabaseObject>>(results);
     }
 
     public virtual async Task<IEnumerable<TenantSelectListEntry>> AllowedTenantsAsync(Dictionary<string, object> claims)

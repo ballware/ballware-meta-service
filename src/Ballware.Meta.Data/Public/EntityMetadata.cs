@@ -202,6 +202,7 @@ public class EntityMetadata : IEditable
     public string? StateAllowedScript { get; set; }
 
     public string? Indices { get; set; }
+    public string? ProviderModelDefinition { get; set; }
 
     public IEnumerable<ProcessingState> States { get; set; } = Array.Empty<ProcessingState>();
     public IEnumerable<EntityRight> Rights { get; set; } = Array.Empty<EntityRight>();
