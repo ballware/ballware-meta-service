@@ -5,6 +5,7 @@ using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Meta.Data.SelectLists;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -20,6 +21,24 @@ public static class MlModelMetaEndpoint
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {   
+        app.MapGet(basePath + "/selectlist", HandleSelectListAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<MlModelSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectList")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query list of all documents");
+        
+        app.MapGet(basePath + "/selectbyid/{id}", HandleSelectByIdAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<MlModelSelectListEntry>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectById")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query select item by id");
+        
         return app;
     }
 
@@ -58,6 +77,34 @@ public static class MlModelMetaEndpoint
             .WithSummary("Save training behalf of user");
         
         return app;
+    }
+    
+    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IMlModelMetaRepository repository, ClaimsPrincipal user)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+
+        try
+        {
+            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid id)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+
+        try
+        {
+            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
     }
     
     public static async Task<IResult> HandleMetadataByTenantAndIdAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid id)

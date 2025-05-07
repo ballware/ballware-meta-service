@@ -46,6 +46,24 @@ public static class TenantMetaEndpoint
             .WithTags(apiTag)
             .WithSummary("Query allowed tenants for user");
 
+        app.MapGet(basePath + "/selectlist", HandleSelectListAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<TenantSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectList")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query list of all tenants");
+        
+        app.MapGet(basePath + "/selectbyid/{id}", HandleSelectByIdAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<TenantSelectListEntry>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectById")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query select item by id");
+        
         return app;
     }
 
@@ -87,6 +105,30 @@ public static class TenantMetaEndpoint
             return Results.Forbid();
 
         return Results.Ok(mapper.Map<MetaTenant>(await tenantMetaRepository.ByIdAsync(tenantId)));
+    }
+    
+    public static async Task<IResult> HandleSelectListAsync(ITenantMetaRepository repository)
+    {
+        try
+        {
+            return Results.Ok(await repository.SelectListAsync());
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleSelectByIdAsync(ITenantMetaRepository repository, Guid id)
+    {
+        try
+        {
+            return Results.Ok(await repository.SelectByIdAsync(id));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
     }
     
     public static async Task<IResult> HandleServiceMetadataForTenantAsync(IMapper mapper, IPrincipalUtils principalUtils, ClaimsPrincipal user,

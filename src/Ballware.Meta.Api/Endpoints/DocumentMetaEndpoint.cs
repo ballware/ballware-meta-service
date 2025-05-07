@@ -33,6 +33,24 @@ public static class DocumentMetaEndpoint
             .WithTags(apiTag)
             .WithSummary("Query available documents for entity");
         
+        app.MapGet(basePath + "/selectlist", HandleSelectListAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<DocumentSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectList")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query list of all documents");
+        
+        app.MapGet(basePath + "/selectbyid/{id}", HandleSelectByIdAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<DocumentSelectListEntry>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectById")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query select item by id");
+        
         return app;
     }
 
@@ -100,6 +118,34 @@ public static class DocumentMetaEndpoint
                 .ToEnumerable();
 
             return Results.Ok(documentList);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+
+        try
+        {
+            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user, Guid id)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+
+        try
+        {
+            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
         }
         catch (Exception ex)
         {

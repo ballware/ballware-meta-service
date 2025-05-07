@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Meta.Data.SelectLists;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -28,6 +29,24 @@ public static class PageMetaEndpoint
             .WithTags(apiTag)
             .WithSummary("Query metadata for page by identifier");
         
+        app.MapGet(basePath + "/selectlist", HandleSelectListAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<PageSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectList")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query list of all pages");
+        
+        app.MapGet(basePath + "/selectbyid/{id}", HandleSelectByIdAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<PageSelectListEntry>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectById")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query select item by id");
+        
         return app;
     }
 
@@ -48,6 +67,34 @@ public static class PageMetaEndpoint
         try
         {
             return Results.Ok(await repository.ByIdentifierAsync(tenantId, identifier));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IPageMetaRepository repository, ClaimsPrincipal user)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+
+        try
+        {
+            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IPageMetaRepository repository, ClaimsPrincipal user, Guid id)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+
+        try
+        {
+            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
         }
         catch (Exception ex)
         {
