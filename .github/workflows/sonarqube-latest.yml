@@ -60,7 +60,7 @@ jobs:
           find ./test -name '*.Tests.csproj' | while read project; do
             echo "Running coverage for: $project"
             dotnet dotcover/dotCover.dll cover \
-              --targetExecutable="dotnet" \
+              --targetExecutable="/usr/bin/dotnet" \
               --targetArguments="test $project --no-build --configuration Release --logger trx" \
               --output="coverage/project_$i.dcvr" \
               --returnTargetExitCode
