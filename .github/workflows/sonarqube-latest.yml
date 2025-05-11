@@ -38,7 +38,6 @@ jobs:
           curl -L -o dotcover.tar.gz "https://download.jetbrains.com/resharper/dotUltimate.2025.1.2/JetBrains.dotCover.CommandLineTools.2025.1.2.tar.gz"
           mkdir dotcover
           tar -xzf dotcover.tar.gz -C dotcover
-          chmod +x dotcover/dotCover.sh
 
       - name: Install SonarScanner for .NET
         run: dotnet tool install --global dotnet-sonarscanner
@@ -54,14 +53,22 @@ jobs:
       - name: Build solution
         run: dotnet build ballware-meta-service.sln --no-incremental
 
-      - name: Run dotCover CLI for test coverage
+      - name: Run dotCover using new CLI (via dotnet)
         run: |
-          ./dotcover/dotCover.sh cover \
-            --TargetExecutable=dotnet \
-            --TargetArguments="test ballware-meta-service.sln --no-build --logger trx --results-directory ./TestResults --configuration Release" \
-            --Output="coverage.dcvr" \
-            --ReportType=DetailedXML \
-            --ReturnTargetExitCode
+          dotnet dotcover/dotCover.dll cover-dotnet \
+            -- \
+            test ballware-meta-service.sln \
+              --no-build \
+              --logger trx \
+              --results-directory ./TestResults \
+              --configuration Release
+
+      - name: Generate coverage report
+        run: |
+          dotnet dotcover/dotCover.dll report \
+            --report="coverage.dcvr" \
+            --output="coverage.dcvr" \
+            --report-type=DetailedXML
 
       - name: End SonarScanner
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
