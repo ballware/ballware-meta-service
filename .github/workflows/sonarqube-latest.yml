@@ -53,22 +53,16 @@ jobs:
       - name: Build solution
         run: dotnet build ballware-meta-service.sln --no-incremental
 
-      - name: Run dotCover using new CLI (via dotnet)
+      - name: Run dotCover using new CLI
         run: |
           dotnet dotcover/dotCover.dll cover-dotnet \
+            --output="coverage.dcvr" \
             -- \
             test ballware-meta-service.sln \
               --no-build \
               --logger trx \
               --results-directory ./TestResults \
               --configuration Release
-
-      - name: Generate coverage report
-        run: |
-          dotnet dotcover/dotCover.dll report \
-            --report="coverage.dcvr" \
-            --output="coverage.dcvr" \
-            --report-type=DetailedXML
 
       - name: End SonarScanner
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
