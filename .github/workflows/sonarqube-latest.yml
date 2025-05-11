@@ -53,17 +53,35 @@ jobs:
       - name: Build solution
         run: dotnet build ballware-meta-service.sln --no-incremental
 
-      - name: Run dotCover using new CLI
-        working-directory: ${{ github.workspace }}
+      - name: Find all test projects
+        id: find-tests
         run: |
-          dotnet dotcover/dotCover.dll cover-dotnet \
-            --output="coverage.dcvr" \
-            -- \
-            test ballware-meta-service.sln \
-              --no-build \
-              --logger trx \
-              --results-directory ./TestResults \
-              --configuration Release
+          projects=$(find ./test -name '*.Tests.csproj')
+          echo "found_projects<<EOF" >> $GITHUB_OUTPUT
+          echo "$projects" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Run dotCover for each test project
+        run: |
+          mkdir coverage
+          i=0
+          while read -r project; do
+            echo "Running coverage for: $project"
+            output="coverage/project_$i.dcvr"
+            dotnet dotcover/dotCover.dll cover-dotnet \
+              --output="$output" \
+              -- \
+              test "$project" \
+                --no-build \
+                --configuration Release
+            ((i=i+1))
+          done <<< "${{ steps.find-tests.outputs.found_projects }}"
+
+      - name: Merge coverage snapshots
+        run: |
+          snapshots=$(find coverage -name '*.dcvr' | paste -sd ';' -)
+          dotnet dotcover/dotCover.dll merge \
+            --source="$snapshots" \
+            --output="coverage.dcvr"
       - name: End SonarScanner
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
