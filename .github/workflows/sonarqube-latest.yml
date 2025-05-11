@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   sonarqube:
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     services:
       azuresql:
         image: mcr.microsoft.com/azure-sql-edge
@@ -21,25 +21,45 @@ jobs:
         env:
           ACCEPT_EULA: 1
           MSSQL_SA_PASSWORD: ${{ secrets.TEST_META_PASSWORD }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  
-      - name: Setup dotnet
+          fetch-depth: 0
+
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
-        with: 
-          dotnet-version: 
-            8.0          
-      - name: Install SonarQube
+        with:
+          dotnet-version: '8.0'
+
+      - name: Download dotCover CLI
+        run: |
+          curl -L -o dotcover.zip "https://download.jetbrains.com/resharper/dotCover.2024.1.1/JetBrains.dotCover.CommandLineTools.2024.1.1.zip"
+          unzip dotcover.zip -d dotcover
+          chmod +x dotcover/dotCover.sh
+
+      - name: Install SonarScanner for .NET
         run: dotnet tool install --global dotnet-sonarscanner
-      - name: Install dotCover
-        run: dotnet tool install --global JetBrains.dotCover.GlobalTool
-      - name: Start SonarQube scan
-        run: dotnet sonarscanner begin /k:"ballware_ballware-meta-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.dotcover.reportsPaths="dotCover.Output.html"
-      - name: Build solution for SonarQube
+
+      - name: Start SonarScanner
+        run: |
+          dotnet sonarscanner begin \
+            /k:"ballware_ballware-meta-service" \
+            /o:"ballware" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.cs.dotcover.reportsPaths="coverage.dcvr"
+
+      - name: Build solution
         run: dotnet build ballware-meta-service.sln --no-incremental
-      - name: Run tests with coverage report        
-        run: dotnet dotcover test ballware-meta-service.sln --dcReportType=HTML --environment ConnectionStrings__MetaConnection='${{ secrets.TEST_META_CONNECTIONSTRING }}'
-      - name: End SonarQube scan
-        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}" 
+
+      - name: Run dotCover CLI for test coverage
+        run: |
+          ./dotcover/dotCover.sh cover \
+            --TargetExecutable=dotnet \
+            --TargetArguments="test ballware-meta-service.sln --no-build --logger trx --results-directory ./TestResults" \
+            --Output="coverage.dcvr" \
+            --ReportType=DetailedXML
+
+      - name: End SonarScanner
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
