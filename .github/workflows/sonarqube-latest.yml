@@ -62,7 +62,7 @@ jobs:
             /k:"ballware_ballware-meta-service" \
             /o:"ballware" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.dotcover.reportsPaths="coverage.dcvr"
+            /d:sonar.cs.dotcover.reportsPaths="coverage.html"
 
       - name: Build solution
         run: dotnet build ballware-meta-service.sln --no-incremental --configuration Release
@@ -88,5 +88,11 @@ jobs:
           dotnet dotcover/dotCover.dll merge \
             --source="$snapshots" \
             --output="coverage.dcvr"
+      - name: Generate HTML report for SonarCloud
+        run: |
+          dotnet dotcover/dotCover.dll report \
+            --report="coverage.dcvr" \
+            --output="coverage.html" \
+            --reportType=HTML          
       - name: End SonarScanner
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
