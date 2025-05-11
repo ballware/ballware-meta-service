@@ -91,7 +91,7 @@ jobs:
       - name: Generate HTML report for SonarCloud
         run: |
           dotnet dotcover/dotCover.dll report \
-            --report="coverage.dcvr" \
+            --source="coverage.dcvr" \
             --output="coverage.html" \
             --reportType=HTML          
       - name: End SonarScanner
