@@ -75,7 +75,8 @@ jobs:
             echo "Running coverage for: $project"
             dotnet dotcover/dotCover.dll cover \
               --targetExecutable="/usr/bin/dotnet" \
-              --targetArguments="test $project --configuration Release --logger trx --environment ConnectionStrings__MetaConnection='${{ secrets.TEST_META_CONNECTIONSTRING }}'" \
+              --targetArguments="test $project --configuration Release --logger trx" \
+              --environmentVariables="ConnectionStrings__MetaConnection=${{ secrets.TEST_META_CONNECTIONSTRING }}" \
               --output="coverage/project_$i.dcvr" \
               --returnTargetExitCode
             ((i=i+1))
