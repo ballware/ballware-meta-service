@@ -51,7 +51,7 @@ jobs:
             /d:sonar.cs.dotcover.reportsPaths="coverage.dcvr"
 
       - name: Build solution
-        run: dotnet build ballware-meta-service.sln --no-incremental
+        run: dotnet build ballware-meta-service.sln --no-incremental --configuration Release
 
       - name: Run coverage for all test projects
         run: |
@@ -61,7 +61,7 @@ jobs:
             echo "Running coverage for: $project"
             dotnet dotcover/dotCover.dll cover \
               --targetExecutable="/usr/bin/dotnet" \
-              --targetArguments="test $project --no-build --configuration Release --logger trx" \
+              --targetArguments="test $project --configuration Release --logger trx" \
               --output="coverage/project_$i.dcvr" \
               --returnTargetExitCode
             ((i=i+1))
