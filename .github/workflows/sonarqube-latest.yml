@@ -53,29 +53,19 @@ jobs:
       - name: Build solution
         run: dotnet build ballware-meta-service.sln --no-incremental
 
-      - name: Find all test projects
-        id: find-tests
+      - name: Run coverage for all test projects
         run: |
-          projects=$(find ./test -name '*.Tests.csproj')
-          echo "found_projects<<EOF" >> $GITHUB_OUTPUT
-          echo "$projects" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Run dotCover for each test project
-        run: |
-          mkdir coverage
+          mkdir -p coverage
           i=0
-          while read -r project; do
+          find ./test -name '*.Tests.csproj' | while read project; do
             echo "Running coverage for: $project"
-            output="coverage/project_$i.dcvr"
-            dotnet dotcover/dotCover.dll cover-dotnet \
-              --output="$output" \
-              -- \
-              test "$project" \
-                --no-build \
-                --configuration Release
+            dotnet dotcover/dotCover.dll cover \
+              --targetExecutable="dotnet" \
+              --targetArguments="test $project --no-build --configuration Release --logger trx" \
+              --output="coverage/project_$i.dcvr" \
+              --returnTargetExitCode
             ((i=i+1))
-          done <<< "${{ steps.find-tests.outputs.found_projects }}"
+          done
 
       - name: Merge coverage snapshots
         run: |
