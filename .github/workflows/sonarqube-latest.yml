@@ -57,6 +57,7 @@ jobs:
         run: |
           dotnet dotcover/dotCover.dll cover-dotnet \
             --output="coverage.dcvr" \
+            --working-dir="${{ github.workspace }}" \
             -- \
             test ballware-meta-service.sln \
               --no-build \
