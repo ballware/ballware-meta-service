@@ -54,10 +54,10 @@ jobs:
         run: dotnet build ballware-meta-service.sln --no-incremental
 
       - name: Run dotCover using new CLI
+        working-directory: ${{ github.workspace }}
         run: |
           dotnet dotcover/dotCover.dll cover-dotnet \
             --output="coverage.dcvr" \
-            --working-dir="${{ github.workspace }}" \
             -- \
             test ballware-meta-service.sln \
               --no-build \
