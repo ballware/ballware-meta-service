@@ -153,9 +153,9 @@ namespace Ballware.Schema.Client
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task TenantDropEntitySchemaForTenantAsync(System.Guid tenantId, string application, string identifier, System.Guid? userId)
+        public virtual System.Threading.Tasks.Task TenantDropEntitySchemaForTenantAsync(System.Guid tenantId, string identifier, System.Guid? userId)
         {
-            return TenantDropEntitySchemaForTenantAsync(tenantId, application, identifier, userId, System.Threading.CancellationToken.None);
+            return TenantDropEntitySchemaForTenantAsync(tenantId, identifier, userId, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
@@ -163,9 +163,9 @@ namespace Ballware.Schema.Client
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual void TenantDropEntitySchemaForTenant(System.Guid tenantId, string application, string identifier, System.Guid? userId)
+        public virtual void TenantDropEntitySchemaForTenant(System.Guid tenantId, string identifier, System.Guid? userId)
         {
-            System.Threading.Tasks.Task.Run(async () => await TenantDropEntitySchemaForTenantAsync(tenantId, application, identifier, userId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            System.Threading.Tasks.Task.Run(async () => await TenantDropEntitySchemaForTenantAsync(tenantId, identifier, userId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -174,21 +174,17 @@ namespace Ballware.Schema.Client
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task TenantDropEntitySchemaForTenantAsync(System.Guid tenantId, string application, string identifier, System.Guid? userId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task TenantDropEntitySchemaForTenantAsync(System.Guid tenantId, string identifier, System.Guid? userId, System.Threading.CancellationToken cancellationToken)
         {
             if (tenantId == null)
                 throw new System.ArgumentNullException("tenantId");
-
-            if (application == null)
-                throw new System.ArgumentNullException("application");
 
             if (identifier == null)
                 throw new System.ArgumentNullException("identifier");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/tenant/dropentityschemafortenant/{tenantId}/{application}/{identifier}?");
+            urlBuilder_.Append("api/tenant/dropentityschemafortenant/{tenantId}/{identifier}?");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{application}", System.Uri.EscapeDataString(ConvertToString(application, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
             if (userId != null)
             {

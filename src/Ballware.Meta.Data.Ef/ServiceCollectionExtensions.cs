@@ -56,6 +56,9 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<ITenantableRepository<ProcessingState>, ProcessingStateMetaRepository>();
         services.AddScoped<IProcessingStateMetaRepository, ProcessingStateMetaRepository>();
+        
+        services.AddScoped<ITenantableRepository<EntityRight>, EntityRightMetaRepository>();
+        services.AddScoped<IEntityRightMetaRepository, EntityRightMetaRepository>();
 
         services.AddScoped<ITenantableRepository<Statistic>, StatisticMetaRepository>();
         services.AddScoped<IStatisticMetaRepository, StatisticMetaRepository>();

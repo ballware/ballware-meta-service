@@ -107,6 +107,13 @@ class StorageMappingProfile : Profile
         CreateMap<Persistables.ProcessingState, Public.ProcessingState>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
 
+        CreateMap<Public.EntityRight, Persistables.EntityRight>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
+
+        CreateMap<Persistables.EntityRight, Public.EntityRight>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        
         CreateMap<Public.Statistic, Persistables.Statistic>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));

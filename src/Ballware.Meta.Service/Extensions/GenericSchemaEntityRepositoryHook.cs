@@ -20,7 +20,7 @@ public class GenericSchemaEntityRepositoryHook
     public void AfterSave(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, Data.Public.EntityMetadata value,
         EntityMetadata persistable, bool insert)
     {
-        if (value.GeneratedSchema && !string.IsNullOrEmpty(value.ProviderModelDefinition))
+        if ("providermodel".Equals(identifier, StringComparison.InvariantCultureIgnoreCase) && value.GeneratedSchema && !string.IsNullOrEmpty(value.ProviderModelDefinition))
         {
             SchemaClient.TenantCreateOrUpdateEntitySchemaForTenant(persistable.TenantId, new EntitySchema()
             {
@@ -34,7 +34,7 @@ public class GenericSchemaEntityRepositoryHook
     {
         if (persistable.GeneratedSchema && !string.IsNullOrEmpty(persistable.Application) && !string.IsNullOrEmpty(persistable.Entity))
         {
-            SchemaClient.TenantDropEntitySchemaForTenant(persistable.TenantId, persistable.Application, persistable.Entity, userId);
+            SchemaClient.TenantDropEntitySchemaForTenant(persistable.TenantId, persistable.Entity, userId);
         }
     }
 }

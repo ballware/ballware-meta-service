@@ -21,6 +21,24 @@ public static class ProcessingStateMetaEndpoint
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
+        app.MapGet(basePath + "/selectlist", HandleSelectListAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<ProcessingStateSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectList")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query all processing states");
+        
+        app.MapGet(basePath + "/selectbyid/{id}", HandleSelectByIdAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<ProcessingStateSelectListEntry>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectById")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query single processing state by id");
+        
         app.MapGet(basePath + "/selectlistforentity/{identifier}", HandleSelectListForEntityByIdentifierAsync)
             .RequireAuthorization(authorizationScope)
             .Produces<IEnumerable<ProcessingStateSelectListEntry>>()
@@ -77,6 +95,34 @@ public static class ProcessingStateMetaEndpoint
             .WithSummary("Query single processing state for entity by identifier and state");
         
         return app;
+    }
+    
+    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IProcessingStateMetaRepository repository, ClaimsPrincipal user)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+
+        try
+        {
+            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
+    }
+    
+    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IProcessingStateMetaRepository repository, ClaimsPrincipal user, Guid id)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+
+        try
+        {
+            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+        }
     }
     
     public static async Task<IResult> HandleSelectListForEntityByIdentifierAsync(IPrincipalUtils principalUtils, IProcessingStateMetaRepository repository, ClaimsPrincipal user, string identifier)
