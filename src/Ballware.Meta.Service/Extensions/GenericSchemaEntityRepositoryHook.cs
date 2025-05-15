@@ -20,7 +20,10 @@ public class GenericSchemaEntityRepositoryHook
     public void AfterSave(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, Data.Public.EntityMetadata value,
         EntityMetadata persistable, bool insert)
     {
-        if ("providermodel".Equals(identifier, StringComparison.InvariantCultureIgnoreCase) && value.GeneratedSchema && !string.IsNullOrEmpty(value.ProviderModelDefinition))
+        if (("importjson".Equals(identifier, StringComparison.InvariantCultureIgnoreCase) 
+             || "providermodel".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)) 
+            && value.GeneratedSchema 
+            && !string.IsNullOrEmpty(value.ProviderModelDefinition))
         {
             SchemaClient.TenantCreateOrUpdateEntitySchemaForTenant(persistable.TenantId, new EntitySchema()
             {
@@ -32,7 +35,7 @@ public class GenericSchemaEntityRepositoryHook
 
     public void BeforeRemove(Guid tenantId, Guid? userId, IDictionary<string, object> claims, EntityMetadata persistable)
     {
-        if (persistable.GeneratedSchema && !string.IsNullOrEmpty(persistable.Application) && !string.IsNullOrEmpty(persistable.Entity))
+        if (persistable.GeneratedSchema && !string.IsNullOrEmpty(persistable.Entity))
         {
             SchemaClient.TenantDropEntitySchemaForTenant(persistable.TenantId, persistable.Entity, userId);
         }

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,21 @@ class ProcessingStateMetaRepository : TenantableBaseRepository<Public.Processing
 {
     public ProcessingStateMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.ProcessingState, Persistables.ProcessingState>? hook = null) 
         : base(mapper, dbContext, hook) { }
+
+    protected override IQueryable<ProcessingState> ListQuery(IQueryable<ProcessingState> query, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    {
+        if ("entity".Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+        {
+            if (!queryParams.TryGetValue("entity", out var entity)) 
+            {
+                throw new ArgumentException("Entity parameter is required");
+            }
+
+            return query.Where(er => er.Entity == entity.ToString());
+        }
+        
+        return base.ListQuery(query, identifier, claims, queryParams);
+    }
 
     public virtual async Task<IEnumerable<ProcessingStateSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {

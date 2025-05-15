@@ -27,6 +27,16 @@ public static class TenantableEditingEndpoint
             .WithTags(apiTag)
             .WithSummary("Query all");
         
+        app.MapGet(basePath + "/query", TenantableEndpointHandlerFactory.CreateQueryHandler<TEntity>(application, entity))
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<TEntity>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(apiOperationPrefix + "Query")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query items by query identifier and params");
+        
         app.MapGet(basePath + "/new", TenantableEndpointHandlerFactory.CreateNewHandler<TEntity>(application, entity))
             .RequireAuthorization(authorizationScope)
             .Produces<TEntity>()
@@ -57,7 +67,7 @@ public static class TenantableEditingEndpoint
             .WithTags(apiTag)
             .WithSummary("Save existing or new tenant");
         
-        app.MapDelete(basePath + "/remove", TenantableEndpointHandlerFactory.CreateRemoveHandler<TEntity>(application, entity))
+        app.MapDelete(basePath + "/remove/{id}", TenantableEndpointHandlerFactory.CreateRemoveHandler<TEntity>(application, entity))
             .RequireAuthorization(authorizationScope)
             .Produces<TEntity>()
             .Produces(StatusCodes.Status401Unauthorized)

@@ -22,6 +22,9 @@ public static class TenantableEndpointHandlerFactory
     public delegate Task<IResult> HandleAllDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
         ITenantMetaRepository tenantMetaRepository, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
 
+    public delegate Task<IResult> HandleQueryDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
+        ITenantMetaRepository tenantMetaRepository, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier, QueryValueBag query) where TEntity : class;
+    
     public delegate Task<IResult> HandleNewDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
         ITenantMetaRepository tenantMetaRepository, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
     
@@ -77,6 +80,39 @@ public static class TenantableEndpointHandlerFactory
             try
             {
                 return Results.Ok(await repository.AllAsync(tenantId, identifier, claims));
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            }
+        };
+    }
+    
+    public static HandleQueryDelegate<TEntity> CreateQueryHandler<TEntity>(string application, string entity) where TEntity : class 
+    {
+        return async (principalUtils, rightsChecker, tenantMetaRepository, repository, user, identifier, query) =>
+        {
+            var tenantId = principalUtils.GetUserTenandId(user);
+
+            var claims = principalUtils.GetUserClaims(user);
+            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+            var queryParams = GetQueryParams(query.Query);
+
+            if (tenant == null)
+            {
+                return Results.NotFound($"Tenant {tenantId} not found");
+            }
+            
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
+            
+            if (!tenantAuthorized)
+            {
+                return Results.Unauthorized();
+            }
+            
+            try
+            {
+                return Results.Ok(await repository.QueryAsync(tenantId, identifier, claims, queryParams));
             }
             catch (Exception ex)
             {

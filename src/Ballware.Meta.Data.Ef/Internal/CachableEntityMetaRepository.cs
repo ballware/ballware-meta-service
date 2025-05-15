@@ -9,9 +9,14 @@ class CachableEntityMetaRepository : EntityMetaRepository
 {
     private ITenantAwareEntityCache Cache { get; }
 
-    public CachableEntityMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantAwareEntityCache cache
-        , ITenantableRepositoryHook<Public.EntityMetadata, Persistables.EntityMetadata>? hook = null)
-        : base(mapper, dbContext, hook)
+    public CachableEntityMetaRepository(IMapper mapper, MetaDbContext dbContext,
+        IProcessingStateMetaRepository processingStateMetaRepository,
+        IPickvalueMetaRepository pickvalueMetaRepository,
+        IEntityRightMetaRepository entityRightMetaRepository,
+        ICharacteristicAssociationMetaRepository characteristicAssociationMetaRepository,
+        ITenantAwareEntityCache cache, 
+        ITenantableRepositoryHook<Public.EntityMetadata, Persistables.EntityMetadata>? hook = null)
+        : base(mapper, processingStateMetaRepository, pickvalueMetaRepository, entityRightMetaRepository, characteristicAssociationMetaRepository, dbContext, hook)
     {
         Cache = cache;
     }

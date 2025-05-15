@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using AutoMapper;
 using Ballware.Meta.Data.Persistables;
@@ -42,40 +43,41 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
     }
 
     protected virtual IQueryable<TPersistable> ByIdQuery(IQueryable<TPersistable> query, string identifier,
-        IDictionary<string, object> claims, Guid id)
+        IDictionary<string, object> claims, Guid tenantId, Guid id)
     {
         return query;
     }
 
-    protected virtual TPersistable New(string identifier, IDictionary<string, object> claims, IDictionary<string, object>? queryParams)
+    protected virtual Task<TPersistable> ProduceNewAsync(string identifier, IDictionary<string, object> claims, IDictionary<string, object>? queryParams, Guid tenantId)
     {
-        return new TPersistable()
+        return Task.FromResult(new TPersistable()
         {
-            Uuid = Guid.NewGuid(),
-        };
+            TenantId = tenantId,
+            Uuid = Guid.NewGuid()
+        });
     }
 
-    protected virtual TEditable ById(string identifier, IDictionary<string, object> claims, TEditable value)
+    protected virtual Task<TEditable> ExtendByIdAsync(string identifier, IDictionary<string, object> claims, Guid tenantId, TEditable value)
     {
-        return value;
+        return Task.FromResult(value);
     }
 
-    protected virtual void BeforeSave(Guid tenantId, Guid? userId, string identifier,
+    protected virtual async Task BeforeSaveAsync(Guid tenantId, Guid? userId, string identifier,
         IDictionary<string, object> claims, TEditable value, bool insert)
     {
-        Hook?.BeforeSave(tenantId, userId, identifier, claims, value, insert);
+        await Task.Run(() => Hook?.BeforeSave(tenantId, userId, identifier, claims, value, insert));
     }
 
-    protected virtual void AfterSave(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims,
+    protected virtual async Task AfterSaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims,
         TEditable value, TPersistable persistable, bool insert)
     {
-        Hook?.AfterSave(tenantId, userId, identifier, claims, value, persistable, insert);
+        await Task.Run(() => Hook?.AfterSave(tenantId, userId, identifier, claims, value, persistable, insert));
     }
     
-    protected virtual RemoveResult RemovePreliminaryCheck(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
+    protected virtual async Task<RemoveResult> RemovePreliminaryCheckAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
         IDictionary<string, object> removeParams)
     {
-        var hookResult = Hook?.RemovePreliminaryCheck(tenantId, userId, claims, removeParams);
+        var hookResult = await Task.Run(() => Hook?.RemovePreliminaryCheck(tenantId, userId, claims, removeParams));
         
         if (hookResult != null)
         {
@@ -85,14 +87,14 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         return new RemoveResult()
         {
             Result = true,
-            Messages = Array.Empty<string>()
+            Messages = []
         };
     }
 
-    protected virtual void BeforeRemove(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
+    protected virtual async Task BeforeRemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
         TPersistable persistable)
     {
-        Hook?.BeforeRemove(tenantId, userId, claims, persistable);
+        await Task.Run(() => Hook?.BeforeRemove(tenantId, userId, claims, persistable));
     }
 
     public Task<IEnumerable<TEditable>> AllAsync(Guid tenantId, string identifier, IDictionary<string, object> claims)
@@ -112,35 +114,30 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
                 .LongCount());
     }
 
-    public Task<TEditable?> ByIdAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, Guid id)
+    public async Task<TEditable?> ByIdAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, Guid id)
     {
-        return Task.Run(() =>
-            ByIdQuery(Context.Set<TPersistable>().Where(t => t.TenantId == tenantId && t.Uuid == id), identifier,
-                claims, id).AsEnumerable().Select(Mapper.Map<TEditable>).Select(e => ById(identifier, claims, e)).FirstOrDefault());
+        var result = Mapper.Map<TEditable>(await ByIdQuery(Context.Set<TPersistable>().Where(t => t.TenantId == tenantId && t.Uuid == id), identifier,
+            claims, tenantId, id).FirstOrDefaultAsync());
+
+        return await ExtendByIdAsync(identifier, claims, tenantId, result);
     }
 
-    public Task<TEditable> NewAsync(Guid tenantId, string identifier, IDictionary<string, object> claims)
+    public async Task<TEditable> NewAsync(Guid tenantId, string identifier, IDictionary<string, object> claims)
     {
-        return Task.Run(() =>
-        {
-            var instance = New(identifier, claims, null);
+        var instance = await ProduceNewAsync(identifier, claims, ImmutableDictionary<string, object>.Empty, tenantId);
 
-            instance.TenantId = tenantId;
+        instance.TenantId = tenantId;
 
-            return Mapper.Map<TEditable>(instance);
-        });
+        return Mapper.Map<TEditable>(instance);
     }
 
-    public Task<TEditable> NewQueryAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    public async Task<TEditable> NewQueryAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
-        return Task.Run(() =>
-        {
-            var instance = New(identifier, claims, queryParams);
+        var instance = await ProduceNewAsync(identifier, claims, queryParams, tenantId);
 
-            instance.TenantId = tenantId;
+        instance.TenantId = tenantId;
 
-            return Mapper.Map<TEditable>(instance);
-        });
+        return Mapper.Map<TEditable>(instance);
     }
 
     public async Task SaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value)
@@ -150,7 +147,7 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
 
         var insert = persistedItem == null;
 
-        BeforeSave(tenantId, userId, identifier, claims, value, insert);
+        await BeforeSaveAsync(tenantId, userId, identifier, claims, value, insert);
 
         if (persistedItem == null)
         {
@@ -180,14 +177,14 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
             Context.Set<TPersistable>().Update(persistedItem);
         }
 
-        AfterSave(tenantId, userId, identifier, claims, value, persistedItem, insert);
+        await AfterSaveAsync(tenantId, userId, identifier, claims, value, persistedItem, insert);
 
         await Context.SaveChangesAsync();
     }
 
     public async Task<RemoveResult> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
     {
-        var result = RemovePreliminaryCheck(tenantId, userId, claims, removeParams);
+        var result = await RemovePreliminaryCheckAsync(tenantId, userId, claims, removeParams);
 
         if (!result.Result)
         {
@@ -201,7 +198,7 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
 
             if (persistedItem != null)
             {
-                BeforeRemove(tenantId, userId, claims, persistedItem);
+                await BeforeRemoveAsync(tenantId, userId, claims, persistedItem);
 
                 Context.Set<TPersistable>().Remove(persistedItem);
 
@@ -235,7 +232,7 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
 
     public async Task<ExportResult> ExportAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
-        var items = (await QueryAsync(tenantId, identifier, claims, queryParams)).Select(e => ById(identifier, claims, e));
+        var items = await Task.WhenAll((await QueryAsync(tenantId, identifier, claims, queryParams)).Select(e => ExtendByIdAsync(identifier, claims, tenantId, e)));
 
         return new ExportResult()
         {
