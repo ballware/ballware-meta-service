@@ -34,7 +34,8 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
     {
         var result = await base.ExtendByIdAsync(identifier, claims, tenantId, value);
 
-        if (result.Entity != null && "exportjson".Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+        if (result.Entity != null && ("exportjson".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)
+            || "primary".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)))
         {
             result.States = await ProcessingStateMetaRepository.QueryAsync(tenantId, "entity", claims, new Dictionary<string, object>
             {
@@ -63,7 +64,8 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
     protected override async Task AfterSaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, EntityMetadata value,
         Persistables.EntityMetadata persistable, bool insert)
     {
-        if (value.Entity != null && "importjson".Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+        if (value.Entity != null && ("importjson".Equals(identifier, StringComparison.InvariantCultureIgnoreCase) 
+                                     || "primary".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)))
         {
             await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, value.States,
                 ProcessingStateMetaRepository);

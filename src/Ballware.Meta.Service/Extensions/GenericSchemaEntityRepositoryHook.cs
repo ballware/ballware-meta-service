@@ -21,7 +21,8 @@ public class GenericSchemaEntityRepositoryHook
         EntityMetadata persistable, bool insert)
     {
         if (("importjson".Equals(identifier, StringComparison.InvariantCultureIgnoreCase) 
-             || "providermodel".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)) 
+             || "providermodel".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)
+             || "primary".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)) 
             && value.GeneratedSchema 
             && !string.IsNullOrEmpty(value.ProviderModelDefinition))
         {

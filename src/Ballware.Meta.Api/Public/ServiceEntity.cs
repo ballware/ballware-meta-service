@@ -17,6 +17,7 @@ public class ServiceEntity
     public IEnumerable<ServiceEntityQueryEntry> ByIdQuery { get; set; }
     public IEnumerable<ServiceEntityQueryEntry> NewQuery { get; set; }
     public string? ScalarValueQuery { get; set; }
+    public string? StateColumn { get; set; }
     public IEnumerable<ServiceEntityQueryEntry> SaveStatement { get; set; }
     public string? RemoveStatement { get; set; }
     public string? RemovePreliminaryCheckScript { get; set; }
