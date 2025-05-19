@@ -119,7 +119,12 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         var result = Mapper.Map<TEditable>(await ByIdQuery(Context.Set<TPersistable>().Where(t => t.TenantId == tenantId && t.Uuid == id), identifier,
             claims, tenantId, id).FirstOrDefaultAsync());
 
-        return await ExtendByIdAsync(identifier, claims, tenantId, result);
+        if (result != null)
+        {
+            return await ExtendByIdAsync(identifier, claims, tenantId, result);    
+        }
+
+        return result;
     }
 
     public async Task<TEditable> NewAsync(Guid tenantId, string identifier, IDictionary<string, object> claims)

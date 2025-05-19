@@ -1,5 +1,6 @@
 using System.Reflection;
 using Ballware.Meta.Data.Ef.Configuration;
+using Ballware.Meta.Data.Ef.Tests.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,21 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Ballware.Meta.Data.Ef.Tests;
 
 [TestFixture]
-public class AdminTenantSeedTest
+public class AdminTenantSeedTest : DatabaseBackedBaseTest
 {
-    private WebApplicationBuilder PreparedBuilder { get; set; } = null!;
-
     [SetUp]
     public void Setup()
     {
-        PreparedBuilder = WebApplication.CreateBuilder();
-
-        PreparedBuilder.Configuration.Sources.Clear();
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings_with_migrations.json"), optional: false);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings_with_migrations.{PreparedBuilder.Environment.EnvironmentName}.json"), true, true);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings_with_migrations.local.json"), true, true);
-        PreparedBuilder.Configuration.AddEnvironmentVariables();
-
         PreparedBuilder.Services.AddAutoMapper(config =>
         {
             config.AddBallwareStorageMappings();
@@ -32,7 +23,7 @@ public class AdminTenantSeedTest
     public async Task Auto_seed_admin_tenant_succeed()
     {
         var storageOptions = PreparedBuilder.Configuration.GetSection("Storage").Get<StorageOptions>();
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("MetaConnection");
+        var connectionString = MasterConnectionString;
 
         Assert.Multiple(() =>
         {
@@ -69,7 +60,7 @@ public class AdminTenantSeedTest
     public async Task Seed_admin_tenant_not_existing_succeed()
     {
         var storageOptions = PreparedBuilder.Configuration.GetSection("Storage").Get<StorageOptions>();
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("MetaConnection");
+        var connectionString = MasterConnectionString;
 
         Assert.Multiple(() =>
         {
@@ -118,7 +109,7 @@ public class AdminTenantSeedTest
     public async Task Seed_admin_tenant_already_existing_succeed()
     {
         var storageOptions = PreparedBuilder.Configuration.GetSection("Storage").Get<StorageOptions>();
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("MetaConnection");
+        var connectionString = MasterConnectionString;
 
         Assert.Multiple(() =>
         {
