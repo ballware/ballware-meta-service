@@ -24,10 +24,13 @@ public class ExportCreatePayload
 
 public static class ExportMetaEndpoint
 {
+    private const string ApiTag = "Export";
+    private const string ApiOperationPrefix = "Export";
+    
     public static IEndpointRouteBuilder MapExportMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Export",
-        string apiOperationPrefix = "Export",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -36,8 +39,8 @@ public static class ExportMetaEndpoint
 
     public static IEndpointRouteBuilder MapExportServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Export",
-        string apiOperationPrefix = "Export",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
@@ -71,7 +74,7 @@ public static class ExportMetaEndpoint
         return export != null ? Results.Ok(export) : Results.NotFound();
     }
     
-    private static async Task<IResult> HandleCreateForTenantBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IExportMetaRepository repository, Guid tenantId, Guid userId, ExportCreatePayload payload)
+    private static async Task<IResult> HandleCreateForTenantBehalfOfUserAsync(IExportMetaRepository repository, Guid tenantId, Guid userId, ExportCreatePayload payload)
     {
         var export = await repository.NewAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty);
         

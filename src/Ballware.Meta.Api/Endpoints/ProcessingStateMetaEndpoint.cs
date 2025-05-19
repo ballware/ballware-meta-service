@@ -10,10 +10,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class ProcessingStateMetaEndpoint
 {
+    private const string ApiTag = "ProcessingState";
+    private const string ApiOperationPrefix = "ProcessingState";
+    
     public static IEndpointRouteBuilder MapProcessingStateMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "ProcessingState",
-        string apiOperationPrefix = "ProcessingState",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -67,8 +70,8 @@ public static class ProcessingStateMetaEndpoint
 
     public static IEndpointRouteBuilder MapProcessingStateServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "ProcessingState",
-        string apiOperationPrefix = "ProcessingState",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
@@ -121,7 +124,7 @@ public static class ProcessingStateMetaEndpoint
         return Results.Ok(await repository.SelectByStateAsync(tenantId, identifier, state));
     }
     
-    private static async Task<IResult> HandleSelectByStateForTenantAndEntityByIdentifierAsync(IPrincipalUtils principalUtils, IProcessingStateMetaRepository repository, ClaimsPrincipal user, Guid tenantId, string identifier, int state)
+    private static async Task<IResult> HandleSelectByStateForTenantAndEntityByIdentifierAsync(IProcessingStateMetaRepository repository, Guid tenantId, string identifier, int state)
     {
         return Results.Ok(await repository.SelectByStateAsync(tenantId, identifier, state));
     }

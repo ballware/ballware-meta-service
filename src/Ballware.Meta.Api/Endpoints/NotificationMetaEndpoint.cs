@@ -13,10 +13,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class NotificationMetaEndpoint
 {
+    private const string ApiTag = "Notification";
+    private const string ApiOperationPrefix = "Notification";
+    
     public static IEndpointRouteBuilder MapNotificationMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Notification",
-        string apiOperationPrefix = "Notification",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {   
@@ -43,8 +46,8 @@ public static class NotificationMetaEndpoint
 
     public static IEndpointRouteBuilder MapNotificationServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Notification",
-        string apiOperationPrefix = "Notification",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
@@ -83,12 +86,12 @@ public static class NotificationMetaEndpoint
         return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
     }
     
-    private static async Task<IResult> HandleMetadataByTenantAndIdAsync(IPrincipalUtils principalUtils, INotificationMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid id)
+    private static async Task<IResult> HandleMetadataByTenantAndIdAsync(INotificationMetaRepository repository, Guid tenantId, Guid id)
     {
         return Results.Ok(await repository.MetadataByTenantAndIdAsync(tenantId, id));
     }
     
-    private static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(IPrincipalUtils principalUtils, INotificationMetaRepository repository, ClaimsPrincipal user, Guid tenantId, string identifier)
+    private static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(INotificationMetaRepository repository, Guid tenantId, string identifier)
     {
         return Results.Ok(await repository.MetadataByTenantAndIdentifierAsync(tenantId, identifier));
     }

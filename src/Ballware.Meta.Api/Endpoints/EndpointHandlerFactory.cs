@@ -15,7 +15,12 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class EndpointHandlerFactory
 {
-    public static readonly string DefaultQuery = "primary";
+    private static readonly string DefaultQuery = "primary";
+    private static readonly string RightView = "view";
+    private static readonly string RightAdd = "add";
+    private static readonly string RightEdit = "edit";
+    private static readonly string RightDelete = "delete";
+    private static readonly string RightExport = "export";
 
     public delegate Task<IResult> HandleAllDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
         ITenantMetaRepository tenantMetaRepository, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
@@ -65,7 +70,7 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
             
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, RightView);
             
             if (!tenantAuthorized)
             {
@@ -92,7 +97,7 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
 
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, "add");
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, RightAdd);
 
             if (!tenantAuthorized)
             {
@@ -119,7 +124,7 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
 
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, RightView);
 
             if (!tenantAuthorized)
             {
@@ -147,7 +152,7 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
             
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == DefaultQuery ? "edit" : identifier);
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == DefaultQuery ? RightEdit : identifier);
             
             if (!tenantAuthorized)
             {
@@ -176,7 +181,7 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
             
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, "delete");
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, RightDelete);
             
             if (!tenantAuthorized)
             {
@@ -213,7 +218,7 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
             
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == DefaultQuery ? "edit" : identifier);
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == DefaultQuery ? RightEdit : identifier);
             
             if (!tenantAuthorized)
             {
@@ -264,14 +269,14 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
         
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier ?? "export");
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier ?? RightExport);
         
             if (!tenantAuthorized)
             {
                 return Results.Unauthorized();
             }
         
-            var export = await repository.ExportAsync(identifier ?? "export", claims, queryParams);
+            var export = await repository.ExportAsync(identifier ?? RightExport, claims, queryParams);
         
             return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
         }; 
@@ -302,14 +307,14 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
         
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier ?? "export");
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier ?? RightExport);
         
             if (!tenantAuthorized)
             {
                 return Results.Unauthorized();
             }
         
-            var export = await repository.ExportAsync(identifier ?? "export", claims, queryParams);
+            var export = await repository.ExportAsync(identifier ?? RightExport, claims, queryParams);
         
             var exportEntry = await exportMetaRepository.NewAsync(tenantId, DefaultQuery, claims);
 

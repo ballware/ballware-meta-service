@@ -14,10 +14,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class NotificationTriggerMetaEndpoint
 {
+    private const string ApiTag = "NotificationTrigger";
+    private const string ApiOperationPrefix = "NotificationTrigger";
+    
     public static IEndpointRouteBuilder MapNotificationTriggerMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "NotificationTrigger",
-        string apiOperationPrefix = "NotificationTrigger",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {   
@@ -26,8 +29,8 @@ public static class NotificationTriggerMetaEndpoint
 
     public static IEndpointRouteBuilder MapNotificationTriggerServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "NotificationTrigger",
-        string apiOperationPrefix = "NotificationTrigger",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   

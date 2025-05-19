@@ -14,10 +14,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class SubscriptionMetaEndpoint
 {
+    private const string ApiTag = "Subscription";
+    private const string ApiOperationPrefix = "Subscription";
+    
     public static IEndpointRouteBuilder MapSubscriptionMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Subscription",
-        string apiOperationPrefix = "Subscription",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -44,8 +47,8 @@ public static class SubscriptionMetaEndpoint
 
     public static IEndpointRouteBuilder MapSubscriptionServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Subscription",
-        string apiOperationPrefix = "Subscription",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {

@@ -11,10 +11,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class StatisticMetaEndpoint
 {
+    private const string ApiTag = "Statistic";
+    private const string ApiOperationPrefix = "Statistic";
+    
     public static IEndpointRouteBuilder MapStatisticMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Statistic",
-        string apiOperationPrefix = "Statistic",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -50,8 +53,8 @@ public static class StatisticMetaEndpoint
 
     public static IEndpointRouteBuilder MapStatisticServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Statistic",
-        string apiOperationPrefix = "Statistic",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   

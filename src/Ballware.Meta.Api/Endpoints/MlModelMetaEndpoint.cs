@@ -1,6 +1,4 @@
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Public;
@@ -14,10 +12,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class MlModelMetaEndpoint
 {
+    private const string ApiTag = "MlModel";
+    private const string ApiOperationPrefix = "MlModel";
+    
     public static IEndpointRouteBuilder MapMlModelMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "MlModel",
-        string apiOperationPrefix = "MlModel",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {   
@@ -44,8 +45,8 @@ public static class MlModelMetaEndpoint
 
     public static IEndpointRouteBuilder MapMlModelServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "MlModel",
-        string apiOperationPrefix = "MlModel",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
@@ -93,7 +94,7 @@ public static class MlModelMetaEndpoint
         return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
     }
     
-    private static async Task<IResult> HandleMetadataByTenantAndIdAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid id)
+    private static async Task<IResult> HandleMetadataByTenantAndIdAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, Guid tenantId, Guid id)
     {
         var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
         
@@ -107,7 +108,7 @@ public static class MlModelMetaEndpoint
         return Results.Ok(model);
     }
     
-    private static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid tenantId, string identifier)
+    private static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, Guid tenantId, string identifier)
     {
         var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
         

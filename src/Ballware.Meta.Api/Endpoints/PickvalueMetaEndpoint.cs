@@ -14,10 +14,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class PickvalueMetaEndpoint
 {
+    private const string ApiTag = "Pickvalue";
+    private const string ApiOperationPrefix = "Pickvalue";
+    
     public static IEndpointRouteBuilder MapPickvalueMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Pickvalue",
-        string apiOperationPrefix = "Pickvalue",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -44,8 +47,8 @@ public static class PickvalueMetaEndpoint
 
     public static IEndpointRouteBuilder MapPickvalueServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Pickvalue",
-        string apiOperationPrefix = "Pickvalue",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
@@ -75,7 +78,7 @@ public static class PickvalueMetaEndpoint
         return Results.Ok(await repository.SelectByValueAsync(tenantId, entity, field, value));
     }
     
-    private static async Task<IResult> HandleSelectByValueForTenantEntityAndFieldAsync(IPrincipalUtils principalUtils, IPickvalueMetaRepository repository, ClaimsPrincipal user, Guid tenantId, string entity, string field, int value)
+    private static async Task<IResult> HandleSelectByValueForTenantEntityAndFieldAsync(IPickvalueMetaRepository repository, Guid tenantId, string entity, string field, int value)
     {
         return Results.Ok(await repository.SelectByValueAsync(tenantId, entity, field, value));
     }

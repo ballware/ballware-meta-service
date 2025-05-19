@@ -16,10 +16,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class EntityMetaEndpoint
 {
+    private const string ApiTag = "Entity";
+    private const string ApiOperationPrefix = "Entity";
+    
     public static IEndpointRouteBuilder MapEntityMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Entity",
-        string apiOperationPrefix = "Entity",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -73,8 +76,8 @@ public static class EntityMetaEndpoint
 
     public static IEndpointRouteBuilder MapEntityServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Entity",
-        string apiOperationPrefix = "Entity",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   

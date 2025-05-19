@@ -15,10 +15,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class LookupMetaEndpoint
 {
+    private const string ApiTag = "Lookup";
+    private const string ApiOperationPrefix = "Lookup";
+    
     public static IEndpointRouteBuilder MapLookupMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Lookup",
-        string apiOperationPrefix = "Lookup",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -45,8 +48,8 @@ public static class LookupMetaEndpoint
 
     public static IEndpointRouteBuilder MapLookupServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Lookup",
-        string apiOperationPrefix = "Lookup",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   

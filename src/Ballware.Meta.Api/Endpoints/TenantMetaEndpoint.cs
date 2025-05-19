@@ -14,10 +14,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class TenantMetaEndpoint
 {
+    private const string ApiTag = "Tenant";
+    private const string ApiOperationPrefix = "Tenant";
+    
     public static IEndpointRouteBuilder MapTenantMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Tenant",
-        string apiOperationPrefix = "Tenant",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -64,8 +67,8 @@ public static class TenantMetaEndpoint
 
     public static IEndpointRouteBuilder MapTenantServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Tenant",
-        string apiOperationPrefix = "Tenant",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {
@@ -112,7 +115,7 @@ public static class TenantMetaEndpoint
         return Results.Ok(await repository.SelectByIdAsync(id));
     }
     
-    private static async Task<IResult> HandleServiceMetadataForTenantAsync(IMapper mapper, IPrincipalUtils principalUtils, ClaimsPrincipal user,
+    private static async Task<IResult> HandleServiceMetadataForTenantAsync(IMapper mapper, 
         ITenantMetaRepository tenantMetaRepository, Guid tenantId)
     {
         return Results.Ok(mapper.Map<ServiceTenant>(await tenantMetaRepository.ByIdAsync(tenantId)));
@@ -126,7 +129,7 @@ public static class TenantMetaEndpoint
         return Results.Ok(await tenantMetaRepository.AllowedTenantsAsync(claims));
     }
     
-    private static async Task<IResult> HandleReportMetaDatasourcesForTenant(IMapper mapper, IMetaDbConnectionFactory metaDbConnectionFactory, ClaimsPrincipal user,
+    private static async Task<IResult> HandleReportMetaDatasourcesForTenant(IMapper mapper, IMetaDbConnectionFactory metaDbConnectionFactory,
         ITenantMetaRepository tenantMetaRepository, 
         IEntityMetaRepository entityMetaRepository, 
         ILookupMetaRepository lookupMetaRepository,

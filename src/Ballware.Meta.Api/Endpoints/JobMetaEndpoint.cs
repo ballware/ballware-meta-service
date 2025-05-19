@@ -26,10 +26,13 @@ public class JobUpdatePayload
 
 public static class JobMetaEndpoint
 {
+    private const string ApiTag = "Job";
+    private const string ApiOperationPrefix = "Job";
+    
     public static IEndpointRouteBuilder MapJobMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Job",
-        string apiOperationPrefix = "Job",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -47,8 +50,8 @@ public static class JobMetaEndpoint
 
     public static IEndpointRouteBuilder MapJobServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Job",
-        string apiOperationPrefix = "Job",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
@@ -90,7 +93,7 @@ public static class JobMetaEndpoint
         return Results.Ok(await repository.PendingJobsForUser(tenant, userId));
     }
     
-    private static async Task<IResult> HandleCreateJobForTenantBehalfOfUserAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid userId, JobCreatePayload data)
+    private static async Task<IResult> HandleCreateJobForTenantBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, Guid tenantId, Guid userId, JobCreatePayload data)
     {
         var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
     
@@ -104,7 +107,7 @@ public static class JobMetaEndpoint
         return Results.Ok(job);
     }
     
-    private static async Task<IResult> HandleUpdateJobForTenantBehalfOfUserAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid userId, JobUpdatePayload data)
+    private static async Task<IResult> HandleUpdateJobForTenantBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, Guid tenantId, Guid userId, JobUpdatePayload data)
     {
         var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
     
