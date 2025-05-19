@@ -4,13 +4,13 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using MimeTypes;
-using Newtonsoft.Json;
 using Quartz;
 
 namespace Ballware.Meta.Api.Endpoints;
@@ -306,13 +306,13 @@ public static class TenantableEndpointHandlerFactory
                         jobData["tenantId"] = tenantId;
                         jobData["userId"] = currentUserId;
                         jobData["identifier"] = identifier;
-                        jobData["claims"] = JsonConvert.SerializeObject(claims);
+                        jobData["claims"] = JsonSerializer.Serialize(claims);
                         jobData["filename"] = file.FileName;
 
                         await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
 
                         var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "generic",
-                            "import", JsonConvert.SerializeObject(jobData));
+                            "import", JsonSerializer.Serialize(jobData));
 
                         jobData["jobId"] = job.Id;
 

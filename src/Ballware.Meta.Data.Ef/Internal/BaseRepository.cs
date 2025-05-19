@@ -1,11 +1,10 @@
 using System.Text;
+using System.Text.Json;
 using AutoMapper;
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
@@ -213,7 +212,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
     {
         using var textReader = new StreamReader(importStream);
 
-        var items = JsonConvert.DeserializeObject<IEnumerable<TEditable>>(await textReader.ReadToEndAsync());
+        var items = JsonSerializer.Deserialize<IEnumerable<TEditable>>(await textReader.ReadToEndAsync());
 
         if (items == null)
         {
@@ -236,7 +235,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         return new ExportResult()
         {
             FileName = $"{identifier}.json",
-            Data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(items)),
+            Data = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(items)),
             MediaType = "application/json",
         };
     }

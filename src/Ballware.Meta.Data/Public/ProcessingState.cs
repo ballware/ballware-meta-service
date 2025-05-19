@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
-
-namespace Ballware.Meta.Data.Public;
+﻿namespace Ballware.Meta.Data.Public;
 
 public class ProcessingState : IEditable
 {

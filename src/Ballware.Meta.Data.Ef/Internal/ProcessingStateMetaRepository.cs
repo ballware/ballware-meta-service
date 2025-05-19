@@ -1,9 +1,9 @@
+using System.Text.Json;
 using AutoMapper;
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
@@ -62,7 +62,7 @@ class ProcessingStateMetaRepository : TenantableBaseRepository<Public.Processing
             .SingleAsync(p => p.TenantId == tenantId && p.Entity == entity && p.State == state);
 
         var possibleSuccessors = !string.IsNullOrEmpty(currentState.Successors)
-            ? JsonConvert.DeserializeObject<Guid[]>(currentState.Successors) ?? Array.Empty<Guid>() : Array.Empty<Guid>();
+            ? JsonSerializer.Deserialize<Guid[]>(currentState.Successors) ?? Array.Empty<Guid>() : Array.Empty<Guid>();
 
         return Context.ProcessingStates.Where(p => p.TenantId == tenantId && possibleSuccessors.Contains(p.Uuid))
             .Select(c => new ProcessingStateSelectListEntry { Id = c.Uuid, State = c.State, Name = c.Name, Locked = c.RecordLocked, Finished = c.RecordFinished, ReasonRequired = c.ReasonRequired });

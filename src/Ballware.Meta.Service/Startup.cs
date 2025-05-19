@@ -37,6 +37,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             options.SerializerOptions.PropertyNamingPolicy = null; // = PascalCase
         });
         
+        Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+        {
+            options.SerializerOptions.PropertyNamingPolicy = null; // = PascalCase
+        });
+        
         CorsOptions? corsOptions = Configuration.GetSection("Cors").Get<CorsOptions>();
         AuthorizationOptions? authorizationOptions =
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
@@ -135,12 +140,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddMvcCore()
             .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
-            .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver())
             .AddApiExplorer();
 
         Services.AddControllers()
-            .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
-            .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver());
+            .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
         
         Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
         Services.AddQuartz(q =>
@@ -266,8 +269,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     }
                 });
             });
-
-            Services.AddSwaggerGenNewtonsoftSupport();
         }
     }
 

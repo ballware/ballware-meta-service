@@ -1,12 +1,12 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Ballware.Meta.Api.Public;
 
 public class ServiceEntityQueryEntry
 {
-    [JsonProperty("identifier")]
+    [JsonPropertyName("identifier")]
     public string? Identifier { get; set; }
 
-    [JsonProperty("query")]
+    [JsonPropertyName("query")]
     public string? Query { get; set; }
 }

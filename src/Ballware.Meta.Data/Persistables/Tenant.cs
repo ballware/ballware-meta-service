@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Ballware.Meta.Data.Persistables;
-
-
 
 [Table("Tenant")]
 public class Tenant : IEntity, IAuditable
@@ -11,7 +9,7 @@ public class Tenant : IEntity, IAuditable
     [JsonIgnore]
     public long? Id { get; set; }
 
-    [JsonProperty(nameof(Id))]
+    [JsonPropertyName(nameof(Id))]
     public Guid Uuid { get; set; }
     public string? Name { get; set; }
     public string? Navigation { get; set; }

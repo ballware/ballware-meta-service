@@ -1,118 +1,119 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Ballware.Meta.Data.Public;
 
 public class EntityQueryEntry
 {
-    [JsonProperty("identifier")]
+    [JsonPropertyName("identifier")]
     public string? Identifier { get; set; }
 
-    [JsonProperty("query")]
+    [JsonPropertyName("query")]
     public string? Query { get; set; }
 }
 
 public class EntityCustomFunction
 {
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string? Identifier { get; set; }
 }
 
 public class EntityImportFunctionOptions
 {
-    [JsonProperty("format")]
+    [JsonPropertyName("format")]
     public string? Format { get; set; }
 
-    [JsonProperty("delimiter")]
+    [JsonPropertyName("delimiter")]
     public string? Delimiter { get; set; }
 }
 
 public class EntityExportFunctionOptions
 {
-    [JsonProperty("format")]
+    [JsonPropertyName("format")]
     public string? Format { get; set; }
 
-    [JsonProperty("delimiter")]
+    [JsonPropertyName("delimiter")]
     public string? Delimiter { get; set; }
 }
 
 public class EntityCustomExportFunction : EntityCustomFunction
 {
-    [JsonProperty("options")]
+    [JsonPropertyName("options")]
     public EntityExportFunctionOptions? Options { get; set; }
 }
 
 public class EntityCustomImportFunction : EntityCustomFunction
 {
-    [JsonProperty("options")]
+    [JsonPropertyName("options")]
     public EntityImportFunctionOptions? Options { get; set; }
 }
 
 public class EntityCustomScripts
 {
-    [JsonProperty("extendedRightsCheck")]
+    [JsonPropertyName("extendedRightsCheck")]
     public string? ExtendedRightsCheck { get; set; }
 
-    [JsonProperty("rightsParamForHead")]
+    [JsonPropertyName("rightsParamForHead")]
     public string? RightsParamForHead { get; set; }
 
-    [JsonProperty("rightsParamForItem")]
+    [JsonPropertyName("rightsParamForItem")]
     public string? RightsParamForItem { get; set; }
 
-    [JsonProperty("prepareCustomParam")]
+    [JsonPropertyName("prepareCustomParam")]
     public string? PrepareCustomParam { get; set; }
 
-    [JsonProperty("prepareGridLayout")]
+    [JsonPropertyName("prepareGridLayout")]
     public string? PrepareGridLayout { get; set; }
 
-    [JsonProperty("prepareEditLayout")]
+    [JsonPropertyName("prepareEditLayout")]
     public string? PrepareEditLayout { get; set; }
 
-    [JsonProperty("editorPreparing")]
+    [JsonPropertyName("editorPreparing")]
     public string? EditorPreparing { get; set; }
 
-    [JsonProperty("editorInitialized")]
+    [JsonPropertyName("editorInitialized")]
     public string? EditorInitialized { get; set; }
 
-    [JsonProperty("editorValueChanged")]
+    [JsonPropertyName("editorValueChanged")]
     public string? EditorValueChanged { get; set; }
 
-    [JsonProperty("editorEntered")]
+    [JsonPropertyName("editorEntered")]
     public string? EditorEntered { get; set; }
 
-    [JsonProperty("editorEvent")]
+    [JsonPropertyName("editorEvent")]
     public string? EditorEvent { get; set; }
 
-    [JsonProperty("editorValidating")]
+    [JsonPropertyName("editorValidating")]
     public string? EditorValidating { get; set; }
 
-    [JsonProperty("detailGridCellPreparing")]
+    [JsonPropertyName("detailGridCellPreparing")]
     public string? DetailGridCellPreparing { get; set; }
 
-    [JsonProperty("detailGridRowValidating")]
+    [JsonPropertyName("detailGridRowValidating")]
     public string? DetailGridRowValidating { get; set; }
 
-    [JsonProperty("initNewDetailItem")]
+    [JsonPropertyName("initNewDetailItem")]
     public string? InitNewDetailItem { get; set; }
 
-    [JsonProperty("prepareCustomFunction")]
+    [JsonPropertyName("prepareCustomFunction")]
     public string? PrepareCustomFunction { get; set; }
 
-    [JsonProperty("evaluateCustomFunction")]
+    [JsonPropertyName("evaluateCustomFunction")]
     public string? EvaluateCustomFunction { get; set; }
 
-    [JsonProperty("prepareTemplateInstance")]
+    [JsonPropertyName("prepareTemplateInstance")]
     public string? PrepareTemplateInstance { get; set; }
 }
 
 public class EntityIndex
 {
-    [JsonProperty("identifier")]
+    [JsonPropertyName("identifier")]
     public string? Identifier { get; set; }
 
-    [JsonProperty("unique")]
+    [JsonPropertyName("unique")]
     public bool Unique { get; set; }
 
-    [JsonProperty("members")]
+    [JsonPropertyName("members")]
     public string[]? Members { get; set; }
 }
 
@@ -120,33 +121,33 @@ public static class MetadataExtensions
 {
     public static EntityQueryEntry? GetQueryByIdentifier(this string serializedQueryContainer, string identifier)
     {
-        var queries = JsonConvert.DeserializeObject<EntityQueryEntry[]>(serializedQueryContainer);
+        var queries = JsonSerializer.Deserialize<EntityQueryEntry[]>(serializedQueryContainer);
 
         return queries?.FirstOrDefault(q => identifier.Equals(q.Identifier, StringComparison.OrdinalIgnoreCase));
     }
 
     public static EntityCustomImportFunction? GetImportFunctionByIdentifier(this string serializedFunctionsContainer, string identifier)
     {
-        var queries = JsonConvert.DeserializeObject<EntityCustomImportFunction[]>(serializedFunctionsContainer);
+        var queries = JsonSerializer.Deserialize<EntityCustomImportFunction[]>(serializedFunctionsContainer);
 
         return queries?.FirstOrDefault(q => identifier.Equals(q.Identifier, StringComparison.OrdinalIgnoreCase));
     }
 
     public static EntityCustomExportFunction? GetExportFunctionByIdentifier(this string serializedFunctionsContainer, string identifier)
     {
-        var queries = JsonConvert.DeserializeObject<EntityCustomExportFunction[]>(serializedFunctionsContainer);
+        var queries = JsonSerializer.Deserialize<EntityCustomExportFunction[]>(serializedFunctionsContainer);
 
         return queries?.FirstOrDefault(q => identifier.Equals(q.Identifier, StringComparison.OrdinalIgnoreCase));
     }
 
     public static EntityCustomScripts? GetCustomScripts(this string serializedCustomScripts)
     {
-        return JsonConvert.DeserializeObject<EntityCustomScripts>(serializedCustomScripts);
+        return JsonSerializer.Deserialize<EntityCustomScripts>(serializedCustomScripts);
     }
 
     public static IEnumerable<EntityIndex>? GetEntityIndices(this EntityMetadata metadata)
     {
-        return JsonConvert.DeserializeObject<EntityIndex[]>(metadata.Indices ?? "[]");
+        return JsonSerializer.Deserialize<EntityIndex[]>(metadata.Indices ?? "[]");
     }
 }
 

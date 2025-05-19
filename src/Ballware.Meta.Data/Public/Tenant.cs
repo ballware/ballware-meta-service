@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 
 namespace Ballware.Meta.Data.Public;
 
@@ -60,12 +60,6 @@ public static class TenantExtensions
 {
     public static IEnumerable<ReportDatasourceDefinition>? ToReportSchemaDefinition(this string serializedSchemaDefinition)
     {
-        using (var textReader = new StringReader(serializedSchemaDefinition))
-        using (var jsonReader = new JsonTextReader(textReader))
-        {
-            var schemaDefinitions = JsonSerializer.Create().Deserialize<List<ReportDatasourceDefinition>>(jsonReader);
-
-            return schemaDefinitions;
-        }
+        return JsonSerializer.Deserialize<List<ReportDatasourceDefinition>>(serializedSchemaDefinition);
     }
 }

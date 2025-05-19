@@ -1,11 +1,9 @@
-using System.Net.Sockets;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 
 namespace Ballware.Meta.Api.Public;
 
-[JsonConverter(typeof(StringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ServiceEntityCustomFunctionTypes
 {
     [EnumMember(Value="add")]
@@ -28,21 +26,21 @@ public enum ServiceEntityCustomFunctionTypes
 
 public class ServiceEntityCustomFunction
 {
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Identifier { get; set; }
     
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public ServiceEntityCustomFunctionTypes Type { get; set; }
     
-    [JsonProperty("options")]
+    [JsonPropertyName("options")]
     public ServiceEntityCustomFunctionOptions? Options { get; set; }
 }
 
 public class ServiceEntityCustomFunctionOptions
 {
-    [JsonProperty("format")]
+    [JsonPropertyName("format")]
     public string? Format { get; set; }
 
-    [JsonProperty("delimiter")]
+    [JsonPropertyName("delimiter")]
     public string? Delimiter { get; set; }
 }

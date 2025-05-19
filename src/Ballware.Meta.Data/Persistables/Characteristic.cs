@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Ballware.Meta.Data.Common;
-using Newtonsoft.Json;
 
 namespace Ballware.Meta.Data.Persistables;
 
@@ -21,7 +21,7 @@ public class Characteristic : ICharacteristicData, IEntity, IAuditable, ITenanta
     [JsonIgnore]
     public virtual long? Id { get; set; }
 
-    [JsonProperty(nameof(Id))]
+    [JsonPropertyName(nameof(Id))]
     public virtual Guid Uuid { get; set; }
 
     [JsonIgnore]

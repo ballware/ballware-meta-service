@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
+using System.Text.Json;
 using Ballware.Meta.Data.Repository;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Document = Ballware.Meta.Data.Public.Document;
 using Documentation = Ballware.Meta.Data.Public.Documentation;
 using EntityMetadata = Ballware.Meta.Data.Public.EntityMetadata;
@@ -55,7 +55,7 @@ class MetadataFileSeeder : IMetadataSeeder
 
         using var textReader = new StreamReader(fileStream);
 
-        var tenants = JsonConvert.DeserializeObject<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
+        var tenants = JsonSerializer.Deserialize<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
         var tenant = tenants?.FirstOrDefault();
 
         return tenant?.Id;
@@ -66,7 +66,7 @@ class MetadataFileSeeder : IMetadataSeeder
         await using var fileStream = ReadSeedFile("admin-tenant.json");
         using var textReader = new StreamReader(fileStream);
 
-        var tenants = JsonConvert.DeserializeObject<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
+        var tenants = JsonSerializer.Deserialize<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
         var tenant = tenants?.FirstOrDefault();
 
         if (tenant != null)
@@ -97,7 +97,7 @@ class MetadataFileSeeder : IMetadataSeeder
         await using var fileStream = ReadSeedFile("customer-tenant.json");
         using var textReader = new StreamReader(fileStream);
 
-        var tenants = JsonConvert.DeserializeObject<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
+        var tenants = JsonSerializer.Deserialize<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
         var tenant = tenants?.FirstOrDefault();
 
         if (tenant != null)
@@ -133,7 +133,7 @@ class MetadataFileSeeder : IMetadataSeeder
 
         using var textReader = new StreamReader(fileStream);
 
-        var items = JsonConvert.DeserializeObject<IEnumerable<TEntity>>(await textReader.ReadToEndAsync());
+        var items = JsonSerializer.Deserialize<IEnumerable<TEntity>>(await textReader.ReadToEndAsync());
 
         if (items == null)
         {

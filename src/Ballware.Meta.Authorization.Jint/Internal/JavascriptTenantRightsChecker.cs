@@ -1,6 +1,6 @@
+using System.Text.Json;
 using Ballware.Meta.Data.Public;
 using Jint;
-using Newtonsoft.Json;
 
 namespace Ballware.Meta.Authorization.Jint.Internal;
 
@@ -14,7 +14,7 @@ class JavascriptTenantRightsChecker : ITenantRightsChecker
 
         if (!string.IsNullOrWhiteSpace(rightsScript))
         {
-            var userinfo = JsonConvert.SerializeObject(claims);
+            var userinfo = JsonSerializer.Serialize(claims);
 
             result = new Engine()
                 .SetValue("right", $"{application}.{entity}.{right}")
