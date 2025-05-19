@@ -23,7 +23,7 @@ class MetadataFileSeeder : IMetadataSeeder
     private IServiceProvider Services { get; }
     private string? SeedPath { get; }
 
-    private Stream ReadSeedFile(string filename)
+    private FileStream ReadSeedFile(string filename)
     {
         if (SeedPath == null || !File.Exists(Path.Combine(SeedPath, filename)))
         {
@@ -33,7 +33,7 @@ class MetadataFileSeeder : IMetadataSeeder
         return new FileStream(Path.Combine(SeedPath, filename), FileMode.Open, FileAccess.Read, FileShare.Read);
     }
 
-    private Stream? ReadOptionalSeedFile(string filename)
+    private FileStream? ReadOptionalSeedFile(string filename)
     {
         if (SeedPath == null || !File.Exists(Path.Combine(SeedPath, filename)))
         {

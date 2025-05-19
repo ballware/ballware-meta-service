@@ -53,33 +53,19 @@ public static class NotificationTriggerMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleCreateForTenantAndNotificationBehalfOfUserAsync(INotificationTriggerMetaRepository repository, Guid tenantId, Guid notificationId, Guid userId)
+    private static async Task<IResult> HandleCreateForTenantAndNotificationBehalfOfUserAsync(INotificationTriggerMetaRepository repository, Guid tenantId, Guid notificationId, Guid userId)
     {
-        try
-        {
-            var notificationTrigger = await repository.NewAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty);
-            
-            notificationTrigger.NotificationId = notificationId;
-            
-            return Results.Ok(notificationTrigger);
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        var notificationTrigger = await repository.NewAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty);
+        
+        notificationTrigger.NotificationId = notificationId;
+        
+        return Results.Ok(notificationTrigger);
     }
     
-    public static async Task<IResult> HandleSaveForTenantBehalfOfUserAsync(INotificationTriggerMetaRepository repository, Guid tenantId, Guid userId, NotificationTrigger payload)
+    private static async Task<IResult> HandleSaveForTenantBehalfOfUserAsync(INotificationTriggerMetaRepository repository, Guid tenantId, Guid userId, NotificationTrigger payload)
     {
-        try
-        {
-            await repository.SaveAsync(tenantId, userId, "primary", ImmutableDictionary<string, object>.Empty, payload);
-            
-            return Results.Ok();
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        await repository.SaveAsync(tenantId, userId, "primary", ImmutableDictionary<string, object>.Empty, payload);
+        
+        return Results.Ok();
     }
 }

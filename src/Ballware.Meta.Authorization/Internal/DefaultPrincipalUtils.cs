@@ -39,13 +39,13 @@ class DefaultPrincipalUtils : IPrincipalUtils
 
         foreach (var cl in principal.Claims)
         {
-            if (userinfoTemp.ContainsKey(cl.Type))
+            if (userinfoTemp.TryGetValue(cl.Type, out var existing))
             {
-                userinfoTemp[cl.Type].Add(cl.Value);
+                existing.Add(cl.Value);
             }
             else
             {
-                userinfoTemp.Add(cl.Type, new List<string>(new[] { cl.Value }));
+                userinfoTemp.Add(cl.Type, [cl.Value]);
             }
         }
 

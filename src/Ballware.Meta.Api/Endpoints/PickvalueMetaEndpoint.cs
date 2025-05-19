@@ -61,43 +61,22 @@ public static class PickvalueMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleSelectListForEntityAndFieldAsync(IPrincipalUtils principalUtils, IPickvalueMetaRepository repository, ClaimsPrincipal user, string entity, string field)
+    private static async Task<IResult> HandleSelectListForEntityAndFieldAsync(IPrincipalUtils principalUtils, IPickvalueMetaRepository repository, ClaimsPrincipal user, string entity, string field)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectListForEntityFieldAsync(tenantId, entity, field));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListForEntityFieldAsync(tenantId, entity, field));
     }
     
-    public static async Task<IResult> HandleSelectByValueForEntityAndFieldAsync(IPrincipalUtils principalUtils, IPickvalueMetaRepository repository, ClaimsPrincipal user, string entity, string field, int value)
+    private static async Task<IResult> HandleSelectByValueForEntityAndFieldAsync(IPrincipalUtils principalUtils, IPickvalueMetaRepository repository, ClaimsPrincipal user, string entity, string field, int value)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectByValueAsync(tenantId, entity, field, value));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByValueAsync(tenantId, entity, field, value));
     }
     
-    public static async Task<IResult> HandleSelectByValueForTenantEntityAndFieldAsync(IPrincipalUtils principalUtils, IPickvalueMetaRepository repository, ClaimsPrincipal user, Guid tenantId, string entity, string field, int value)
+    private static async Task<IResult> HandleSelectByValueForTenantEntityAndFieldAsync(IPrincipalUtils principalUtils, IPickvalueMetaRepository repository, ClaimsPrincipal user, Guid tenantId, string entity, string field, int value)
     {
-        try
-        {
-            return Results.Ok(await repository.SelectByValueAsync(tenantId, entity, field, value));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByValueAsync(tenantId, entity, field, value));
     }
 }

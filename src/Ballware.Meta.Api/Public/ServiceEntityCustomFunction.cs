@@ -27,7 +27,7 @@ public enum ServiceEntityCustomFunctionTypes
 public class ServiceEntityCustomFunction
 {
     [JsonPropertyName("id")]
-    public string Identifier { get; set; }
+    public required string Identifier { get; set; }
     
     [JsonPropertyName("type")]
     public ServiceEntityCustomFunctionTypes Type { get; set; }

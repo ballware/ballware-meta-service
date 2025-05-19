@@ -80,73 +80,38 @@ public static class LookupMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, ILookupMetaRepository repository, ClaimsPrincipal user)
+    private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, ILookupMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, ILookupMetaRepository repository, ClaimsPrincipal user, Guid id)
+    private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, ILookupMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
     }
     
-    public static async Task<IResult> HandleMetadataForTenantAndIdAsync(ILookupMetaRepository repository, Guid tenantId, Guid id)
+    private static async Task<IResult> HandleMetadataForTenantAndIdAsync(ILookupMetaRepository repository, Guid tenantId, Guid id)
     {
-        try
-        {
-            var lookup = await repository.ByIdAsync(tenantId, id);
+        var lookup = await repository.ByIdAsync(tenantId, id);
 
-            return Results.Ok(lookup);
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(lookup);
     }
     
-    public static async Task<IResult> HandleMetadataForTenantAndIdentifierAsync(ILookupMetaRepository repository, Guid tenantId, string identifier)
+    private static async Task<IResult> HandleMetadataForTenantAndIdentifierAsync(ILookupMetaRepository repository, Guid tenantId, string identifier)
     {
-        try
-        {
-            var lookup = await repository.ByIdentifierAsync(tenantId, identifier);
+        var lookup = await repository.ByIdentifierAsync(tenantId, identifier);
 
-            return Results.Ok(lookup);
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(lookup);
     }
     
-    public static async Task<IResult> HandleMetadataForTenantAsync(ILookupMetaRepository repository, Guid tenantId)
+    private static async Task<IResult> HandleMetadataForTenantAsync(ILookupMetaRepository repository, Guid tenantId)
     {
-        try
-        {
-            var lookups = await repository.AllForTenantAsync(tenantId);
+        var lookups = await repository.AllForTenantAsync(tenantId);
 
-            return Results.Ok(lookups);
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(lookups);
     }
 }

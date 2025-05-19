@@ -90,85 +90,43 @@ public static class EntityMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleMetadataByIdentifierAsync(IMapper mapper, IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
+    private static async Task<IResult> HandleMetadataByIdentifierAsync(IMapper mapper, IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(mapper.Map<MetaEntity>(await repository.ByEntityAsync(tenantId, identifier)));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(mapper.Map<MetaEntity>(await repository.ByEntityAsync(tenantId, identifier)));
     }
     
-    public static async Task<IResult> HandleServiceMetadataByIdentifierAsync(IMapper mapper, IEntityMetaRepository repository, Guid tenantId, string identifier)
+    private static async Task<IResult> HandleServiceMetadataByIdentifierAsync(IMapper mapper, IEntityMetaRepository repository, Guid tenantId, string identifier)
     {
-        try
-        {
-            return Results.Ok(mapper.Map<ServiceEntity>(await repository.ByEntityAsync(tenantId, identifier)));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(mapper.Map<ServiceEntity>(await repository.ByEntityAsync(tenantId, identifier)));
     }
     
-    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user)
+    private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, Guid id)
+    private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
     }
     
-    public static async Task<IResult> HandleSelectByIdentifierAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
+    private static async Task<IResult> HandleSelectByIdentifierAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectByIdentifierForTenantAsync(tenantId, identifier));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByIdentifierForTenantAsync(tenantId, identifier));
     }
     
-    public static async Task<IResult> HandleSelectListRightsAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user)
+    private static async Task<IResult> HandleSelectListRightsAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectListEntityRightsForTenantAsync(tenantId));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListEntityRightsForTenantAsync(tenantId));
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -77,7 +76,7 @@ public static class TenantableEditingEndpoint
             .WithTags(apiTag)
             .WithSummary("Query existing tenant");
         
-        app.MapPost(basePath + "/import", TenantableEndpointHandlerFactory.CreateImportHandler<TEntity>(application, entity))
+        app.MapPost(basePath + "/import", TenantableEndpointHandlerFactory.CreateImportHandler(application, entity))
             .RequireAuthorization(authorizationScope)
             .DisableAntiforgery()
             .Produces(StatusCodes.Status201Created)

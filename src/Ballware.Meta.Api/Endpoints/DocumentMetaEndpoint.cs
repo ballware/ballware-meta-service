@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
@@ -17,10 +14,13 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class DocumentMetaEndpoint
 {
+    private const string ApiTag = "Document";
+    private const string ApiOperationPrefix = "Document";
+    
     public static IEndpointRouteBuilder MapDocumentMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
-        string apiTag = "Document",
-        string apiOperationPrefix = "Document",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
@@ -56,8 +56,8 @@ public static class DocumentMetaEndpoint
 
     public static IEndpointRouteBuilder MapDocumentServiceApi(this IEndpointRouteBuilder app,
         string basePath,
-        string apiTag = "Document",
-        string apiOperationPrefix = "Document",
+        string apiTag = ApiTag,
+        string apiOperationPrefix = ApiOperationPrefix,
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
@@ -106,100 +106,56 @@ public static class DocumentMetaEndpoint
         var tenantId = principalUtils.GetUserTenandId(user);
         var claims = principalUtils.GetUserClaims(user);
 
-        try
+        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+        
+        if (tenant == null)
         {
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-            
-            var documentList = (await repository.SelectListForTenantAndEntityAsync(tenantId, entity))
-                .ToAsyncEnumerable()
-                .WhereAwait(async d =>
-                    await tenantRightsChecker.HasRightAsync(tenant, "meta", "document", claims,
-                        $"visiblestate.{d.State}"))
-                .ToEnumerable();
+            return Results.NotFound("Tenant not found");
+        }
+        
+        var documentList = (await repository.SelectListForTenantAndEntityAsync(tenantId, entity))
+            .ToAsyncEnumerable()
+            .WhereAwait(async d =>
+                await tenantRightsChecker.HasRightAsync(tenant, "meta", "document", claims,
+                    $"visiblestate.{d.State}"))
+            .ToEnumerable();
 
-            return Results.Ok(documentList);
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(documentList);
     }
     
-    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user)
+    private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user, Guid id)
+    private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
     }
     
-    public static async Task<IResult> HandleSelectListForTenantAsync(IDocumentMetaRepository repository, Guid tenantId)
+    private static async Task<IResult> HandleSelectListForTenantAsync(IDocumentMetaRepository repository, Guid tenantId)
     {
-        try
-        {
-            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    public static async Task<IResult> HandleMetadataForTenantAndIdAsync(IDocumentMetaRepository repository, Guid tenantId, Guid id)
+    private static async Task<IResult> HandleMetadataForTenantAndIdAsync(IDocumentMetaRepository repository, Guid tenantId, Guid id)
     {
-        try
-        {
-            return Results.Ok(await repository.MetadataByTenantAndIdAsync(tenantId, id));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.MetadataByTenantAndIdAsync(tenantId, id));
     }
     
-    public static async Task<IResult> HandleNewForTenantAsync(IDocumentMetaRepository repository, Guid tenantId)
+    private static async Task<IResult> HandleNewForTenantAsync(IDocumentMetaRepository repository, Guid tenantId)
     {
-        try
-        {
-            return Results.Ok(await repository.NewAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.NewAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty));
     }
     
-    public static async Task<IResult> HandleSaveForTenantBehalfOfUserAsync(IDocumentMetaRepository repository, Guid tenantId, Guid userId, [FromBody] Document payload)
+    private static async Task<IResult> HandleSaveForTenantBehalfOfUserAsync(IDocumentMetaRepository repository, Guid tenantId, Guid userId, [FromBody] Document payload)
     {
-        try
-        {
-            await repository.SaveAsync(tenantId, userId, "primary", ImmutableDictionary<string, object>.Empty, payload);
+        await repository.SaveAsync(tenantId, userId, "primary", ImmutableDictionary<string, object>.Empty, payload);
             
-            return Results.Ok();
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok();
     }
 }

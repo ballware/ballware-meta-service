@@ -5,6 +5,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class CachableTenantMetaRepository : TenantMetaRepository
 {
+    private static string CacheKey => "tenant";
+    
     private ITenantAwareEntityCache Cache { get; }
 
     public CachableTenantMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantAwareEntityCache cache)
@@ -15,13 +17,13 @@ class CachableTenantMetaRepository : TenantMetaRepository
 
     public override async Task<Public.Tenant?> ByIdAsync(Guid id)
     {
-        if (!Cache.TryGetItem(id, "tenant", id.ToString(), out Public.Tenant? tenant))
+        if (!Cache.TryGetItem(id, CacheKey, id.ToString(), out Public.Tenant? tenant))
         {
             tenant = await base.ByIdAsync(id);
 
             if (tenant != null)
             {
-                Cache.SetItem(id, "tenant", tenant.Id.ToString(), tenant);
+                Cache.SetItem(id, CacheKey, tenant.Id.ToString(), tenant);
             }
         }
 

@@ -36,7 +36,7 @@ class JobMetaRepository : TenantableBaseRepository<Public.Job, Persistables.Job>
     }
 
     public virtual async Task<Public.Job> UpdateJobAsync(Public.Tenant tenant, Guid userId,
-        Guid id, JobStates state, string result)
+        Guid id, JobStates state, string? result)
     {
         var job = await Context.Jobs.SingleOrDefaultAsync(j => j.TenantId == tenant.Id && j.Uuid == id);
 

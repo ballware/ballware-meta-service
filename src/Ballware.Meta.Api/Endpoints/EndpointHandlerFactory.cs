@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Security.Claims;
 using System.Text;
@@ -73,14 +72,7 @@ public static class EndpointHandlerFactory
                 return Results.Unauthorized();
             }
             
-            try
-            {
-                return Results.Ok(await repository.AllAsync(identifier, claims));
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            return Results.Ok(await repository.AllAsync(identifier, claims));
         };
     }
 
@@ -107,15 +99,7 @@ public static class EndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
-            {
-                return Results.Ok(await repository.NewAsync(identifier, claims));
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message,
-                    detail: ex.StackTrace);
-            }
+            return Results.Ok(await repository.NewAsync(identifier, claims));
         };
     }
 
@@ -142,15 +126,7 @@ public static class EndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
-            {
-                return Results.Ok(await repository.ByIdAsync(identifier, claims, id));
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message,
-                    detail: ex.StackTrace);
-            }
+            return Results.Ok(await repository.ByIdAsync(identifier, claims, id));
         };
     }
     
@@ -178,16 +154,9 @@ public static class EndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
-            {
-                await repository.SaveAsync(currentUserId, identifier, claims, value);
+            await repository.SaveAsync(currentUserId, identifier, claims, value);
 
-                return Results.Ok();
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            return Results.Ok();
         };
     }
     
@@ -214,24 +183,17 @@ public static class EndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
+            var removeResult = await repository.RemoveAsync(currentUserId,claims, ImmutableDictionary.CreateRange(new []
             {
-                var removeResult = await repository.RemoveAsync(currentUserId,claims, ImmutableDictionary.CreateRange(new []
-                {
-                    new KeyValuePair<string, object>("Id", id),
-                }));
+                new KeyValuePair<string, object>("Id", id),
+            }));
 
-                if (!removeResult.Result)
-                {
-                    return Results.BadRequest(new Exception(string.Join("\r\n", removeResult.Messages)));
-                }
-
-                return Results.Ok();
-            }
-            catch (Exception ex)
+            if (!removeResult.Result)
             {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+                return Results.BadRequest(new Exception(string.Join("\r\n", removeResult.Messages)));
             }
+
+            return Results.Ok();
         };
     }
     
@@ -258,38 +220,31 @@ public static class EndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
+            foreach (var file in files)
             {
-                foreach (var file in files)
+                if (file != null)
                 {
-                    if (file != null)
-                    {
-                        var jobData = new JobDataMap();
+                    var jobData = new JobDataMap();
 
-                        jobData["tenantId"] = tenantId;
-                        jobData["userId"] = currentUserId;
-                        jobData["identifier"] = identifier;
-                        jobData["claims"] = JsonSerializer.Serialize(claims);
-                        jobData["filename"] = file.FileName;
+                    jobData["tenantId"] = tenantId;
+                    jobData["userId"] = currentUserId;
+                    jobData["identifier"] = identifier;
+                    jobData["claims"] = JsonSerializer.Serialize(claims);
+                    jobData["filename"] = file.FileName;
 
-                        await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName,
-                            file.ContentType, file.OpenReadStream());
+                    await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName,
+                        file.ContentType, file.OpenReadStream());
 
-                        var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "generic",
-                            "import", JsonSerializer.Serialize(jobData));
+                    var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "generic",
+                        "import", JsonSerializer.Serialize(jobData));
 
-                        jobData["jobId"] = job.Id;
+                    jobData["jobId"] = job.Id;
 
-                        await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", entity), jobData);
-                    }
+                    await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", entity), jobData);
                 }
+            }
 
-                return Results.Created();
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            return Results.Created();
         };        
     }
     
@@ -316,16 +271,9 @@ public static class EndpointHandlerFactory
                 return Results.Unauthorized();
             }
         
-            try
-            {
-                var export = await repository.ExportAsync(identifier ?? "export", claims, queryParams);
-            
-                return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            var export = await repository.ExportAsync(identifier ?? "export", claims, queryParams);
+        
+            return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
         }; 
     }
     
@@ -361,27 +309,20 @@ public static class EndpointHandlerFactory
                 return Results.Unauthorized();
             }
         
-            try
-            {
-                var export = await repository.ExportAsync(identifier ?? "export", claims, queryParams);
-            
-                var exportEntry = await exportMetaRepository.NewAsync(tenantId, DefaultQuery, claims);
+            var export = await repository.ExportAsync(identifier ?? "export", claims, queryParams);
+        
+            var exportEntry = await exportMetaRepository.NewAsync(tenantId, DefaultQuery, claims);
 
-                exportEntry.Entity = entity;
-                exportEntry.Query = identifier;
-                exportEntry.MediaType = export.MediaType;
-                exportEntry.ExpirationStamp = DateTime.Now.AddDays(1);
+            exportEntry.Entity = entity;
+            exportEntry.Query = identifier;
+            exportEntry.MediaType = export.MediaType;
+            exportEntry.ExpirationStamp = DateTime.Now.AddDays(1);
 
-                await storageAdapter.UploadFileForOwnerAsync("export", $"{exportEntry.Id}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
-            
-                await exportMetaRepository.SaveAsync(tenantId, currentUserId, DefaultQuery, claims, exportEntry);
+            await storageAdapter.UploadFileForOwnerAsync("export", $"{exportEntry.Id}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
+        
+            await exportMetaRepository.SaveAsync(tenantId, currentUserId, DefaultQuery, claims, exportEntry);
 
-                return Results.Content(exportEntry.Id.ToString());
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            return Results.Content(exportEntry.Id.ToString());
         };
     }
 
@@ -410,7 +351,7 @@ public static class EndpointHandlerFactory
         {
             if (queryEntry.Value.Count > 1)
             {
-                queryParams.Add(queryEntry.Key, $"|{string.Join('|', queryEntry.Value)}|");
+                queryParams.Add(queryEntry.Key, $"|{string.Join('|', queryEntry.Value.ToArray())}|");
             }
             else
             {

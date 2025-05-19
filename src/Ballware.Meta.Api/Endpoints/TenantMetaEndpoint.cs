@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using AutoMapper;
 using Ballware.Meta.Api.Public;
@@ -17,8 +14,6 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class TenantMetaEndpoint
 {
-    private static readonly string DefaultQuery = "primary";
-
     public static IEndpointRouteBuilder MapTenantMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
         string apiTag = "Tenant",
@@ -96,7 +91,7 @@ public static class TenantMetaEndpoint
         return app;
     }
 
-    public static async Task<IResult> HandleMetadataForTenantAsync(IMapper mapper, IPrincipalUtils principalUtils, ClaimsPrincipal user,
+    private static async Task<IResult> HandleMetadataForTenantAsync(IMapper mapper, IPrincipalUtils principalUtils, ClaimsPrincipal user,
         ITenantMetaRepository tenantMetaRepository, Guid tenantId)
     {
         var userTenantId = principalUtils.GetUserTenandId(user);
@@ -107,37 +102,23 @@ public static class TenantMetaEndpoint
         return Results.Ok(mapper.Map<MetaTenant>(await tenantMetaRepository.ByIdAsync(tenantId)));
     }
     
-    public static async Task<IResult> HandleSelectListAsync(ITenantMetaRepository repository)
+    private static async Task<IResult> HandleSelectListAsync(ITenantMetaRepository repository)
     {
-        try
-        {
-            return Results.Ok(await repository.SelectListAsync());
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListAsync());
     }
     
-    public static async Task<IResult> HandleSelectByIdAsync(ITenantMetaRepository repository, Guid id)
+    private static async Task<IResult> HandleSelectByIdAsync(ITenantMetaRepository repository, Guid id)
     {
-        try
-        {
-            return Results.Ok(await repository.SelectByIdAsync(id));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByIdAsync(id));
     }
     
-    public static async Task<IResult> HandleServiceMetadataForTenantAsync(IMapper mapper, IPrincipalUtils principalUtils, ClaimsPrincipal user,
+    private static async Task<IResult> HandleServiceMetadataForTenantAsync(IMapper mapper, IPrincipalUtils principalUtils, ClaimsPrincipal user,
         ITenantMetaRepository tenantMetaRepository, Guid tenantId)
     {
         return Results.Ok(mapper.Map<ServiceTenant>(await tenantMetaRepository.ByIdAsync(tenantId)));
     }
     
-    public static async Task<IResult> HandleAllowedTenantsForUserAsync(IPrincipalUtils principalUtils, ClaimsPrincipal user,
+    private static async Task<IResult> HandleAllowedTenantsForUserAsync(IPrincipalUtils principalUtils, ClaimsPrincipal user,
         ITenantMetaRepository tenantMetaRepository)
     {
         var claims = principalUtils.GetUserClaims(user);
@@ -145,7 +126,7 @@ public static class TenantMetaEndpoint
         return Results.Ok(await tenantMetaRepository.AllowedTenantsAsync(claims));
     }
     
-    public static async Task<IResult> HandleReportMetaDatasourcesForTenant(IMapper mapper, IMetaDbConnectionFactory metaDbConnectionFactory, ClaimsPrincipal user,
+    private static async Task<IResult> HandleReportMetaDatasourcesForTenant(IMapper mapper, IMetaDbConnectionFactory metaDbConnectionFactory, ClaimsPrincipal user,
         ITenantMetaRepository tenantMetaRepository, 
         IEntityMetaRepository entityMetaRepository, 
         ILookupMetaRepository lookupMetaRepository,
@@ -160,8 +141,6 @@ public static class TenantMetaEndpoint
         IProcessingStateMetaRepository processingStateMetaRepository,
         Guid tenantId)
     {
-        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-        
         var metaConnectionString = metaDbConnectionFactory.ConnectionString;
         
         var schemaDefinitions = new List<ReportDatasourceDefinition>();

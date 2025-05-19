@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -17,7 +14,7 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class TenantableEndpointHandlerFactory
 {
-    public static readonly string DefaultQuery = "primary";
+    private static readonly string DefaultQuery = "primary";
 
     public delegate Task<IResult> HandleAllDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
         ITenantMetaRepository tenantMetaRepository, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
@@ -37,10 +34,10 @@ public static class TenantableEndpointHandlerFactory
     public delegate Task<IResult> HandleRemoveDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
         ITenantMetaRepository tenantMetaRepository, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, Guid id) where TEntity : class;
 
-    public delegate Task<IResult> HandleImportDelegate<TEntity>(ISchedulerFactory schedulerFactory,
+    public delegate Task<IResult> HandleImportDelegate(ISchedulerFactory schedulerFactory,
         IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker, IJobMetaRepository jobMetaRepository,
         ITenantMetaRepository tenantMetaRepository, ClaimsPrincipal user, IMetaFileStorageAdapter storageAdapter, string identifier,
-        IFormFileCollection files) where TEntity : class;
+        IFormFileCollection files);
 
     public delegate Task<IResult> HandleExportDelegate<TEntity>(
         IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker, ITenantMetaRepository tenantMetaRepository, 
@@ -77,14 +74,7 @@ public static class TenantableEndpointHandlerFactory
                 return Results.Unauthorized();
             }
             
-            try
-            {
-                return Results.Ok(await repository.AllAsync(tenantId, identifier, claims));
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            return Results.Ok(await repository.AllAsync(tenantId, identifier, claims));
         };
     }
     
@@ -110,14 +100,7 @@ public static class TenantableEndpointHandlerFactory
                 return Results.Unauthorized();
             }
             
-            try
-            {
-                return Results.Ok(await repository.QueryAsync(tenantId, identifier, claims, queryParams));
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            return Results.Ok(await repository.QueryAsync(tenantId, identifier, claims, queryParams));
         };
     }
 
@@ -144,15 +127,7 @@ public static class TenantableEndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
-            {
-                return Results.Ok(await repository.NewAsync(tenantId, identifier, claims));
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message,
-                    detail: ex.StackTrace);
-            }
+            return Results.Ok(await repository.NewAsync(tenantId, identifier, claims));
         };
     }
 
@@ -179,15 +154,7 @@ public static class TenantableEndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
-            {
-                return Results.Ok(await repository.ByIdAsync(tenantId, identifier, claims, id));
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message,
-                    detail: ex.StackTrace);
-            }
+            return Results.Ok(await repository.ByIdAsync(tenantId, identifier, claims, id));
         };
     }
     
@@ -272,7 +239,7 @@ public static class TenantableEndpointHandlerFactory
         };
     }
     
-    public static HandleImportDelegate<TEntity> CreateImportHandler<TEntity>(string application, string entity) where TEntity: class
+    public static HandleImportDelegate CreateImportHandler(string application, string entity)
     {
         return async (schedulerFactory, principalUtils, rightsChecker, jobMetaRepository, tenantMetaRepository, user, storageAdapter, identifier, files) =>
         {
@@ -295,37 +262,27 @@ public static class TenantableEndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
+            foreach (var file in files)
             {
-                foreach (var file in files)
-                {
-                    if (file != null)
-                    {
-                        var jobData = new JobDataMap();
+                var jobData = new JobDataMap();
 
-                        jobData["tenantId"] = tenantId;
-                        jobData["userId"] = currentUserId;
-                        jobData["identifier"] = identifier;
-                        jobData["claims"] = JsonSerializer.Serialize(claims);
-                        jobData["filename"] = file.FileName;
+                jobData["tenantId"] = tenantId;
+                jobData["userId"] = currentUserId;
+                jobData["identifier"] = identifier;
+                jobData["claims"] = JsonSerializer.Serialize(claims);
+                jobData["filename"] = file.FileName;
 
-                        await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
+                await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
 
-                        var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "generic",
-                            "import", JsonSerializer.Serialize(jobData));
+                var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "generic",
+                    "import", JsonSerializer.Serialize(jobData));
 
-                        jobData["jobId"] = job.Id;
+                jobData["jobId"] = job.Id;
 
-                        await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", entity), jobData);
-                    }
-                }
-
-                return Results.Created();
+                await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", entity), jobData);
             }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+
+            return Results.Created();
         };        
     }
     
@@ -345,23 +302,16 @@ public static class TenantableEndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
         
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier ?? "export");
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
         
             if (!tenantAuthorized)
             {
                 return Results.Unauthorized();
             }
         
-            try
-            {
-                var export = await repository.ExportAsync(tenantId, identifier ?? "export", claims, queryParams);
-            
-                return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            var export = await repository.ExportAsync(tenantId, identifier, claims, queryParams);
+        
+            return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
         }; 
     }
     
@@ -390,34 +340,27 @@ public static class TenantableEndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
         
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier ?? "export");
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
         
             if (!tenantAuthorized)
             {
                 return Results.Unauthorized();
             }
         
-            try
-            {
-                var export = await repository.ExportAsync(tenantId, identifier ?? "export", claims, queryParams);
-            
-                var exportEntry = await exportMetaRepository.NewAsync(tenantId, DefaultQuery, claims);
+            var export = await repository.ExportAsync(tenantId, identifier, claims, queryParams);
+        
+            var exportEntry = await exportMetaRepository.NewAsync(tenantId, DefaultQuery, claims);
 
-                exportEntry.Entity = entity;
-                exportEntry.Query = identifier;
-                exportEntry.MediaType = export.MediaType;
-                exportEntry.ExpirationStamp = DateTime.Now.AddDays(1);
+            exportEntry.Entity = entity;
+            exportEntry.Query = identifier;
+            exportEntry.MediaType = export.MediaType;
+            exportEntry.ExpirationStamp = DateTime.Now.AddDays(1);
 
-                await storageAdapter.UploadFileForOwnerAsync("export", $"{exportEntry.Id}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
-            
-                await exportMetaRepository.SaveAsync(tenantId, currentUserId, DefaultQuery, claims, exportEntry);
+            await storageAdapter.UploadFileForOwnerAsync("export", $"{exportEntry.Id}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
+        
+            await exportMetaRepository.SaveAsync(tenantId, currentUserId, DefaultQuery, claims, exportEntry);
 
-                return Results.Content(exportEntry.Id.ToString());
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            return Results.Content(exportEntry.Id.ToString());
         };
     }
 
@@ -446,7 +389,7 @@ public static class TenantableEndpointHandlerFactory
         {
             if (queryEntry.Value.Count > 1)
             {
-                queryParams.Add(queryEntry.Key, $"|{string.Join('|', queryEntry.Value)}|");
+                queryParams.Add(queryEntry.Key, $"|{string.Join('|', queryEntry.Value.ToArray())}|");
             }
             else
             {

@@ -28,11 +28,11 @@ public sealed class NUnitLoggerProvider : ILoggerProvider
 
         public bool IsEnabled(LogLevel logLevel) => true;
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception, string> formatter)
         {
-            if (formatter != null)
+            if (exception != null)
             {
-                TestContext.Progress.WriteLine($"[{logLevel}] {_categoryName}: {formatter(state, exception)}");
+                TestContext.Progress.WriteLine($"[{logLevel}] {_categoryName}: {formatter(state, exception)}");    
             }
         }
     }

@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Public;
@@ -14,16 +12,16 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public class JobCreatePayload
 {
-    public string Scheduler { get; set; }
-    public string Identifier { get; set; }
-    public string Options { get; set; }
+    public required string Scheduler { get; set; }
+    public required string Identifier { get; set; }
+    public required string Options { get; set; }
 }
 
 public class JobUpdatePayload
 {
     public Guid Id { get; set; }
     public JobStates State { get; set; }
-    public string Result { get; set; }
+    public string? Result { get; set; }
 }
 
 public static class JobMetaEndpoint
@@ -77,52 +75,46 @@ public static class JobMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandlePendingJobsForUserAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, ClaimsPrincipal user)
+    private static async Task<IResult> HandlePendingJobsForUserAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
         var userId = principalUtils.GetUserId(user);
 
-        try
-        {
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
 
-            return Results.Ok(await repository.PendingJobsForUser(tenant, userId));
-        }
-        catch (Exception ex)
+        if (tenant == null)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            return Results.NotFound("Tenant not found");
         }
+
+        return Results.Ok(await repository.PendingJobsForUser(tenant, userId));
     }
     
-    public static async Task<IResult> HandleCreateJobForTenantBehalfOfUserAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid userId, JobCreatePayload data)
+    private static async Task<IResult> HandleCreateJobForTenantBehalfOfUserAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid userId, JobCreatePayload data)
     {
-        try
+        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+    
+        if (tenant == null)
         {
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+            return Results.NotFound("Tenant not found");
+        }
         
-            var job = await repository.CreateJobAsync(tenant, userId, data.Scheduler, data.Identifier, data.Options);
+        var job = await repository.CreateJobAsync(tenant, userId, data.Scheduler, data.Identifier, data.Options);
 
-            return Results.Ok(job);
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(job);
     }
     
-    public static async Task<IResult> HandleUpdateJobForTenantBehalfOfUserAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid userId, JobUpdatePayload data)
+    private static async Task<IResult> HandleUpdateJobForTenantBehalfOfUserAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid userId, JobUpdatePayload data)
     {
-        try
+        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+    
+        if (tenant == null)
         {
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+            return Results.NotFound("Tenant not found");
+        }
         
-            var job = await repository.UpdateJobAsync(tenant, userId, data.Id, data.State, data.Result);
+        var job = await repository.UpdateJobAsync(tenant, userId, data.Id, data.State, data.Result);
 
-            return Results.Ok(job);
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(job);
     }
 }

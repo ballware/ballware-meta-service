@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
@@ -36,7 +37,8 @@ public class MetaImportJob<TEntity, TRepository>
         var jobId = context.MergedJobDataMap.GetGuidValue("jobId");
         var userId = context.MergedJobDataMap.GetGuidValue("userId");
         var identifier = context.MergedJobDataMap.GetString("identifier");
-        var claims = JsonConvert.DeserializeObject<Dictionary<string, object>>(context.MergedJobDataMap.GetString("claims"));
+        var claims = JsonConvert.DeserializeObject<Dictionary<string, object>>(context.MergedJobDataMap.GetString("claims") ?? "{}") 
+                     ?? new Dictionary<string, object>();
         var filename = context.MergedJobDataMap.GetString("filename");
         
         var tenant = await TenantRepository.ByIdAsync(tenantId);

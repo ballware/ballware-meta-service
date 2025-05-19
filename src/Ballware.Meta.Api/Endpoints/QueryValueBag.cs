@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
@@ -14,6 +11,6 @@ public class QueryValueBag
     public static ValueTask<QueryValueBag> BindAsync(HttpContext context, ParameterInfo parameter)
     {
         var dict = context.Request.Query.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        return ValueTask.FromResult<QueryValueBag?>(new QueryValueBag { Query = dict });
+        return ValueTask.FromResult(new QueryValueBag { Query = dict });
     }
 }

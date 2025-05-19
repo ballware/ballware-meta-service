@@ -22,7 +22,7 @@ class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>,
         
         if (result != null)
         {
-            databaseObjects = await this.DatabaseObjectsByTenantAsync(result.Uuid);
+            databaseObjects = DatabaseObjectsByTenant(result.Uuid);
         }
         
         return result != null ? Mapper.Map<Public.Tenant>(result, opts =>
@@ -31,7 +31,7 @@ class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>,
         }) : null;
     }
 
-    public virtual async Task<IEnumerable<Public.TenantDatabaseObject>> DatabaseObjectsByTenantAsync(Guid tenant)
+    private IEnumerable<Public.TenantDatabaseObject> DatabaseObjectsByTenant(Guid tenant)
     {
         var results = Context.TenantDatabaseObjects.Where(o => o.TenantId == tenant);
         

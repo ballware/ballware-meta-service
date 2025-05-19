@@ -13,13 +13,14 @@ using Ballware.Meta.Service.Jobs;
 using Ballware.Schema.Client;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Serialization;
 using Quartz;
 using Quartz.AspNetCore;
+using Serilog;
 
 namespace Ballware.Meta.Service;
 
@@ -32,9 +33,9 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
     public void InitializeServices()
     {
-        services.Configure<JsonOptions>(options =>
+        Services.Configure<JsonOptions>(options =>
         {
-            options.SerializerOptions.PropertyNamingPolicy = null; // = PascalCase
+            options.JsonSerializerOptions.PropertyNamingPolicy = null; // = PascalCase
         });
         
         Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
@@ -198,10 +199,12 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 client.BaseAddress = new Uri(schemaClientOptions.ServiceUrl);
             })
+#if DEBUG            
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
             {
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
+#endif            
             .AddClientCredentialsTokenHandler("schema");
         
         Services.AddAutoMapper(config =>
@@ -221,7 +224,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddBallwareMetaAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareMetaJintRightsChecker();
 
-        services.AddEndpointsApiExplorer();
+        Services.AddEndpointsApiExplorer();
         
         if (swaggerOptions != null)
         {
@@ -279,6 +282,33 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             app.UseDeveloperExceptionPage();
             IdentityModelEventSource.ShowPII = true;
         }
+        
+        app.UseExceptionHandler(errorApp =>
+        {
+            errorApp.Run(async context =>
+            {
+                var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                var exception = exceptionFeature?.Error;
+
+                if (exception != null)
+                {
+                    Log.Error(exception, "Unhandled exception occurred");
+
+                    var problemDetails = new ProblemDetails
+                    {
+                        Type = "https://httpstatuses.com/500",
+                        Title = "An unexpected error occurred.",
+                        Status = StatusCodes.Status500InternalServerError,
+                        Detail = app.Environment.IsDevelopment() ? exception.ToString() : null,
+                        Instance = context.Request.Path
+                    };
+
+                    context.Response.StatusCode = problemDetails.Status.Value;
+                    context.Response.ContentType = "application/problem+json";
+                    await context.Response.WriteAsJsonAsync(problemDetails);
+                }
+            });
+        });
 
         app.UseCors();
         app.UseRouting();

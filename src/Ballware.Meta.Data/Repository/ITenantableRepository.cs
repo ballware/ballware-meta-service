@@ -2,15 +2,15 @@ namespace Ballware.Meta.Data.Repository;
 
 public struct RemoveResult
 {
-    public bool Result;
-    public IEnumerable<string> Messages;
+    public bool Result { get; init; }
+    public IEnumerable<string> Messages { get; init; }
 }
 
 public struct ExportResult
 {
-    public string FileName;
-    public string MediaType;
-    public byte[] Data;
+    public string FileName { get; init; }
+    public string MediaType { get; init; }
+    public byte[] Data { get; init; }
 }
 
 public interface ITenantableRepository<TEditable> where TEditable : class

@@ -79,76 +79,59 @@ public static class MlModelMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IMlModelMetaRepository repository, ClaimsPrincipal user)
+    private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IMlModelMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid id)
+    private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
     }
     
-    public static async Task<IResult> HandleMetadataByTenantAndIdAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid id)
+    private static async Task<IResult> HandleMetadataByTenantAndIdAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid tenantId, Guid id)
     {
-        try
+        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+        
+        if (tenant == null)
         {
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-            var model = await repository.MetadataByTenantAndIdAsync(tenant, id);
-            
-            return Results.Ok(model);
+            return Results.NotFound("Tenant not found");
         }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        
+        var model = await repository.MetadataByTenantAndIdAsync(tenant, id);
+        
+        return Results.Ok(model);
     }
     
-    public static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid tenantId, string identifier)
+    private static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid tenantId, string identifier)
     {
-        try
+        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+        
+        if (tenant == null)
         {
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-            var model = await repository.MetadataByTenantAndIdentifierAsync(tenant, identifier);
-            
-            return Results.Ok(model);
+            return Results.NotFound("Tenant not found");
         }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        
+        var model = await repository.MetadataByTenantAndIdentifierAsync(tenant, identifier);
+        
+        return Results.Ok(model);
     }
     
-    public static async Task<IResult> HandleSaveTrainingStateBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, Guid tenantId, Guid userId, MlModelTrainingState trainingState)
+    private static async Task<IResult> HandleSaveTrainingStateBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, Guid tenantId, Guid userId, MlModelTrainingState trainingState)
     {
-        try
+        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+        
+        if (tenant == null)
         {
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-            await repository.SaveTrainingStateAsync(tenant, userId, trainingState);
-            
-            return Results.Ok();
+            return Results.NotFound("Tenant not found");
         }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        
+        await repository.SaveTrainingStateAsync(tenant, userId, trainingState);
+        
+        return Results.Ok();
     }
 }

@@ -12,13 +12,13 @@ public class ServiceEntity
     public bool GeneratedSchema { get; set; }
     public bool NoIdentity { get; set; }
     
-    public IEnumerable<ServiceEntityCustomFunction> CustomFunctions { get; set; }
-    public IEnumerable<ServiceEntityQueryEntry> ListQuery { get; set; }
-    public IEnumerable<ServiceEntityQueryEntry> ByIdQuery { get; set; }
-    public IEnumerable<ServiceEntityQueryEntry> NewQuery { get; set; }
+    public IEnumerable<ServiceEntityCustomFunction>? CustomFunctions { get; set; }
+    public IEnumerable<ServiceEntityQueryEntry>? ListQuery { get; set; }
+    public IEnumerable<ServiceEntityQueryEntry>? ByIdQuery { get; set; }
+    public IEnumerable<ServiceEntityQueryEntry>? NewQuery { get; set; }
     public string? ScalarValueQuery { get; set; }
     public string? StateColumn { get; set; }
-    public IEnumerable<ServiceEntityQueryEntry> SaveStatement { get; set; }
+    public IEnumerable<ServiceEntityQueryEntry>? SaveStatement { get; set; }
     public string? RemoveStatement { get; set; }
     public string? RemovePreliminaryCheckScript { get; set; }
     public string? ListScript { get; set; }

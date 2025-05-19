@@ -10,5 +10,5 @@ public interface IJobMetaRepository : ITenantableRepository<Public.Job>
         string identifier, string options);
 
     Task<Public.Job> UpdateJobAsync(Public.Tenant tenant, Guid userId,
-        Guid id, JobStates state, string result);
+        Guid id, JobStates state, string? result);
 }

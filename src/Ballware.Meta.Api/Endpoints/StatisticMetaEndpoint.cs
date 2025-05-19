@@ -1,6 +1,4 @@
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
@@ -69,57 +67,29 @@ public static class StatisticMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleMetadataByIdentifierAsync(IPrincipalUtils principalUtils, IStatisticMetaRepository repository, ClaimsPrincipal user, string identifier)
+    private static async Task<IResult> HandleMetadataByIdentifierAsync(IPrincipalUtils principalUtils, IStatisticMetaRepository repository, ClaimsPrincipal user, string identifier)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.MetadataByIdentifierAsync(tenantId, identifier));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.MetadataByIdentifierAsync(tenantId, identifier));
     }
     
-    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IStatisticMetaRepository repository, ClaimsPrincipal user)
+    private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IStatisticMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IStatisticMetaRepository repository, ClaimsPrincipal user, Guid id)
+    private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IStatisticMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
     }
     
-    public static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(IStatisticMetaRepository repository, Guid tenantId, string identifier)
+    private static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(IStatisticMetaRepository repository, Guid tenantId, string identifier)
     {
-        try
-        {
-            return Results.Ok(await repository.MetadataByIdentifierAsync(tenantId, identifier));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.MetadataByIdentifierAsync(tenantId, identifier));
     }
 }

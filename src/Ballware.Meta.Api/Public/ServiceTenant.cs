@@ -22,5 +22,5 @@ public class ServiceTenant
 
     public string? Password { get; set; }
 
-    public IEnumerable<ServiceTenantReportDatasourceDefinition> ReportDatasourceDefinitions { get; set; }
+    public IEnumerable<ServiceTenantReportDatasourceDefinition>? ReportDatasourceDefinitions { get; set; }
 }

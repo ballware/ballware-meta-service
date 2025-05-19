@@ -80,42 +80,28 @@ public static class SubscriptionMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, ISubscriptionMetaRepository repository, ClaimsPrincipal user)
+    private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, ISubscriptionMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    public static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, ISubscriptionMetaRepository repository, ClaimsPrincipal user, Guid id)
+    private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, ISubscriptionMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        try
-        {
-            return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
     }
     
-    public static async Task<IResult> HandleMetadataForTenantAndIdAsync(ISubscriptionMetaRepository repository, Guid tenantId, Guid id)
+    private static async Task<IResult> HandleMetadataForTenantAndIdAsync(ISubscriptionMetaRepository repository, Guid tenantId, Guid id)
     {
         var subscription = await repository.MetadataByTenantAndIdAsync(tenantId, id);
         
         return Results.Ok(subscription);
     }
 
-    public static async Task<IResult> HandleActiveSubscriptionsByFrequency(ISubscriptionMetaRepository repository,
+    private static async Task<IResult> HandleActiveSubscriptionsByFrequency(ISubscriptionMetaRepository repository,
         int frequency)
     {
         var subscriptions = await repository.GetActiveSubscriptionsByFrequencyAsync(frequency);
@@ -123,7 +109,7 @@ public static class SubscriptionMetaEndpoint
         return Results.Ok(subscriptions);
     }
 
-    public static async Task<IResult> HandleSetSendResult(ISubscriptionMetaRepository repository, Guid tenantId,
+    private static async Task<IResult> HandleSetSendResult(ISubscriptionMetaRepository repository, Guid tenantId,
         Guid id, [FromBody] string error)
     {
         await repository.SetLastErrorAsync(tenantId, id, error);

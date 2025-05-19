@@ -64,39 +64,25 @@ public static class ExportMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleFetchForTenantByIdAsync(IExportMetaRepository repository, Guid tenantId, Guid id)
+    private static async Task<IResult> HandleFetchForTenantByIdAsync(IExportMetaRepository repository, Guid tenantId, Guid id)
     {
-        try
-        {
-            var export = await repository.ByIdAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty, id);
-            
-            return export != null ? Results.Ok(export) : Results.NotFound();
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        var export = await repository.ByIdAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty, id);
+        
+        return export != null ? Results.Ok(export) : Results.NotFound();
     }
     
-    public static async Task<IResult> HandleCreateForTenantBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IExportMetaRepository repository, Guid tenantId, Guid userId, ExportCreatePayload payload)
+    private static async Task<IResult> HandleCreateForTenantBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IExportMetaRepository repository, Guid tenantId, Guid userId, ExportCreatePayload payload)
     {
-        try
-        {
-            var export = await repository.NewAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty);
-            
-            export.Application = payload.Application;
-            export.Entity = payload.Entity;
-            export.Query = payload.Query;
-            export.ExpirationStamp = payload.ExpirationStamp?.DateTime;
-            export.MediaType = payload.MediaType;
+        var export = await repository.NewAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty);
         
-            await repository.SaveAsync(tenantId, userId, "primary", ImmutableDictionary<string, object>.Empty, export);
-            
-            return Results.Ok(export.Id);
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        export.Application = payload.Application;
+        export.Entity = payload.Entity;
+        export.Query = payload.Query;
+        export.ExpirationStamp = payload.ExpirationStamp?.DateTime;
+        export.MediaType = payload.MediaType;
+    
+        await repository.SaveAsync(tenantId, userId, "primary", ImmutableDictionary<string, object>.Empty, export);
+        
+        return Results.Ok(export.Id);
     }
 }
