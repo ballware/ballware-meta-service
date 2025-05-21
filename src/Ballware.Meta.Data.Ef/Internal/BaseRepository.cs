@@ -1,10 +1,11 @@
+using System.Collections.Immutable;
 using System.Text;
-using System.Text.Json;
 using AutoMapper;
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
@@ -97,7 +98,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
 
     public Task<IEnumerable<TEditable>> AllAsync(string identifier, IDictionary<string, object> claims)
     {
-        return Task.Run(() => Context.Set<TPersistable>().AsEnumerable().Select(Mapper.Map<TEditable>));
+        return Task.Run(() => ListQuery(Context.Set<TPersistable>(), identifier, claims, ImmutableDictionary<string, object>.Empty).AsEnumerable().Select(Mapper.Map<TEditable>));
     }
 
     public Task<IEnumerable<TEditable>> QueryAsync(string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
@@ -212,7 +213,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
     {
         using var textReader = new StreamReader(importStream);
 
-        var items = JsonSerializer.Deserialize<IEnumerable<TEditable>>(await textReader.ReadToEndAsync());
+        var items = JsonConvert.DeserializeObject<IEnumerable<TEditable>>(await textReader.ReadToEndAsync());
 
         if (items == null)
         {
@@ -235,7 +236,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         return new ExportResult()
         {
             FileName = $"{identifier}.json",
-            Data = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(items)),
+            Data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(items)),
             MediaType = "application/json",
         };
     }

@@ -1,9 +1,10 @@
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using Ballware.Meta.Api.Internal;
 
 namespace Ballware.Meta.Api.Public;
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumMemberConverter))]
 public enum ServiceEntityCustomFunctionTypes
 {
     [EnumMember(Value="add")]
