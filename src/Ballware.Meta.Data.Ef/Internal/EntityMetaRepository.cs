@@ -1,7 +1,4 @@
-using System.Data;
-using System.Data.Common;
 using AutoMapper;
-using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +7,9 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Persistables.EntityMetadata>, IEntityMetaRepository
 {
+    private string ChildQueryIdentifier { get; } = "entity";
+    private string ChildQueryEntityParamIdentifier { get; } = "entity";
+    
     private IProcessingStateMetaRepository ProcessingStateMetaRepository { get; }
     private IPickvalueMetaRepository PickvalueMetaRepository { get; }
     private IEntityRightMetaRepository EntityRightMetaRepository { get; }
@@ -30,38 +30,44 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
         CharacteristicAssociationMetaRepository = characteristicAssociationMetaRepository;
     }
 
-    protected override async Task<EntityMetadata> ExtendByIdAsync(string identifier, IDictionary<string, object> claims, Guid tenantId, EntityMetadata value)
+    protected override IQueryable<Persistables.EntityMetadata> ListQuery(IQueryable<Persistables.EntityMetadata> query, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    {
+        return base.ListQuery(query, identifier, claims, queryParams)
+            .OrderBy(e => e.Application).ThenBy(e => e.Entity);
+    }
+
+    protected override async Task<Public.EntityMetadata> ExtendByIdAsync(string identifier, IDictionary<string, object> claims, Guid tenantId, Public.EntityMetadata value)
     {
         var result = await base.ExtendByIdAsync(identifier, claims, tenantId, value);
 
         if (result.Entity != null && ("exportjson".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)
             || "primary".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)))
         {
-            result.States = await ProcessingStateMetaRepository.QueryAsync(tenantId, "entity", claims, new Dictionary<string, object>
+            result.States = await ProcessingStateMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
-                { "entity", result.Entity }
+                { ChildQueryEntityParamIdentifier, result.Entity }
             });
             
-            result.Pickvalues = await PickvalueMetaRepository.QueryAsync(tenantId, "entity", claims, new Dictionary<string, object>
+            result.Pickvalues = await PickvalueMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
-                { "entity", result.Entity }
+                { ChildQueryEntityParamIdentifier, result.Entity }
             });
             
-            result.Rights = await EntityRightMetaRepository.QueryAsync(tenantId, "entity", claims, new Dictionary<string, object>
+            result.Rights = await EntityRightMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
-                { "entity", result.Entity }
+                { ChildQueryEntityParamIdentifier, result.Entity }
             });
             
-            result.CharacteristicAssociations = await CharacteristicAssociationMetaRepository.QueryAsync(tenantId, "entity", claims, new Dictionary<string, object>
+            result.CharacteristicAssociations = await CharacteristicAssociationMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
-                { "entity", result.Entity }
+                { ChildQueryEntityParamIdentifier, result.Entity }
             });
         }
         
         return result;
     }
 
-    protected override async Task AfterSaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, EntityMetadata value,
+    protected override async Task AfterSaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, Public.EntityMetadata value,
         Persistables.EntityMetadata persistable, bool insert)
     {
         if (value.Entity != null && ("importjson".Equals(identifier, StringComparison.InvariantCultureIgnoreCase) 
@@ -89,9 +95,9 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
         
         if (persistable.Entity != null)
         {
-            var processingStates = await ProcessingStateMetaRepository.QueryAsync(tenantId, "entity", claims, new Dictionary<string, object>
+            var processingStates = await ProcessingStateMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
-                { "entity", persistable.Entity }
+                { ChildQueryEntityParamIdentifier, persistable.Entity }
             });
 
             foreach (var processingState in processingStates)
@@ -102,9 +108,9 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
                 });
             }
              
-            var pickvalues = await PickvalueMetaRepository.QueryAsync(tenantId, "entity", claims, new Dictionary<string, object>
+            var pickvalues = await PickvalueMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
-                { "entity", persistable.Entity }
+                { ChildQueryEntityParamIdentifier, persistable.Entity }
             });
                 
             foreach (var pickvalue in pickvalues)
@@ -115,9 +121,9 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
                 });
             }    
             
-            var entityrights = await EntityRightMetaRepository.QueryAsync(tenantId, "entity", claims, new Dictionary<string, object>
+            var entityrights = await EntityRightMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
-                { "entity", persistable.Entity }
+                { ChildQueryEntityParamIdentifier, persistable.Entity }
             });
                 
             foreach (var entityright in entityrights)
@@ -128,9 +134,9 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
                 });
             } 
             
-            var characteristics = await CharacteristicAssociationMetaRepository.QueryAsync(tenantId, "entity", claims, new Dictionary<string, object>
+            var characteristics = await CharacteristicAssociationMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
-                { "entity", persistable.Entity }
+                { ChildQueryEntityParamIdentifier, persistable.Entity }
             });
                 
             foreach (var characteristic in characteristics)
@@ -144,7 +150,7 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
     }
 
     private static async Task MergeChildCollectionsAsync<TEditable>(Guid tenantId, Guid? userId, IDictionary<string, object> claims, string entity, IEnumerable<TEditable> nextChildren,
-        ITenantableRepository<TEditable> repository) where TEditable : class, IEditable
+        ITenantableRepository<TEditable> repository) where TEditable : class, Public.IEditable
     {
         var existingChildren = (await repository.QueryAsync(tenantId, "entity", claims,
             new Dictionary<string, object>
