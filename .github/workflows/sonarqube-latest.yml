@@ -39,7 +39,8 @@ jobs:
             /k:"ballware_ballware-meta-service" \
             /o:"ballware" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.dotcover.reportsPaths="coverage.html"
+            /d:sonar.cs.dotcover.reportsPaths="coverage.html" \
+            /d:sonar.exclusions="**/Migrations/**/*"
 
       - name: Build solution
         run: dotnet build ballware-meta-service.sln --no-incremental --configuration Release

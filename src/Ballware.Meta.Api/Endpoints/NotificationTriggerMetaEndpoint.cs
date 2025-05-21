@@ -1,13 +1,8 @@
-using System;
 using System.Collections.Immutable;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Ballware.Meta.Api.Endpoints;
@@ -56,7 +51,7 @@ public static class NotificationTriggerMetaEndpoint
         return app;
     }
     
-    private static async Task<IResult> HandleCreateForTenantAndNotificationBehalfOfUserAsync(INotificationTriggerMetaRepository repository, Guid tenantId, Guid notificationId, Guid userId)
+    private static async Task<IResult> HandleCreateForTenantAndNotificationBehalfOfUserAsync(INotificationTriggerMetaRepository repository, Guid tenantId, Guid notificationId)
     {
         var notificationTrigger = await repository.NewAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty);
         

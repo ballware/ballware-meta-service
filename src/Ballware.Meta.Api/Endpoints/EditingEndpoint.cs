@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -7,6 +7,7 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class EditingEndpoint
 {
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "Single usage, ignore")]
     public static IEndpointRouteBuilder MapEditingApi<TEntity>(this IEndpointRouteBuilder app, 
         string basePath,
         string application,
@@ -67,7 +68,7 @@ public static class EditingEndpoint
             .WithTags(apiTag)
             .WithSummary("Query existing tenant");
         
-        app.MapPost(basePath + "/import", EndpointHandlerFactory.CreateImportHandler<TEntity>(application, entity))
+        app.MapPost(basePath + "/import", EndpointHandlerFactory.CreateImportHandler(application, entity))
             .RequireAuthorization(authorizationScope)
             .DisableAntiforgery()
             .Produces(StatusCodes.Status201Created)

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using AutoMapper;
 using Ballware.Meta.Api.Public;
@@ -129,6 +130,7 @@ public static class TenantMetaEndpoint
         return Results.Ok(await tenantMetaRepository.AllowedTenantsAsync(claims));
     }
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     private static async Task<IResult> HandleReportMetaDatasourcesForTenant(IMapper mapper, IMetaDbConnectionFactory metaDbConnectionFactory,
         ITenantMetaRepository tenantMetaRepository, 
         IEntityMetaRepository entityMetaRepository, 

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -6,6 +7,7 @@ namespace Ballware.Meta.Api.Endpoints;
 
 public static class TenantableEditingEndpoint
 {
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "Generic usage, ignore")]
     public static IEndpointRouteBuilder MapTenantableEditingApi<TEntity>(this IEndpointRouteBuilder app, 
         string basePath,
         string application,

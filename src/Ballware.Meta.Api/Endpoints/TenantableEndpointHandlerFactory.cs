@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -34,6 +35,7 @@ public static class TenantableEndpointHandlerFactory
     public delegate Task<IResult> HandleRemoveDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
         ITenantMetaRepository tenantMetaRepository, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, Guid id) where TEntity : class;
 
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public delegate Task<IResult> HandleImportDelegate(ISchedulerFactory schedulerFactory,
         IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker, IJobMetaRepository jobMetaRepository,
         ITenantMetaRepository tenantMetaRepository, ClaimsPrincipal user, IMetaFileStorageAdapter storageAdapter, string identifier,
@@ -44,6 +46,7 @@ public static class TenantableEndpointHandlerFactory
         ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier, [FromBody] IDictionary<string, StringValues> query) 
         where TEntity : class;
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public delegate Task<IResult> HandleExportUrlDelegate<TEntity>(IPrincipalUtils principalUtils, 
         ITenantRightsChecker rightsChecker, ITenantMetaRepository tenantMetaRepository, 
         IExportMetaRepository exportMetaRepository, ITenantableRepository<TEntity> repository, IMetaFileStorageAdapter storageAdapter, 
@@ -239,6 +242,7 @@ public static class TenantableEndpointHandlerFactory
         };
     }
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static HandleImportDelegate CreateImportHandler(string application, string entity)
     {
         return async (schedulerFactory, principalUtils, rightsChecker, jobMetaRepository, tenantMetaRepository, user, storageAdapter, identifier, files) =>
@@ -315,6 +319,7 @@ public static class TenantableEndpointHandlerFactory
         }; 
     }
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static HandleExportUrlDelegate<TEntity> CreateExportUrlHandler<TEntity>(string application, string entity)
         where TEntity : class
     {

@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -20,7 +20,6 @@ public static class EndpointHandlerFactory
     private static readonly string RightAdd = "add";
     private static readonly string RightEdit = "edit";
     private static readonly string RightDelete = "delete";
-    private static readonly string RightExport = "export";
 
     public delegate Task<IResult> HandleAllDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
         ITenantMetaRepository tenantMetaRepository, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
@@ -37,16 +36,18 @@ public static class EndpointHandlerFactory
     public delegate Task<IResult> HandleRemoveDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
         ITenantMetaRepository tenantMetaRepository, IRepository<TEntity> repository, ClaimsPrincipal user, Guid id) where TEntity : class;
 
-    public delegate Task<IResult> HandleImportDelegate<TEntity>(ISchedulerFactory schedulerFactory,
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
+    public delegate Task<IResult> HandleImportDelegate(ISchedulerFactory schedulerFactory,
         IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker, IJobMetaRepository jobMetaRepository,
         ITenantMetaRepository tenantMetaRepository, ClaimsPrincipal user, IMetaFileStorageAdapter storageAdapter, string identifier,
-        IFormFileCollection files) where TEntity : class;
+        IFormFileCollection files);
 
     public delegate Task<IResult> HandleExportDelegate<TEntity>(
         IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker, ITenantMetaRepository tenantMetaRepository, 
         IRepository<TEntity> repository, ClaimsPrincipal user, string identifier, [FromBody] IDictionary<string, StringValues> query) 
         where TEntity : class;
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public delegate Task<IResult> HandleExportUrlDelegate<TEntity>(IPrincipalUtils principalUtils, 
         ITenantRightsChecker rightsChecker, ITenantMetaRepository tenantMetaRepository, 
         IExportMetaRepository exportMetaRepository, IRepository<TEntity> repository, IMetaFileStorageAdapter storageAdapter, 
@@ -202,7 +203,8 @@ public static class EndpointHandlerFactory
         };
     }
     
-    public static HandleImportDelegate<TEntity> CreateImportHandler<TEntity>(string application, string entity) where TEntity: class
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
+    public static HandleImportDelegate CreateImportHandler(string application, string entity)
     {
         return async (schedulerFactory, principalUtils, rightsChecker, jobMetaRepository, tenantMetaRepository, user, storageAdapter, identifier, files) =>
         {
@@ -227,26 +229,23 @@ public static class EndpointHandlerFactory
 
             foreach (var file in files)
             {
-                if (file != null)
-                {
-                    var jobData = new JobDataMap();
+                var jobData = new JobDataMap();
 
-                    jobData["tenantId"] = tenantId;
-                    jobData["userId"] = currentUserId;
-                    jobData["identifier"] = identifier;
-                    jobData["claims"] = JsonSerializer.Serialize(claims);
-                    jobData["filename"] = file.FileName;
+                jobData["tenantId"] = tenantId;
+                jobData["userId"] = currentUserId;
+                jobData["identifier"] = identifier;
+                jobData["claims"] = JsonSerializer.Serialize(claims);
+                jobData["filename"] = file.FileName;
 
-                    await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName,
-                        file.ContentType, file.OpenReadStream());
+                await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName,
+                    file.ContentType, file.OpenReadStream());
 
-                    var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "generic",
-                        "import", JsonSerializer.Serialize(jobData));
+                var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "generic",
+                    "import", JsonSerializer.Serialize(jobData));
 
-                    jobData["jobId"] = job.Id;
+                jobData["jobId"] = job.Id;
 
-                    await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", entity), jobData);
-                }
+                await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", entity), jobData);
             }
 
             return Results.Created();
@@ -269,19 +268,20 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
         
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier ?? RightExport);
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
         
             if (!tenantAuthorized)
             {
                 return Results.Unauthorized();
             }
         
-            var export = await repository.ExportAsync(identifier ?? RightExport, claims, queryParams);
+            var export = await repository.ExportAsync(identifier, claims, queryParams);
         
             return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
         }; 
     }
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static HandleExportUrlDelegate<TEntity> CreateExportUrlHandler<TEntity>(string application, string entity)
         where TEntity : class
     {
@@ -307,14 +307,14 @@ public static class EndpointHandlerFactory
                 return Results.NotFound($"Tenant {tenantId} not found");
             }
         
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier ?? RightExport);
+            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
         
             if (!tenantAuthorized)
             {
                 return Results.Unauthorized();
             }
         
-            var export = await repository.ExportAsync(identifier ?? RightExport, claims, queryParams);
+            var export = await repository.ExportAsync(identifier, claims, queryParams);
         
             var exportEntry = await exportMetaRepository.NewAsync(tenantId, DefaultQuery, claims);
 
