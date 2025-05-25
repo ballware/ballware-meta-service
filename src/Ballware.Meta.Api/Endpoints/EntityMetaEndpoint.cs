@@ -30,6 +30,7 @@ public static class EntityMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<MetaEntity>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataByIdentifier")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -48,6 +49,7 @@ public static class EntityMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<EntitySelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -57,6 +59,7 @@ public static class EntityMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<EntitySelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectByIdentifier")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -85,6 +88,7 @@ public static class EntityMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<ServiceEntity>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "ServiceMetadataForTenantByIdentifier")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -93,40 +97,68 @@ public static class EntityMetaEndpoint
         return app;
     }
     
-    private static async Task<IResult> HandleMetadataByIdentifierAsync(IMapper mapper, IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
+    internal static async Task<IResult> HandleMetadataByIdentifierAsync(IMapper mapper, IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(mapper.Map<MetaEntity>(await repository.ByEntityAsync(tenantId, identifier)));
+        var entry = await repository.ByEntityAsync(tenantId, identifier);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(mapper.Map<MetaEntity>(entry));
     }
     
-    private static async Task<IResult> HandleServiceMetadataByIdentifierAsync(IMapper mapper, IEntityMetaRepository repository, Guid tenantId, string identifier)
+    internal static async Task<IResult> HandleServiceMetadataByIdentifierAsync(IMapper mapper, IEntityMetaRepository repository, Guid tenantId, string identifier)
     {
-        return Results.Ok(mapper.Map<ServiceEntity>(await repository.ByEntityAsync(tenantId, identifier)));
+        var entry = await repository.ByEntityAsync(tenantId, identifier);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(mapper.Map<ServiceEntity>(entry));
     }
     
-    private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user)
+    internal static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
         return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, Guid id)
+    internal static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
-    private static async Task<IResult> HandleSelectByIdentifierAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
+    internal static async Task<IResult> HandleSelectByIdentifierAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, string identifier)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(await repository.SelectByIdentifierForTenantAsync(tenantId, identifier));
+        var entry = await repository.SelectByIdentifierForTenantAsync(tenantId, identifier);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
-    private static async Task<IResult> HandleSelectListRightsAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user)
+    internal static async Task<IResult> HandleSelectListRightsAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 

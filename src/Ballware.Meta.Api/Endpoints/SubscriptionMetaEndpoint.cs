@@ -37,6 +37,7 @@ public static class SubscriptionMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<SubscriptionSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -56,6 +57,7 @@ public static class SubscriptionMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<Subscription>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataByTenantAndId")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -93,13 +95,25 @@ public static class SubscriptionMetaEndpoint
     private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, ISubscriptionMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
+        
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleMetadataForTenantAndIdAsync(ISubscriptionMetaRepository repository, Guid tenantId, Guid id)
     {
         var subscription = await repository.MetadataByTenantAndIdAsync(tenantId, id);
+        
+        if (subscription == null)
+        {
+            return Results.NotFound();
+        }
         
         return Results.Ok(subscription);
     }

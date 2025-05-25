@@ -37,6 +37,7 @@ public static class PickvalueMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<PickvalueSelectEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectByValueForEntityAndField")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -56,6 +57,7 @@ public static class PickvalueMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<PickvalueSelectEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectByValueForTenantEntityAndField")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -75,11 +77,25 @@ public static class PickvalueMetaEndpoint
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(await repository.SelectByValueAsync(tenantId, entity, field, value));
+        var entry = await repository.SelectByValueAsync(tenantId, entity, field, value);
+        
+        if (entry == null) 
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleSelectByValueForTenantEntityAndFieldAsync(IPickvalueMetaRepository repository, Guid tenantId, string entity, string field, int value)
     {
-        return Results.Ok(await repository.SelectByValueAsync(tenantId, entity, field, value));
+        var entry = await repository.SelectByValueAsync(tenantId, entity, field, value);
+        
+        if (entry == null) 
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
 }

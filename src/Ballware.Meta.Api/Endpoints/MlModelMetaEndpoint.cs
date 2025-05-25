@@ -35,6 +35,7 @@ public static class MlModelMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<MlModelSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -54,6 +55,7 @@ public static class MlModelMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<MlModel>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataByTenantAndId")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -63,6 +65,7 @@ public static class MlModelMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<MlModel>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataByTenantAndIdentifier")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -90,8 +93,15 @@ public static class MlModelMetaEndpoint
     private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IMlModelMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleMetadataByTenantAndIdAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, Guid tenantId, Guid id)
@@ -104,6 +114,11 @@ public static class MlModelMetaEndpoint
         }
         
         var model = await repository.MetadataByTenantAndIdAsync(tenant, id);
+        
+        if (model == null)
+        {
+            return Results.NotFound();
+        }
         
         return Results.Ok(model);
     }
@@ -118,6 +133,11 @@ public static class MlModelMetaEndpoint
         }
         
         var model = await repository.MetadataByTenantAndIdentifierAsync(tenant, identifier);
+        
+        if (model == null)
+        {
+            return Results.NotFound();
+        }
         
         return Results.Ok(model);
     }

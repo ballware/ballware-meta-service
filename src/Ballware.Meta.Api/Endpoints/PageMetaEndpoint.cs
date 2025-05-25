@@ -42,6 +42,7 @@ public static class PageMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<PageSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -64,7 +65,14 @@ public static class PageMetaEndpoint
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(await repository.ByIdentifierAsync(tenantId, identifier));
+        var entry = await repository.ByIdentifierAsync(tenantId, identifier);
+        
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IPageMetaRepository repository, ClaimsPrincipal user)
@@ -77,7 +85,14 @@ public static class PageMetaEndpoint
     private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IPageMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
 }

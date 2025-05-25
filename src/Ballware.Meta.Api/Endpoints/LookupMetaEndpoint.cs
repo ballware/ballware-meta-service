@@ -38,6 +38,7 @@ public static class LookupMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<LookupSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -57,6 +58,7 @@ public static class LookupMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<Lookup>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataForTenantAndId")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -66,6 +68,7 @@ public static class LookupMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<Lookup>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataForTenantAndIdentifier")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -94,19 +97,36 @@ public static class LookupMetaEndpoint
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleMetadataForTenantAndIdAsync(ILookupMetaRepository repository, Guid tenantId, Guid id)
     {
         var lookup = await repository.ByIdAsync(tenantId, id);
 
+        if (lookup == null)
+        {
+            return Results.NotFound();
+        }
+        
         return Results.Ok(lookup);
     }
     
     private static async Task<IResult> HandleMetadataForTenantAndIdentifierAsync(ILookupMetaRepository repository, Guid tenantId, string identifier)
     {
         var lookup = await repository.ByIdentifierAsync(tenantId, identifier);
+        
+        if (lookup == null)
+        {
+            return Results.NotFound();
+        }
 
         return Results.Ok(lookup);
     }

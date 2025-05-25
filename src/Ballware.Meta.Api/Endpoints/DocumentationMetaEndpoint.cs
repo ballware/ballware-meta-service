@@ -52,6 +52,7 @@ public static class DocumentationMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<DocumentationSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -70,7 +71,7 @@ public static class DocumentationMetaEndpoint
         return app;
     }
     
-    private static async Task<IResult> HandleForEntityAsync(IPrincipalUtils principalUtils, IDocumentationMetaRepository repository, ClaimsPrincipal user, string entity)
+    internal static async Task<IResult> HandleForEntityAsync(IPrincipalUtils principalUtils, IDocumentationMetaRepository repository, ClaimsPrincipal user, string entity)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
@@ -85,7 +86,7 @@ public static class DocumentationMetaEndpoint
         return Results.Content(content);
     }
     
-    private static async Task<IResult> HandleForEntityAndFieldAsync(IPrincipalUtils principalUtils, IDocumentationMetaRepository repository, ClaimsPrincipal user, string entity, string field)
+    internal static async Task<IResult> HandleForEntityAndFieldAsync(IPrincipalUtils principalUtils, IDocumentationMetaRepository repository, ClaimsPrincipal user, string entity, string field)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
@@ -100,17 +101,24 @@ public static class DocumentationMetaEndpoint
         return Results.Content(content);
     }
     
-    private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IDocumentationMetaRepository repository, ClaimsPrincipal user)
+    internal static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IDocumentationMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
         return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IDocumentationMetaRepository repository, ClaimsPrincipal user, Guid id)
+    internal static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IDocumentationMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
 }

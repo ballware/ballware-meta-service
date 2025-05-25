@@ -25,6 +25,7 @@ public static class StatisticMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<Statistic>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataByIdentifier")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -43,6 +44,7 @@ public static class StatisticMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<StatisticSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -62,6 +64,7 @@ public static class StatisticMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<Statistic>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataByTenantAndIdentifier")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -73,8 +76,15 @@ public static class StatisticMetaEndpoint
     private static async Task<IResult> HandleMetadataByIdentifierAsync(IPrincipalUtils principalUtils, IStatisticMetaRepository repository, ClaimsPrincipal user, string identifier)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        
+        var entry = await repository.MetadataByIdentifierAsync(tenantId, identifier);
+        
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
 
-        return Results.Ok(await repository.MetadataByIdentifierAsync(tenantId, identifier));
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IStatisticMetaRepository repository, ClaimsPrincipal user)
@@ -88,11 +98,25 @@ public static class StatisticMetaEndpoint
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
+        
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(IStatisticMetaRepository repository, Guid tenantId, string identifier)
     {
-        return Results.Ok(await repository.MetadataByIdentifierAsync(tenantId, identifier));
+        var entry = await repository.MetadataByIdentifierAsync(tenantId, identifier);
+        
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
 }

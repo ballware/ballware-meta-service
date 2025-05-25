@@ -46,6 +46,7 @@ public static class DocumentMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<DocumentSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -74,6 +75,7 @@ public static class DocumentMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<Document>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataForTenantAndId")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -101,7 +103,7 @@ public static class DocumentMetaEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleSelectListForEntityAsync(IPrincipalUtils principalUtils, ITenantRightsChecker tenantRightsChecker, ITenantMetaRepository tenantMetaRepository, IDocumentMetaRepository repository, ClaimsPrincipal user, string entity)
+    internal static async Task<IResult> HandleSelectListForEntityAsync(IPrincipalUtils principalUtils, ITenantRightsChecker tenantRightsChecker, ITenantMetaRepository tenantMetaRepository, IDocumentMetaRepository repository, ClaimsPrincipal user, string entity)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
         var claims = principalUtils.GetUserClaims(user);
@@ -123,36 +125,50 @@ public static class DocumentMetaEndpoint
         return Results.Ok(documentList);
     }
     
-    private static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user)
+    internal static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
         return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user, Guid id)
+    internal static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IDocumentMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
-    private static async Task<IResult> HandleSelectListForTenantAsync(IDocumentMetaRepository repository, Guid tenantId)
+    internal static async Task<IResult> HandleSelectListForTenantAsync(IDocumentMetaRepository repository, Guid tenantId)
     {
         return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
-    private static async Task<IResult> HandleMetadataForTenantAndIdAsync(IDocumentMetaRepository repository, Guid tenantId, Guid id)
+    internal static async Task<IResult> HandleMetadataForTenantAndIdAsync(IDocumentMetaRepository repository, Guid tenantId, Guid id)
     {
-        return Results.Ok(await repository.MetadataByTenantAndIdAsync(tenantId, id));
+        var entry = await repository.MetadataByTenantAndIdAsync(tenantId, id);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
-    private static async Task<IResult> HandleNewForTenantAsync(IDocumentMetaRepository repository, Guid tenantId)
+    internal static async Task<IResult> HandleNewForTenantAsync(IDocumentMetaRepository repository, Guid tenantId)
     {
         return Results.Ok(await repository.NewAsync(tenantId, "primary", ImmutableDictionary<string, object>.Empty));
     }
     
-    private static async Task<IResult> HandleSaveForTenantBehalfOfUserAsync(IDocumentMetaRepository repository, Guid tenantId, Guid userId, [FromBody] Document payload)
+    internal static async Task<IResult> HandleSaveForTenantBehalfOfUserAsync(IDocumentMetaRepository repository, Guid tenantId, Guid userId, [FromBody] Document payload)
     {
         await repository.SaveAsync(tenantId, userId, "primary", ImmutableDictionary<string, object>.Empty, payload);
             

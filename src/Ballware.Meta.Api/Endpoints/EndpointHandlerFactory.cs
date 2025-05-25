@@ -44,7 +44,7 @@ public static class EndpointHandlerFactory
 
     public delegate Task<IResult> HandleExportDelegate<TEntity>(
         IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker, ITenantMetaRepository tenantMetaRepository, 
-        IRepository<TEntity> repository, ClaimsPrincipal user, string identifier, [FromBody] IDictionary<string, StringValues> query) 
+        IRepository<TEntity> repository, ClaimsPrincipal user, string identifier, HttpRequest request) 
         where TEntity : class;
     
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
@@ -130,6 +130,13 @@ public static class EndpointHandlerFactory
             if (!tenantAuthorized)
             {
                 return Results.Unauthorized();
+            }
+
+            var entry = await repository.ByIdAsync(identifier, claims, id);
+
+            if (entry == null)
+            {
+                return Results.NotFound($"Record with ID {id} not found in entity {entity}");
             }
 
             return Results.Ok(await repository.ByIdAsync(identifier, claims, id));
@@ -240,7 +247,7 @@ public static class EndpointHandlerFactory
                 await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName,
                     file.ContentType, file.OpenReadStream());
 
-                var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "generic",
+                var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "meta",
                     "import", JsonSerializer.Serialize(jobData));
 
                 jobData["jobId"] = job.Id;
@@ -255,12 +262,20 @@ public static class EndpointHandlerFactory
     public static HandleExportDelegate<TEntity> CreateExportHandler<TEntity>(string application, string entity) where TEntity : class
     {
         return async (principalUtils, rightsChecker, tenantMetaRepository,
-            repository, user, identifier, [FromBody] query) =>
+            repository, user, identifier, request) =>
         {
             var tenantId = principalUtils.GetUserTenandId(user);
 
             var claims = principalUtils.GetUserClaims(user);
-            var queryParams = GetQueryParams(query);
+            var query = request.Query;
+            
+            var queryParams = new Dictionary<string, object>();
+
+            foreach (var queryEntry in query)
+            {
+                queryParams.Add(queryEntry.Key, queryEntry.Value);
+            }
+            
             var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
 
             if (tenant == null)
@@ -346,24 +361,5 @@ public static class EndpointHandlerFactory
 
             return Results.File(fileContent, export.MediaType, $"{export.Query}_{DateTime.Now:yyyyMMdd_HHmmss}{MimeTypeMap.GetExtension(export.MediaType)}");
         };
-    }
-    
-    private static Dictionary<string, object> GetQueryParams(IDictionary<string, StringValues> query)
-    {
-        var queryParams = new Dictionary<string, object>();
-
-        foreach (var queryEntry in query)
-        {
-            if (queryEntry.Value.Count > 1)
-            {
-                queryParams.Add(queryEntry.Key, $"|{string.Join('|', queryEntry.Value.ToArray())}|");
-            }
-            else
-            {
-                queryParams.Add(queryEntry.Key, queryEntry.Value);
-            }
-        }
-
-        return queryParams;
     }
 }

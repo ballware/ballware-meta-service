@@ -33,6 +33,7 @@ public static class ProcessingStateMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<ProcessingStateSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -51,6 +52,7 @@ public static class ProcessingStateMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<ProcessingStateSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectByStateForEntityByIdentifier")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -106,8 +108,15 @@ public static class ProcessingStateMetaEndpoint
     private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, IProcessingStateMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleSelectListForEntityByIdentifierAsync(IPrincipalUtils principalUtils, IProcessingStateMetaRepository repository, ClaimsPrincipal user, string identifier)
@@ -121,12 +130,26 @@ public static class ProcessingStateMetaEndpoint
     {
         var tenantId = principalUtils.GetUserTenandId(user);
 
-        return Results.Ok(await repository.SelectByStateAsync(tenantId, identifier, state));
+        var entry = await repository.SelectByStateAsync(tenantId, identifier, state);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleSelectByStateForTenantAndEntityByIdentifierAsync(IProcessingStateMetaRepository repository, Guid tenantId, string identifier, int state)
     {
-        return Results.Ok(await repository.SelectByStateAsync(tenantId, identifier, state));
+        var entry = await repository.SelectByStateAsync(tenantId, identifier, state);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleSelectListAllSuccessorsForEntityByIdentifierAndStateAsync(IPrincipalUtils principalUtils, IProcessingStateMetaRepository repository, ClaimsPrincipal user, string identifier, int state)

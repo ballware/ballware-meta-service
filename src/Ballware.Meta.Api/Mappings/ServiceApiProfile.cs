@@ -22,9 +22,7 @@ public class ServiceApiProfile : Profile
         CreateMap<Tenant, ServiceTenant>()
             .ForMember(dst => dst.ReportDatasourceDefinitions, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<IEnumerable<ServiceTenantReportDatasourceDefinition>>(src.ReportSchemaDefinition ?? "[]")));
         
-        CreateMap<Notification, ServiceNotification>();
-            
-        CreateMap<Export, ServiceExport>();
-        CreateMap<ServiceExport, Export>();
+        CreateMap<ReportDatasourceDefinition, ServiceTenantReportDatasourceDefinition>();
+        CreateMap<ReportDatasourceTable, ServiceTenantReportDatasourceTable>();
     }
 }

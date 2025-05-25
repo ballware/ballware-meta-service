@@ -36,6 +36,7 @@ public static class NotificationMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<NotificationSelectListEntry>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "SelectById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -55,6 +56,7 @@ public static class NotificationMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<Notification>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataByTenantAndId")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -64,6 +66,7 @@ public static class NotificationMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<Notification>()
             .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "MetadataByTenantAndIdentifier")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -82,17 +85,38 @@ public static class NotificationMetaEndpoint
     private static async Task<IResult> HandleSelectByIdAsync(IPrincipalUtils principalUtils, INotificationMetaRepository repository, ClaimsPrincipal user, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        
+        var entry = await repository.SelectByIdForTenantAsync(tenantId, id);
 
-        return Results.Ok(await repository.SelectByIdForTenantAsync(tenantId, id));
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleMetadataByTenantAndIdAsync(INotificationMetaRepository repository, Guid tenantId, Guid id)
     {
-        return Results.Ok(await repository.MetadataByTenantAndIdAsync(tenantId, id));
+        var entry = await repository.MetadataByTenantAndIdAsync(tenantId, id);
+        
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(INotificationMetaRepository repository, Guid tenantId, string identifier)
     {
-        return Results.Ok(await repository.MetadataByTenantAndIdentifierAsync(tenantId, identifier));
+        var entry = await repository.MetadataByTenantAndIdentifierAsync(tenantId, identifier);
+        
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(entry);
     }
 }

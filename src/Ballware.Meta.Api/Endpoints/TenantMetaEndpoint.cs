@@ -98,12 +98,21 @@ public static class TenantMetaEndpoint
     private static async Task<IResult> HandleMetadataForTenantAsync(IMapper mapper, IPrincipalUtils principalUtils, ClaimsPrincipal user,
         ITenantMetaRepository tenantMetaRepository, Guid tenantId)
     {
+        var entry = await tenantMetaRepository.ByIdAsync(tenantId);
+        
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
         var userTenantId = principalUtils.GetUserTenandId(user);
 
         if (userTenantId != tenantId)
+        {
             return Results.Forbid();
+        }
 
-        return Results.Ok(mapper.Map<MetaTenant>(await tenantMetaRepository.ByIdAsync(tenantId)));
+        return Results.Ok(mapper.Map<MetaTenant>(entry));
     }
     
     private static async Task<IResult> HandleSelectListAsync(ITenantMetaRepository repository)
@@ -113,13 +122,27 @@ public static class TenantMetaEndpoint
     
     private static async Task<IResult> HandleSelectByIdAsync(ITenantMetaRepository repository, Guid id)
     {
-        return Results.Ok(await repository.SelectByIdAsync(id));
+        var entry = await repository.SelectByIdAsync(id);
+
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+            
+        return Results.Ok(entry);
     }
     
     private static async Task<IResult> HandleServiceMetadataForTenantAsync(IMapper mapper, 
         ITenantMetaRepository tenantMetaRepository, Guid tenantId)
     {
-        return Results.Ok(mapper.Map<ServiceTenant>(await tenantMetaRepository.ByIdAsync(tenantId)));
+        var entry = await tenantMetaRepository.ByIdAsync(tenantId);
+        
+        if (entry == null)
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(mapper.Map<ServiceTenant>(entry));
     }
     
     private static async Task<IResult> HandleAllowedTenantsForUserAsync(IPrincipalUtils principalUtils, ClaimsPrincipal user,
