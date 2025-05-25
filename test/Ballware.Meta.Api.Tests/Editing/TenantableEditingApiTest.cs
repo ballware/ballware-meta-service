@@ -18,14 +18,14 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Ballware.Meta.Api.Tests.Editing;
 
-public class FakeEntity : IEditable
+public class TenantableFakeEntity : IEditable
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }
 }
 
 [TestFixture]
-public class EditingApiTest : ApiMappingBaseTest
+public class TenantableEditingApiTest : ApiMappingBaseTest
 {
     private string ExpectedApplication { get; } = "test";
     private string ExpectedEntity { get; } = "fakeentity";
@@ -37,7 +37,7 @@ public class EditingApiTest : ApiMappingBaseTest
     private Mock<ITenantMetaRepository> TenantRepositoryMock { get; set; } = null!;
     private Mock<IJobMetaRepository> JobRepositoryMock { get; set; } = null!;
     private Mock<IExportMetaRepository> ExportRepositoryMock { get; set; } = null!;
-    private Mock<IRepository<FakeEntity>> RepositoryMock { get; set; } = null!;
+    private Mock<ITenantableRepository<TenantableFakeEntity>> RepositoryMock { get; set; } = null!;
     
     private HttpClient Client { get; set; } = null!;
     
@@ -60,7 +60,7 @@ public class EditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock = new Mock<ITenantMetaRepository>();
         JobRepositoryMock = new Mock<IJobMetaRepository>();
         ExportRepositoryMock = new Mock<IExportMetaRepository>();
-        RepositoryMock = new Mock<IRepository<FakeEntity>>();
+        RepositoryMock = new Mock<ITenantableRepository<TenantableFakeEntity>>();
         
         Client = await CreateApplicationClientAsync("metaApi", services =>
         {
@@ -77,7 +77,7 @@ public class EditingApiTest : ApiMappingBaseTest
         {
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapEditingApi<FakeEntity>("fakeentity", ExpectedApplication, ExpectedEntity, "FakeEntity", "FakeEntity");
+                endpoints.MapTenantableEditingApi<TenantableFakeEntity>("fakeentity", ExpectedApplication, ExpectedEntity, "FakeEntity", "FakeEntity");
             });
         });
     }
@@ -91,7 +91,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedList = new List<FakeEntity>()
+        var expectedList = new List<TenantableFakeEntity>()
         {
             new()
             {
@@ -133,7 +133,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         RepositoryMock
-            .Setup(r => r.AllAsync("primary", It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.AllAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedList);
         
         // Act
@@ -142,7 +142,7 @@ public class EditingApiTest : ApiMappingBaseTest
         // Assert
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
-        var result = JsonSerializer.Deserialize<IEnumerable<FakeEntity>>(await response.Content.ReadAsStringAsync());
+        var result = JsonSerializer.Deserialize<IEnumerable<TenantableFakeEntity>>(await response.Content.ReadAsStringAsync());
 
         Assert.That(DeepComparer.AreListsEqual(expectedList, result, TestContext.WriteLine));
     }
@@ -232,7 +232,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -261,7 +261,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         RepositoryMock
-            .Setup(r => r.NewAsync("primary", It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.NewAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -270,7 +270,7 @@ public class EditingApiTest : ApiMappingBaseTest
         // Assert
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
-        var result = JsonSerializer.Deserialize<FakeEntity>(await response.Content.ReadAsStringAsync());
+        var result = JsonSerializer.Deserialize<TenantableFakeEntity>(await response.Content.ReadAsStringAsync());
 
         Assert.That(DeepComparer.AreEqual(expectedEntry, result, TestContext.WriteLine));
     }
@@ -284,7 +284,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -313,7 +313,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         RepositoryMock
-            .Setup(r => r.NewAsync("primary", It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.NewAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -332,7 +332,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -361,7 +361,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(false);
 
         RepositoryMock
-            .Setup(r => r.NewAsync("primary", It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.NewAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -380,7 +380,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -409,7 +409,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         RepositoryMock
-            .Setup(r => r.ByIdAsync("primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(r => r.ByIdAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -418,7 +418,7 @@ public class EditingApiTest : ApiMappingBaseTest
         // Assert
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
-        var result = JsonSerializer.Deserialize<FakeEntity>(await response.Content.ReadAsStringAsync());
+        var result = JsonSerializer.Deserialize<TenantableFakeEntity>(await response.Content.ReadAsStringAsync());
 
         Assert.That(DeepComparer.AreEqual(expectedEntry, result, TestContext.WriteLine));
     }
@@ -432,7 +432,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -461,7 +461,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         RepositoryMock
-            .Setup(r => r.ByIdAsync("primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(r => r.ByIdAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -480,7 +480,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -509,8 +509,8 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         RepositoryMock
-            .Setup(r => r.ByIdAsync("primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
-            .ReturnsAsync(null as FakeEntity);
+            .Setup(r => r.ByIdAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .ReturnsAsync(null as TenantableFakeEntity);
         
         // Act
         var recordNotFoundResponse = await Client.GetAsync($"fakeentity/byid?identifier=primary&id={Guid.NewGuid()}");
@@ -528,7 +528,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -557,7 +557,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(false);
         
         RepositoryMock
-            .Setup(r => r.ByIdAsync("primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(r => r.ByIdAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -576,7 +576,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -605,11 +605,12 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         RepositoryMock
-            .Setup(r => r.SaveAsync(expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry))
-            .Callback((Guid? userId, string identifier, IDictionary<string, object> claims, FakeEntity entry) =>
+            .Setup(r => r.SaveAsync(expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry))
+            .Callback((Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TenantableFakeEntity entry) =>
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(identifier, Is.EqualTo("primary"));
                     Assert.That(DeepComparer.AreEqual(expectedEntry, entry, TestContext.WriteLine), Is.True);    
@@ -623,7 +624,7 @@ public class EditingApiTest : ApiMappingBaseTest
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
         RepositoryMock.Verify(r => r.SaveAsync(
-            expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<FakeEntity>()), Times.Once);
+            expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<TenantableFakeEntity>()), Times.Once);
     }
     
     [Test]
@@ -635,7 +636,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -664,11 +665,12 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         RepositoryMock
-            .Setup(r => r.SaveAsync(expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry))
-            .Callback((Guid? userId, string identifier, IDictionary<string, object> claims, FakeEntity entry) =>
+            .Setup(r => r.SaveAsync(expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry))
+            .Callback((Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TenantableFakeEntity entry) =>
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(identifier, Is.EqualTo("primary"));
                     Assert.That(DeepComparer.AreEqual(expectedEntry, entry, TestContext.WriteLine), Is.True);    
@@ -691,7 +693,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -720,11 +722,12 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(false);
 
         RepositoryMock
-            .Setup(r => r.SaveAsync(expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry))
-            .Callback((Guid? userId, string identifier, IDictionary<string, object> claims, FakeEntity entry) =>
+            .Setup(r => r.SaveAsync(expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry))
+            .Callback((Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TenantableFakeEntity entry) =>
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(identifier, Is.EqualTo("primary"));
                     Assert.That(DeepComparer.AreEqual(expectedEntry, entry, TestContext.WriteLine), Is.True);    
@@ -747,7 +750,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -776,15 +779,16 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         RepositoryMock
-            .Setup(r => r.RemoveAsync(expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(new RemoveResult()
             {
                 Result = true
             })
-            .Callback((Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams) =>
+            .Callback((Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams) =>
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(removeParams, Contains.Key("Id"));
                     Assert.That(removeParams["Id"], Is.EqualTo(expectedEntry.Id));
@@ -798,7 +802,7 @@ public class EditingApiTest : ApiMappingBaseTest
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
         RepositoryMock.Verify(r => r.RemoveAsync(
-            expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Once);
+            expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Once);
     }
     
     [Test]
@@ -810,7 +814,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -839,15 +843,16 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         RepositoryMock
-            .Setup(r => r.RemoveAsync(expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(new RemoveResult()
             {
                 Result = true
             })
-            .Callback((Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams) =>
+            .Callback((Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams) =>
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(removeParams, Contains.Key("Id"));
                     Assert.That(removeParams["Id"], Is.EqualTo(expectedEntry.Id));
@@ -870,7 +875,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -899,15 +904,16 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(false);
 
         RepositoryMock
-            .Setup(r => r.RemoveAsync(expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(new RemoveResult()
             {
                 Result = true
             })
-            .Callback((Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams) =>
+            .Callback((Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams) =>
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(removeParams, Contains.Key("Id"));
                     Assert.That(removeParams["Id"], Is.EqualTo(expectedEntry.Id));
@@ -930,7 +936,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedEntry = new FakeEntity()
+        var expectedEntry = new TenantableFakeEntity()
         {
             Id = Guid.NewGuid(),
             Name = "Name 1"
@@ -959,16 +965,17 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         RepositoryMock
-            .Setup(r => r.RemoveAsync(expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(new RemoveResult()
             {
                 Messages = ["An error occurred while trying to remove the entry."],
                 Result = false
             })
-            .Callback((Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams) =>
+            .Callback((Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams) =>
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(removeParams, Contains.Key("Id"));
                     Assert.That(removeParams["Id"], Is.EqualTo(expectedEntry.Id));
@@ -991,7 +998,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedList = new List<FakeEntity>()
+        var expectedList = new List<TenantableFakeEntity>()
         {
             new()
             {
@@ -1040,7 +1047,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         RepositoryMock
-            .Setup(r => r.ExportAsync("export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(expectedTenantId, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -1049,7 +1056,7 @@ public class EditingApiTest : ApiMappingBaseTest
         // Assert
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
-        var result = JsonSerializer.Deserialize<IEnumerable<FakeEntity>>(await response.Content.ReadAsStringAsync());
+        var result = JsonSerializer.Deserialize<IEnumerable<TenantableFakeEntity>>(await response.Content.ReadAsStringAsync());
 
         Assert.That(DeepComparer.AreListsEqual(expectedList, result, TestContext.WriteLine));
     }
@@ -1063,7 +1070,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedList = new List<FakeEntity>()
+        var expectedList = new List<TenantableFakeEntity>()
         {
             new()
             {
@@ -1112,7 +1119,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         RepositoryMock
-            .Setup(r => r.ExportAsync("export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(expectedTenantId, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -1131,7 +1138,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
 
-        var expectedList = new List<FakeEntity>()
+        var expectedList = new List<TenantableFakeEntity>()
         {
             new()
             {
@@ -1180,7 +1187,7 @@ public class EditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(false);
         
         RepositoryMock
-            .Setup(r => r.ExportAsync("export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(expectedTenantId, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -1200,7 +1207,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedEntity = "fakeentity";
         var expectedExportId = Guid.NewGuid();
 
-        var expectedList = new List<FakeEntity>()
+        var expectedList = new List<TenantableFakeEntity>()
         {
             new()
             {
@@ -1269,7 +1276,7 @@ public class EditingApiTest : ApiMappingBaseTest
             });
         
         RepositoryMock
-            .Setup(r => r.ExportAsync("export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(expectedTenantId, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -1302,7 +1309,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedEntity = "fakeentity";
         var expectedExportId = Guid.NewGuid();
 
-        var expectedList = new List<FakeEntity>()
+        var expectedList = new List<TenantableFakeEntity>()
         {
             new()
             {
@@ -1371,7 +1378,7 @@ public class EditingApiTest : ApiMappingBaseTest
             });
         
         RepositoryMock
-            .Setup(r => r.ExportAsync("export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(expectedTenantId, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -1392,7 +1399,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedEntity = "fakeentity";
         var expectedExportId = Guid.NewGuid();
 
-        var expectedList = new List<FakeEntity>()
+        var expectedList = new List<TenantableFakeEntity>()
         {
             new()
             {
@@ -1461,7 +1468,7 @@ public class EditingApiTest : ApiMappingBaseTest
             });
         
         RepositoryMock
-            .Setup(r => r.ExportAsync("export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(expectedTenantId, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -1481,7 +1488,7 @@ public class EditingApiTest : ApiMappingBaseTest
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
         
-        var expectedList = new List<FakeEntity>()
+        var expectedList = new List<TenantableFakeEntity>()
         {
             new()
             {
@@ -1534,7 +1541,7 @@ public class EditingApiTest : ApiMappingBaseTest
                     Assert.That(mediaType, Is.EqualTo("application/json"));
                     using var reader = new StreamReader(stream);
                     var content = reader.ReadToEnd();
-                    var importedList = JsonSerializer.Deserialize<List<FakeEntity>>(content);
+                    var importedList = JsonSerializer.Deserialize<List<TenantableFakeEntity>>(content);
                     Assert.That(DeepComparer.AreListsEqual(expectedList, importedList, TestContext.WriteLine));
                 });
             });

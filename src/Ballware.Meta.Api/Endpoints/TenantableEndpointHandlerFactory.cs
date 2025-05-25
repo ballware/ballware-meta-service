@@ -43,7 +43,7 @@ public static class TenantableEndpointHandlerFactory
 
     public delegate Task<IResult> HandleExportDelegate<TEntity>(
         IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker, ITenantMetaRepository tenantMetaRepository, 
-        ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier, [FromBody] IDictionary<string, StringValues> query) 
+        ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier, HttpRequest request) 
         where TEntity : class;
     
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
@@ -157,7 +157,14 @@ public static class TenantableEndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            return Results.Ok(await repository.ByIdAsync(tenantId, identifier, claims, id));
+            var entry = await repository.ByIdAsync(tenantId, identifier, claims, id);
+
+            if (entry == null)
+            {
+                return Results.NotFound();
+            }
+
+            return Results.Ok(entry);
         };
     }
     
@@ -185,16 +192,9 @@ public static class TenantableEndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
-            {
-                await repository.SaveAsync(tenantId, currentUserId, identifier, claims, value);
+            await repository.SaveAsync(tenantId, currentUserId, identifier, claims, value);
 
-                return Results.Ok();
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-            }
+            return Results.Ok();
         };
     }
     
@@ -221,24 +221,18 @@ public static class TenantableEndpointHandlerFactory
                 return Results.Unauthorized();
             }
 
-            try
+            var removeResult = await repository.RemoveAsync(tenantId, currentUserId,claims, ImmutableDictionary.CreateRange(new []
             {
-                var removeResult = await repository.RemoveAsync(tenantId, currentUserId,claims, ImmutableDictionary.CreateRange(new []
-                {
-                    new KeyValuePair<string, object>("Id", id),
-                }));
+                new KeyValuePair<string, object>("Id", id),
+            }));
 
-                if (!removeResult.Result)
-                {
-                    return Results.BadRequest(new Exception(string.Join("\r\n", removeResult.Messages)));
-                }
-
-                return Results.Ok();
-            }
-            catch (Exception ex)
+            if (!removeResult.Result)
             {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+                return Results.BadRequest(new Exception(string.Join("\r\n", removeResult.Messages)));
             }
+
+            return Results.Ok();
+            
         };
     }
     
@@ -278,7 +272,7 @@ public static class TenantableEndpointHandlerFactory
 
                 await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
 
-                var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "generic",
+                var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "meta",
                     "import", JsonSerializer.Serialize(jobData));
 
                 jobData["jobId"] = job.Id;
@@ -293,12 +287,20 @@ public static class TenantableEndpointHandlerFactory
     public static HandleExportDelegate<TEntity> CreateExportHandler<TEntity>(string application, string entity) where TEntity : class
     {
         return async (principalUtils, rightsChecker, tenantMetaRepository,
-            repository, user, identifier, [FromBody] query) =>
+            repository, user, identifier, request) =>
         {
             var tenantId = principalUtils.GetUserTenandId(user);
 
             var claims = principalUtils.GetUserClaims(user);
-            var queryParams = GetQueryParams(query);
+            var query = request.Query;
+            
+            var queryParams = new Dictionary<string, object>();
+
+            foreach (var queryEntry in query)
+            {
+                queryParams.Add(queryEntry.Key, queryEntry.Value);
+            }
+            
             var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
 
             if (tenant == null)

@@ -58,7 +58,7 @@ public static class EditingEndpoint
             .WithTags(apiTag)
             .WithSummary("Save existing or new tenant");
         
-        app.MapDelete(basePath + "/remove", EndpointHandlerFactory.CreateRemoveHandler<TEntity>(application, entity))
+        app.MapDelete(basePath + "/remove/{id}", EndpointHandlerFactory.CreateRemoveHandler<TEntity>(application, entity))
             .RequireAuthorization(authorizationScope)
             .Produces<TEntity>()
             .Produces(StatusCodes.Status401Unauthorized)
