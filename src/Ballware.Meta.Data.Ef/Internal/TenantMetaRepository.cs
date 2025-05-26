@@ -38,7 +38,7 @@ class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>,
         return Mapper.Map<IEnumerable<Public.TenantDatabaseObject>>(results);
     }
 
-    public virtual async Task<IEnumerable<TenantSelectListEntry>> AllowedTenantsAsync(Dictionary<string, object> claims)
+    public virtual async Task<IEnumerable<TenantSelectListEntry>> AllowedTenantsAsync(IDictionary<string, object> claims)
     {
         var queryParams = new Dictionary<string, object>();
 

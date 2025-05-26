@@ -10,22 +10,21 @@ using Newtonsoft.Json;
 
 namespace Ballware.Meta.Data.Ef.Tests.Repository;
 
-public class EntityMetaRepositoryTest : RepositoryBaseTest
+public class LookupMetaRepositoryTest : RepositoryBaseTest
 {
-    private const int MetaEntityCount = 15;
-    
     [Test]
     public async Task Save_and_remove_value_succeeds()
     {
         using var scope = Application.Services.CreateScope();
 
-        var repository = scope.ServiceProvider.GetRequiredService<IEntityMetaRepository>();
+        var repository = scope.ServiceProvider.GetRequiredService<ILookupMetaRepository>();
 
         var expectedValue = await repository.NewQueryAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
         
-        expectedValue.Entity = "fake_entity";
-        expectedValue.Application = "fake_application";
-        expectedValue.DisplayName = "fake_display_name";
+        expectedValue.Identifier = "fake_lookup";
+        expectedValue.Name = "fake_name";
+        expectedValue.ListQuery = "fake_list_query";
+        expectedValue.ByIdQuery = "fake_by_id_query";
         
         await repository.SaveAsync(TenantId, null, "primary", ImmutableDictionary<string, object>.Empty, expectedValue);
 
@@ -35,9 +34,10 @@ public class EntityMetaRepositoryTest : RepositoryBaseTest
         {
             Assert.That(actualValue, Is.Not.Null);
             Assert.That(actualValue?.Id, Is.EqualTo(expectedValue.Id));
-            Assert.That(actualValue?.Entity, Is.EqualTo(expectedValue.Entity));
-            Assert.That(actualValue?.Application, Is.EqualTo(expectedValue.Application));
-            Assert.That(actualValue?.DisplayName, Is.EqualTo(expectedValue.DisplayName));
+            Assert.That(actualValue?.Identifier, Is.EqualTo(expectedValue.Identifier));
+            Assert.That(actualValue?.Name, Is.EqualTo(expectedValue.Name));
+            Assert.That(actualValue?.ListQuery, Is.EqualTo(expectedValue.ListQuery));
+            Assert.That(actualValue?.ByIdQuery, Is.EqualTo(expectedValue.ByIdQuery));
         });
 
         var removeParams = new Dictionary<string, object>([new KeyValuePair<string, object>("Id", expectedValue.Id)]);
@@ -58,8 +58,8 @@ public class EntityMetaRepositoryTest : RepositoryBaseTest
     public async Task Query_tenant_items_succeeds()
     {
         using var scope = Application.Services.CreateScope();
-        
-        var repository = scope.ServiceProvider.GetRequiredService<IEntityMetaRepository>();
+
+        var repository = scope.ServiceProvider.GetRequiredService<ILookupMetaRepository>();
 
         var fakeTenantIds = new[] { Guid.NewGuid(), Guid.NewGuid(), TenantId, Guid.NewGuid() };
 
@@ -71,9 +71,10 @@ public class EntityMetaRepositoryTest : RepositoryBaseTest
             {
                 var fakeValue = await repository.NewAsync(fakeTenant, "primary", ImmutableDictionary<string, object>.Empty);
 
-                fakeValue.Entity = $"fake_entity_{fakeTenant.ToString()}_{i}";
-                fakeValue.Application = $"fake_application";
-                fakeValue.DisplayName = $"fake_displayname_{i}";
+                fakeValue.Identifier = $"fake_lookup_{fakeTenant.ToString()}_{i}";
+                fakeValue.Name = $"fake_name_{i}";
+                fakeValue.ListQuery = $"fake_list_query_{i}";
+                fakeValue.ByIdQuery = $"fake_by_id_query_{i}";
                 
                 await repository.SaveAsync(fakeTenant, null, "primary", ImmutableDictionary<string, object>.Empty, fakeValue);
 
@@ -87,22 +88,21 @@ public class EntityMetaRepositoryTest : RepositoryBaseTest
         var actualTenantItemsCount = await repository.CountAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
         var actualTenantAllItems = await repository.AllAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
         var actualTenantQueryItems = await repository.QueryAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
-        var actualEntityItem = await repository.ByEntityAsync(TenantId, $"fake_entity_{TenantId.ToString()}_1");
+        var actualEntityItem = await repository.ByIdentifierAsync(TenantId, $"fake_lookup_{TenantId.ToString()}_1");
 
         var actualSelectListItems = await repository.SelectListForTenantAsync(TenantId);
         var actualSelectByIdItem = await repository.SelectByIdForTenantAsync(TenantId, fakeValueIds[0]);
         
         Assert.Multiple(() =>
         {
-            Assert.That(actualTenantItemsCount, Is.EqualTo(10 + MetaEntityCount));
-            Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10 + MetaEntityCount));
-            Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10 + MetaEntityCount));
-            Assert.That(actualSelectListItems.Count(), Is.EqualTo(10 + MetaEntityCount));
+            Assert.That(actualTenantItemsCount, Is.EqualTo(10));
+            Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10));
+            Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10));
+            Assert.That(actualSelectListItems.Count(), Is.EqualTo(10));
             Assert.That(actualSelectByIdItem, Is.Not.Null);
             Assert.That(actualSelectByIdItem?.Id, Is.EqualTo(fakeValueIds[0]));
-            Assert.That(actualEntityItem?.Entity, Is.EqualTo($"fake_entity_{TenantId.ToString()}_1"));
-            Assert.That(actualEntityItem?.Application, Is.EqualTo("fake_application"));
-            Assert.That(actualEntityItem?.DisplayName, Is.EqualTo("fake_displayname_1"));
+            Assert.That(actualEntityItem?.Identifier, Is.EqualTo($"fake_lookup_{TenantId.ToString()}_1"));
+            Assert.That(actualEntityItem?.Name, Is.EqualTo("fake_name_1"));
         });
     }
 
@@ -111,17 +111,18 @@ public class EntityMetaRepositoryTest : RepositoryBaseTest
     {
         using var scope = Application.Services.CreateScope();
 
-        var repository = scope.ServiceProvider.GetRequiredService<IEntityMetaRepository>();
+        var repository = scope.ServiceProvider.GetRequiredService<ILookupMetaRepository>();
 
-        var importList = new List<EntityMetadata>();
+        var importList = new List<Lookup>();
 
         for (var i = 0; i < 10; i++)
         {
             var fakeValue = await repository.NewAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
 
-            fakeValue.Entity = $"fake_imports_{TenantId.ToString()}_{i}";
-            fakeValue.Application = $"fake_application_{i}";
-            fakeValue.DisplayName = $"fake_displayname_{i}";
+            fakeValue.Identifier = $"fake_imports_{TenantId.ToString()}_{i}";
+            fakeValue.Name = $"fake_name_{i}";
+            fakeValue.ListQuery = $"fake_list_query_{i}";
+            fakeValue.ByIdQuery = $"fake_by_id_query_{i}";
 
             importList.Add(fakeValue);
         }
@@ -135,16 +136,22 @@ public class EntityMetaRepositoryTest : RepositoryBaseTest
         var actualTenantItemsCount = await repository.CountAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
         var actualTenantAllItems = await repository.AllAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
         var actualTenantQueryItems = await repository.QueryAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
-        var actualEntityItem = await repository.ByEntityAsync(TenantId, $"fake_imports_{TenantId.ToString()}_1");
+        var actualAllForTenantItems = await repository.AllForTenantAsync(TenantId);
+        var actualByIdItem = await repository.ByIdAsync(TenantId, importList[0].Id);
+        var actualEntityItem = await repository.ByIdentifierAsync(TenantId, $"fake_imports_{TenantId.ToString()}_1");
+        var actualSelectListItems = await repository.SelectListForTenantAsync(TenantId);
+        
 
         Assert.Multiple(() =>
         {
-            Assert.That(actualTenantItemsCount, Is.EqualTo(10 + MetaEntityCount));
-            Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10 + MetaEntityCount));
-            Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10 + MetaEntityCount));
-            Assert.That(actualEntityItem?.Entity, Is.EqualTo($"fake_imports_{TenantId.ToString()}_1"));
-            Assert.That(actualEntityItem?.Application, Is.EqualTo("fake_application_1"));
-            Assert.That(actualEntityItem?.DisplayName, Is.EqualTo("fake_displayname_1"));
+            Assert.That(actualTenantItemsCount, Is.EqualTo(10));
+            Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10));
+            Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10));
+            Assert.That(actualAllForTenantItems.Count(), Is.EqualTo(10));
+            Assert.That(actualSelectListItems.Count(), Is.EqualTo(10));
+            Assert.That(actualByIdItem, Is.Not.Null);
+            Assert.That(actualEntityItem?.Identifier, Is.EqualTo($"fake_imports_{TenantId.ToString()}_1"));
+            Assert.That(actualEntityItem?.Name, Is.EqualTo("fake_name_1"));
         });
     }
 
@@ -153,18 +160,19 @@ public class EntityMetaRepositoryTest : RepositoryBaseTest
     {
         using var scope = Application.Services.CreateScope();
 
-        var repository = scope.ServiceProvider.GetRequiredService<IEntityMetaRepository>();
+        var repository = scope.ServiceProvider.GetRequiredService<ILookupMetaRepository>();
 
         var exportIdList = new List<Guid>();
-        var exportItemList = new List<EntityMetadata>();
+        var exportItemList = new List<Lookup>();
 
         for (var i = 0; i < 10; i++)
         {
             var fakeValue = await repository.NewAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
 
-            fakeValue.Entity = $"fake_exports_{TenantId.ToString()}_{i}";
-            fakeValue.Application = $"fake_application_{i}";
-            fakeValue.DisplayName = $"fake_displayname_{i}";
+            fakeValue.Identifier = $"fake_exports_{TenantId.ToString()}_{i}";
+            fakeValue.Name = $"fake_name_{i}";
+            fakeValue.ListQuery = $"fake_list_query_{i}";
+            fakeValue.ByIdQuery = $"fake_by_id_query_{i}";
 
             await repository.SaveAsync(TenantId, null, "primary", ImmutableDictionary<string, object>.Empty, fakeValue);
 
@@ -175,11 +183,11 @@ public class EntityMetaRepositoryTest : RepositoryBaseTest
             }
         }
 
-        var exportResult = await repository.ExportAsync(TenantId, "exportjson", ImmutableDictionary<string, object>.Empty, new Dictionary<string, object>(new[] { new KeyValuePair<string, object>("id", exportIdList.Select(id => id.ToString()).ToArray()) }));
+        var exportResult = await repository.ExportAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, new Dictionary<string, object>(new[] { new KeyValuePair<string, object>("id", exportIdList.Select(id => id.ToString()).ToArray()) }));
 
         Assert.Multiple(() =>
         {
-            Assert.That(exportResult.FileName, Is.EqualTo("exportjson.json"));
+            Assert.That(exportResult.FileName, Is.EqualTo("primary.json"));
             Assert.That(exportResult.MediaType, Is.EqualTo("application/json"));
             Assert.That(exportResult.Data, Is.Not.Null);
 
