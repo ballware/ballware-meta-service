@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Ballware.Meta.Data.Persistables;
 
@@ -9,7 +9,7 @@ public class EntityMetadata : IEntity, IAuditable, ITenantable
     [JsonIgnore]
     public long? Id { get; set; }
 
-    [JsonProperty(nameof(Id))]
+    [JsonPropertyName(nameof(Id))]
     public Guid Uuid { get; set; }
 
     [JsonIgnore]
@@ -62,6 +62,7 @@ public class EntityMetadata : IEntity, IAuditable, ITenantable
     public string? StateAllowedScript { get; set; }
 
     public string? Indices { get; set; }
+    public string? ProviderModelDefinition { get; set; }
 
     public Guid? CreatorId { get; set; }
 

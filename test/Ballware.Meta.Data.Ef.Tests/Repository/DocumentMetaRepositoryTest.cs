@@ -83,6 +83,7 @@ public class DocumentMetaRepositoryTest : RepositoryBaseTest
         var actualTenantQueryItems = await repository.QueryAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty, ImmutableDictionary<string, object>.Empty);
         var actualTenantSelectList = await repository.SelectListForTenantAsync(TenantId);
         var actualEntitySelectList = await repository.SelectListForTenantAndEntityAsync(TenantId, $"fake_items_{TenantId.ToString()}_1");
+        var actualSelectByIdItem = await repository.SelectByIdForTenantAsync(TenantId, singleDocumentId);
         var actualDocumentItem = await repository.MetadataByTenantAndIdAsync(TenantId, singleDocumentId);
 
         Assert.Multiple(() =>
@@ -92,6 +93,7 @@ public class DocumentMetaRepositoryTest : RepositoryBaseTest
             Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10));
             Assert.That(actualTenantSelectList.Count(), Is.EqualTo(10));
             Assert.That(actualEntitySelectList.Count(), Is.EqualTo(1));
+            Assert.That(actualSelectByIdItem?.Name, Is.EqualTo($"fake_displayname_2"));
             Assert.That(actualDocumentItem?.DisplayName, Is.EqualTo($"fake_displayname_2"));
         });
     }

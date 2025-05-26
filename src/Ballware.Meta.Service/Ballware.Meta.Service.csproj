@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
+        <IsPackable>false</IsPackable>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -11,24 +12,33 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Ballware.Meta.Api\Ballware.Meta.Api.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Authorization.Jint\Ballware.Meta.Authorization.Jint.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Caching\Ballware.Meta.Caching.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Data.Ef\Ballware.Meta.Data.Ef.csproj" />
-      <ProjectReference Include="..\Ballware.Meta.Tenant.Data.SqlServer\Ballware.Meta.Tenant.Data.SqlServer.csproj" />
+      <ProjectReference Include="..\Ballware.Schema.Client\Ballware.Schema.Client.csproj" />
+      <ProjectReference Include="..\Ballware.Storage.Client\Ballware.Storage.Client.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="Duende.AccessTokenManagement" Version="3.2.0" />
+      <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" Version="3.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
-      <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="MimeMapping" Version="3.1.0" />
+      <PackageReference Include="Npgsql" Version="8.0.5" />
+      <PackageReference Include="Quartz" Version="3.8.1" />
+      <PackageReference Include="Quartz.AspNetCore" Version="3.8.1" />
+      <PackageReference Include="Quartz.Serialization.Json" Version="3.8.1" />
+      <PackageReference Include="Serilog" Version="4.3.0" />
+      <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
-      <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="7.2.0" />
       <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 

@@ -1,13 +1,15 @@
 using AutoMapper;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Repository;
+using Ballware.Meta.Data.SelectLists;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
 class MlModelMetaRepository : TenantableBaseRepository<Public.MlModel, Persistables.MlModel>, IMlModelMetaRepository
 {
-    public MlModelMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public MlModelMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.MlModel, Persistables.MlModel>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<Public.MlModel?> MetadataByTenantAndIdAsync(Public.Tenant tenant, Guid id)
     {
@@ -41,5 +43,26 @@ class MlModelMetaRepository : TenantableBaseRepository<Public.MlModel, Persistab
         Context.Update(model);
 
         await Context.SaveChangesAsync();
+    }
+    
+    public virtual async Task<IEnumerable<MlModelSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
+    {
+        return await Task.FromResult(Context.MlModels.Where(r => r.TenantId == tenantId)
+            .OrderBy(r => r.Identifier)
+            .Select(r => new MlModelSelectListEntry
+                { Id = r.Uuid, Identifier = r.Identifier }));
+    }
+    
+    public virtual async Task<MlModelSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
+    {
+        return await Context.MlModels.Where(r => r.TenantId == tenantId && r.Uuid == id)
+            .Select(r => new MlModelSelectListEntry
+                { Id = r.Uuid, Identifier = r.Identifier })
+            .FirstOrDefaultAsync();
+    }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, Identifier from MlModel where TenantId='{tenantId}'");
     }
 }

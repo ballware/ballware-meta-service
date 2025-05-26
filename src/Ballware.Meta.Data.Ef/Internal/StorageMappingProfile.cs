@@ -11,7 +11,17 @@ class StorageMappingProfile : Profile
             .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
 
         CreateMap<Persistables.Tenant, Public.Tenant>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid))
+            .ForMember(dest => dest.DatabaseObjects, opt => opt.MapFrom((src, dest, destMember, context) =>
+                {
+                    if (context.TryGetItems(out var items) && items.TryGetValue("DatabaseObjects", out var databaseObjects))
+                    {
+                        return databaseObjects as IEnumerable<Public.TenantDatabaseObject>;
+                    }
+
+                    return null;
+                }
+            ));
 
         CreateMap<Public.Documentation, Persistables.Documentation>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -97,6 +107,13 @@ class StorageMappingProfile : Profile
         CreateMap<Persistables.ProcessingState, Public.ProcessingState>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
 
+        CreateMap<Public.EntityRight, Persistables.EntityRight>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
+
+        CreateMap<Persistables.EntityRight, Public.EntityRight>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        
         CreateMap<Public.Statistic, Persistables.Statistic>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
@@ -110,12 +127,19 @@ class StorageMappingProfile : Profile
 
         CreateMap<Persistables.Subscription, Public.Subscription>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Tenant, Persistables.Tenant>()
+        
+        CreateMap<Public.TenantDatabaseObject, Persistables.TenantDatabaseObject>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
 
-        CreateMap<Persistables.Tenant, Public.Tenant>()
+        CreateMap<Persistables.TenantDatabaseObject, Public.TenantDatabaseObject>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        
+        CreateMap<Public.CharacteristicAssociation, Persistables.CharacteristicAssociation>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
+        
+        CreateMap<Persistables.CharacteristicAssociation, Public.CharacteristicAssociation>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
     }
 }

@@ -22,6 +22,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+        <PackageReference Include="Testcontainers.MsSql" Version="4.4.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -44,10 +45,10 @@
     </Target>
 
     <ItemGroup>
-        <None Update="appsettings_with_migrations.json">
+        <None Update="appsettings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="appsettings_with_migrations.local.json">
+        <None Update="appsettings.local.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

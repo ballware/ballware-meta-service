@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Ballware.Meta.Data.Persistables;
 
@@ -9,7 +9,7 @@ public class Subscription : IEntity, IAuditable, ITenantable
     [JsonIgnore]
     public virtual long? Id { get; set; }
 
-    [JsonProperty(nameof(Id))]
+    [JsonPropertyName(nameof(Id))]
     public virtual Guid Uuid { get; set; }
 
     public virtual Guid TenantId { get; set; }

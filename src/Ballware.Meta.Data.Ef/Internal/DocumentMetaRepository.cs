@@ -7,7 +7,8 @@ namespace Ballware.Meta.Data.Ef.Internal;
 
 class DocumentMetaRepository : TenantableBaseRepository<Public.Document, Persistables.Document>, IDocumentMetaRepository
 {
-    public DocumentMetaRepository(IMapper mapper, MetaDbContext dbContext) : base(mapper, dbContext) { }
+    public DocumentMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Document, Persistables.Document>? hook = null) 
+        : base(mapper, dbContext, hook) { }
 
     public virtual async Task<Public.Document?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id)
     {
@@ -24,6 +25,13 @@ class DocumentMetaRepository : TenantableBaseRepository<Public.Document, Persist
             .OrderBy(c => c.DisplayName)
             .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State }));
     }
+    
+    public virtual async Task<DocumentSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
+    {
+        return await Context.Documents.Where(r => r.TenantId == tenantId && r.Uuid == id)
+            .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State })
+            .FirstOrDefaultAsync();
+    }
 
     public virtual async Task<IEnumerable<DocumentSelectListEntry>> SelectListForTenantAndEntityAsync(Guid tenantId, string entity)
     {
@@ -32,6 +40,11 @@ class DocumentMetaRepository : TenantableBaseRepository<Public.Document, Persist
             .Select(d => new { d.Uuid, d.DisplayName, d.State })
             .OrderBy(c => c.DisplayName)
             .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State }));
+    }
+    
+    public Task<string> GenerateListQueryAsync(Guid tenantId)
+    {
+        return Task.FromResult($"select Uuid as Id, DisplayName as Name, State from Document where TenantId='{tenantId}'");
     }
 }
 

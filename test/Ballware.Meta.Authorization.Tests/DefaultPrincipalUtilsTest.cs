@@ -100,12 +100,12 @@ public class DefaultPrincipalUtilsTest
 
         var subject = new DefaultPrincipalUtils("tenant", "sub", "right");
 
-        var actualRights = subject.GetUserRights(principal);
+        var actualRights = subject.GetUserRights(principal)?.ToList();
 
         Assert.Multiple(() =>
         {
             Assert.That(actualRights, Is.Not.Null);
-            Assert.That(actualRights.Count, Is.EqualTo(3));
+            Assert.That(actualRights?.Count, Is.EqualTo(3));
             Assert.That(actualRights, Is.EquivalentTo(["entity.read", "entity.write", "entity.delete"]));
         });
     }

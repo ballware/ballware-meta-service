@@ -508,6 +508,9 @@ namespace Ballware.Meta.Data.Ef.Migrations
                     b.Property<string>("Picklists")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProviderModelDefinition")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RemovePreliminaryCheckScript")
                         .HasColumnType("nvarchar(max)");
 
@@ -1152,6 +1155,9 @@ namespace Ballware.Meta.Data.Ef.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ProviderModelDefinition")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReportSchemaDefinition")
                         .HasColumnType("nvarchar(max)");

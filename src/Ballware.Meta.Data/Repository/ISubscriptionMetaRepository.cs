@@ -1,3 +1,5 @@
+using Ballware.Meta.Data.SelectLists;
+
 namespace Ballware.Meta.Data.Repository;
 
 public interface ISubscriptionMetaRepository : ITenantableRepository<Public.Subscription>
@@ -7,4 +9,9 @@ public interface ISubscriptionMetaRepository : ITenantableRepository<Public.Subs
     Task<IEnumerable<Public.Subscription>> GetActiveSubscriptionsByFrequencyAsync(int frequency);
 
     Task SetLastErrorAsync(Guid tenantId, Guid id, string message);
+    
+    Task<IEnumerable<SubscriptionSelectListEntry>> SelectListForTenantAsync(Guid tenantId);
+    Task<SubscriptionSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id);
+    
+    Task<string> GenerateListQueryAsync(Guid tenantId);
 }

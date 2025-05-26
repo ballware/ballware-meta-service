@@ -1,11 +1,19 @@
 using Ballware.Meta.Service;
 using Ballware.Meta.Service.Configuration;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateLogger();
+
 var environment = builder.Environment;
 
+builder.Host.UseSerilog();
 builder.Configuration.Sources.Clear();
 builder.Configuration.AddJsonFile("appsettings.json", true, true);
 builder.Configuration.AddJsonFile($"appsettings.{environment.EnvironmentName}.json", true, true);

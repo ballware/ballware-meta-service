@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using AutoMapper;
 using Ballware.Meta.Data.Persistables;
@@ -12,16 +13,32 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
 {
     protected IMapper Mapper { get; }
     protected MetaDbContext Context { get; }
+    protected IRepositoryHook<TEditable, TPersistable> ? Hook { get; }
 
-    protected BaseRepository(IMapper mapper, MetaDbContext dbContext)
+    protected BaseRepository(IMapper mapper, MetaDbContext dbContext, IRepositoryHook<TEditable, TPersistable>? hook = null)
     {
         Mapper = mapper;
         Context = dbContext;
+        Hook = hook;
     }
 
     protected virtual IQueryable<TPersistable> ListQuery(IQueryable<TPersistable> query, string identifier,
         IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
+        if (queryParams.TryGetValue("id", out var idParam))
+        {
+            if (idParam is IEnumerable<string> idValues)
+            {
+                var idList = idValues.Select(Guid.Parse);
+                
+                query = query.Where(t => idList.Contains(t.Uuid));
+            }
+            else if (Guid.TryParse(idParam.ToString(), out var id))
+            {
+                query = query.Where(t => t.Uuid == id);
+            }
+        }
+        
         return query;
     }
 
@@ -44,11 +61,28 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         return value;
     }
 
-    protected virtual void BeforeSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, bool insert) { }
-    protected virtual void AfterSave(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value, TPersistable persistable, bool insert) { }
+    protected virtual void BeforeSave(Guid? userId, string identifier, IDictionary<string, object> claims,
+        TEditable value, bool insert)
+    {
+        Hook?.BeforeSave(userId, identifier, claims, value, insert);
+    }
+
+    protected virtual void AfterSave(Guid? userId, string identifier, IDictionary<string, object> claims,
+        TEditable value, TPersistable persistable, bool insert)
+    {
+        Hook?.AfterSave(userId, identifier, claims, value, persistable, insert);
+    }
+    
     protected virtual RemoveResult RemovePreliminaryCheck(Guid? userId, IDictionary<string, object> claims,
         IDictionary<string, object> removeParams)
     {
+        var hookResult = Hook?.RemovePreliminaryCheck(userId, claims, removeParams);
+        
+        if (hookResult != null)
+        {
+            return hookResult.Value;
+        }
+        
         return new RemoveResult()
         {
             Result = true,
@@ -58,11 +92,13 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
 
     protected virtual void BeforeRemove(Guid? userId, IDictionary<string, object> claims,
         TPersistable persistable)
-    { }
+    {
+        Hook?.BeforeRemove(userId, claims, persistable);
+    }
 
     public Task<IEnumerable<TEditable>> AllAsync(string identifier, IDictionary<string, object> claims)
     {
-        return Task.Run(() => Context.Set<TPersistable>().AsEnumerable().Select(Mapper.Map<TEditable>));
+        return Task.Run(() => ListQuery(Context.Set<TPersistable>(), identifier, claims, ImmutableDictionary<string, object>.Empty).AsEnumerable().Select(Mapper.Map<TEditable>));
     }
 
     public Task<IEnumerable<TEditable>> QueryAsync(string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)

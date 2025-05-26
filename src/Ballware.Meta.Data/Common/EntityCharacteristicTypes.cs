@@ -1,6 +1,6 @@
 namespace Ballware.Meta.Data.Common;
 
-public enum EntityCharacteristicTypes : int
+public enum EntityCharacteristicTypes
 {
     Bool = 0,
     Int = 1,

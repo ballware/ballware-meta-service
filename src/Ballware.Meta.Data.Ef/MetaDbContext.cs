@@ -1,12 +1,16 @@
 ﻿using Ballware.Meta.Data.Persistables;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Ballware.Meta.Data.Ef;
 
 public class MetaDbContext : DbContext
 {
-    public MetaDbContext(DbContextOptions<MetaDbContext> options) : base(options)
+    private ILoggerFactory LoggerFactory { get; }
+    
+    public MetaDbContext(DbContextOptions<MetaDbContext> options, ILoggerFactory loggerFactory) : base(options)
     {
+        LoggerFactory = loggerFactory;
     }
 
     public DbSet<Tenant> Tenants { get; set; }
@@ -29,6 +33,13 @@ public class MetaDbContext : DbContext
     public DbSet<MlModel> MlModels { get; set; }
     public DbSet<TenantDatabaseObject> TenantDatabaseObjects { get; set; }
     public DbSet<Job> Jobs { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseLoggerFactory(LoggerFactory);
+        
+        base.OnConfiguring(optionsBuilder);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
