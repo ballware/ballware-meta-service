@@ -3,15 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace Ballware.Meta.Data.Public;
 
-public class EntityQueryEntry
-{
-    [JsonPropertyName("identifier")]
-    public string? Identifier { get; set; }
-
-    [JsonPropertyName("query")]
-    public string? Query { get; set; }
-}
-
 public class EntityCustomFunction
 {
     [JsonPropertyName("id")]
@@ -34,18 +25,6 @@ public class EntityExportFunctionOptions
 
     [JsonPropertyName("delimiter")]
     public string? Delimiter { get; set; }
-}
-
-public class EntityCustomExportFunction : EntityCustomFunction
-{
-    [JsonPropertyName("options")]
-    public EntityExportFunctionOptions? Options { get; set; }
-}
-
-public class EntityCustomImportFunction : EntityCustomFunction
-{
-    [JsonPropertyName("options")]
-    public EntityImportFunctionOptions? Options { get; set; }
 }
 
 public class EntityCustomScripts
@@ -105,49 +84,11 @@ public class EntityCustomScripts
     public string? PrepareTemplateInstance { get; set; }
 }
 
-public class EntityIndex
-{
-    [JsonPropertyName("identifier")]
-    public string? Identifier { get; set; }
-
-    [JsonPropertyName("unique")]
-    public bool Unique { get; set; }
-
-    [JsonPropertyName("members")]
-    public string[]? Members { get; set; }
-}
-
 public static class MetadataExtensions
 {
-    public static EntityQueryEntry? GetQueryByIdentifier(this string serializedQueryContainer, string identifier)
-    {
-        var queries = JsonSerializer.Deserialize<EntityQueryEntry[]>(serializedQueryContainer);
-
-        return queries?.FirstOrDefault(q => identifier.Equals(q.Identifier, StringComparison.OrdinalIgnoreCase));
-    }
-
-    public static EntityCustomImportFunction? GetImportFunctionByIdentifier(this string serializedFunctionsContainer, string identifier)
-    {
-        var queries = JsonSerializer.Deserialize<EntityCustomImportFunction[]>(serializedFunctionsContainer);
-
-        return queries?.FirstOrDefault(q => identifier.Equals(q.Identifier, StringComparison.OrdinalIgnoreCase));
-    }
-
-    public static EntityCustomExportFunction? GetExportFunctionByIdentifier(this string serializedFunctionsContainer, string identifier)
-    {
-        var queries = JsonSerializer.Deserialize<EntityCustomExportFunction[]>(serializedFunctionsContainer);
-
-        return queries?.FirstOrDefault(q => identifier.Equals(q.Identifier, StringComparison.OrdinalIgnoreCase));
-    }
-
     public static EntityCustomScripts? GetCustomScripts(this string serializedCustomScripts)
     {
         return JsonSerializer.Deserialize<EntityCustomScripts>(serializedCustomScripts);
-    }
-
-    public static IEnumerable<EntityIndex>? GetEntityIndices(this EntityMetadata metadata)
-    {
-        return JsonSerializer.Deserialize<EntityIndex[]>(metadata.Indices ?? "[]");
     }
 }
 

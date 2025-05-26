@@ -224,6 +224,159 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
     }
     
     [Test]
+    public async Task HandleQuery_succeeds()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+
+        var expectedList = new List<TenantableFakeEntity>()
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 1"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 2"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 3"
+            }
+        };
+        
+        var fakeTenant = new Data.Public.Tenant()
+        {
+            Id = expectedTenantId,
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedTenantId);
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        TenantRepositoryMock
+            .Setup(r => r.ByIdAsync(expectedTenantId))
+            .ReturnsAsync(fakeTenant);
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "view"))
+            .ReturnsAsync(true);
+        
+        RepositoryMock
+            .Setup(r => r.QueryAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .ReturnsAsync(expectedList)
+            .Callback((Guid tenantId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> query) =>
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
+                    Assert.That(identifier, Is.EqualTo("primary"));
+                    Assert.That(query.Count, Is.EqualTo(3));
+                    Assert.That(query["identifier"], Is.EqualTo("primary"));
+                    Assert.That(query["param1"], Is.EqualTo("value1"));
+                    Assert.That(query["param2"], Is.EqualTo("|value2|value3|"));
+                });
+            });
+        
+        // Act
+        var response = await Client.GetAsync($"fakeentity/query?identifier=primary&param1=value1&param2=value2&param2=value3");
+        
+        // Assert
+        Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
+        
+        var result = JsonSerializer.Deserialize<IEnumerable<TenantableFakeEntity>>(await response.Content.ReadAsStringAsync());
+
+        Assert.That(DeepComparer.AreListsEqual(expectedList, result, TestContext.WriteLine));
+    }
+    
+    [Test]
+    public async Task HandleQuery_not_found()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+        
+        var fakeTenant = new Data.Public.Tenant()
+        {
+            Id = expectedTenantId,
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(Guid.NewGuid());
+
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        TenantRepositoryMock
+            .Setup(r => r.ByIdAsync(expectedTenantId))
+            .ReturnsAsync(fakeTenant);
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "view"))
+            .ReturnsAsync(true);
+        
+        // Act
+        var notFoundResponse = await Client.GetAsync($"fakeentity/query?identifier=primary&param1=value1&param2=value2&param2=value3");
+        
+        // Assert
+        Assert.That(notFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
+    }
+    
+    [Test]
+    public async Task HandleQuery_not_authorized()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+        
+        var fakeTenant = new Data.Public.Tenant()
+        {
+            Id = expectedTenantId,
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedTenantId);
+
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        TenantRepositoryMock
+            .Setup(r => r.ByIdAsync(expectedTenantId))
+            .ReturnsAsync(fakeTenant);
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "view"))
+            .ReturnsAsync(false);
+        
+        // Act
+        var unauthorizedResponse = await Client.GetAsync($"fakeentity/query?identifier=primary&param1=value1&param2=value2&param2=value3");
+        
+        // Assert
+        Assert.That(unauthorizedResponse.StatusCode,Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+    
+    [Test]
     public async Task HandleNew_succeeds()
     {
         // Arrange

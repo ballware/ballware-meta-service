@@ -398,9 +398,9 @@ public static class TenantableEndpointHandlerFactory
             {
                 queryParams.Add(queryEntry.Key, $"|{string.Join('|', queryEntry.Value.ToArray())}|");
             }
-            else
+            else if (queryEntry.Value.Count == 1)
             {
-                queryParams.Add(queryEntry.Key, queryEntry.Value);
+                queryParams.Add(queryEntry.Key, queryEntry.Value.ToString());
             }
         }
 
