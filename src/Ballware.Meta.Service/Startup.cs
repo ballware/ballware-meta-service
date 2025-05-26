@@ -223,6 +223,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddBallwareMetaAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareMetaJintRightsChecker();
+        Services.AddBallwareMetaApiDependencies();
 
         Services.AddEndpointsApiExplorer();
         

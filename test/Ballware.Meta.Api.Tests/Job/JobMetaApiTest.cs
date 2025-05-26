@@ -52,14 +52,8 @@ public class JobMetaApiTest : ApiMappingBaseTest
 
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
-        var tenantRepositoryMock = new Mock<ITenantMetaRepository>();
         var repositoryMock = new Mock<IJobMetaRepository>();
 
-        var fakeTenant = new Data.Public.Tenant()
-        {
-            Id = expectedTenantId,
-        };
-        
         principalUtilsMock
             .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
             .Returns(expectedTenantId);
@@ -67,13 +61,9 @@ public class JobMetaApiTest : ApiMappingBaseTest
         principalUtilsMock
             .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
             .Returns(expectedUserId);
-
-        tenantRepositoryMock
-            .Setup(r => r.ByIdAsync(expectedTenantId))
-            .ReturnsAsync(fakeTenant);
         
         repositoryMock
-            .Setup(r => r.PendingJobsForUser(fakeTenant, expectedUserId))
+            .Setup(r => r.PendingJobsForUser(expectedTenantId, expectedUserId))
             .ReturnsAsync(expectedList);
 
         var client = await CreateApplicationClientAsync("metaApi", services =>
@@ -81,7 +71,6 @@ public class JobMetaApiTest : ApiMappingBaseTest
             services.AddSingleton<IMapper>(mapper);
             services.AddSingleton<IPrincipalUtils>(principalUtilsMock.Object);
             services.AddSingleton<ITenantRightsChecker>(tenantRightsCheckerMock.Object);
-            services.AddSingleton<ITenantMetaRepository>(tenantRepositoryMock.Object);
             services.AddSingleton<IJobMetaRepository>(repositoryMock.Object);
         }, app =>
         {
@@ -100,16 +89,5 @@ public class JobMetaApiTest : ApiMappingBaseTest
         var result = JsonSerializer.Deserialize<IEnumerable<Data.Public.Job>>(await response.Content.ReadAsStringAsync());
 
         Assert.That(DeepComparer.AreListsEqual(expectedList, result, TestContext.WriteLine));
-        
-        // Arrange
-        tenantRepositoryMock
-            .Setup(r => r.ByIdAsync(expectedTenantId))
-            .ReturnsAsync(null as Data.Public.Tenant);
-        
-        // Act
-        var notFoundResponse = await client.GetAsync($"job/pendingjobsforuser");
-        
-        // Assert
-        Assert.That(notFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
     }
 }

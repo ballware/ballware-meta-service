@@ -41,11 +41,6 @@ public class JobServiceApiTest : ApiMappingBaseTest
             Identifier = providedPayload.Identifier,
             Options = providedPayload.Options,
         };
-
-        var fakeTenant = new Data.Public.Tenant()
-        {
-            Id = expectedTenantId,
-        };
         
         var mapperConfig = new MapperConfiguration(cfg =>
         {
@@ -54,21 +49,15 @@ public class JobServiceApiTest : ApiMappingBaseTest
         
         var mapper = mapperConfig.CreateMapper();
 
-        var tenantRepositoryMock = new Mock<ITenantMetaRepository>();
         var repositoryMock = new Mock<IJobMetaRepository>();
-
-        tenantRepositoryMock
-            .Setup(r => r.ByIdAsync(expectedTenantId))
-            .ReturnsAsync(fakeTenant);
         
         repositoryMock
-            .Setup(r => r.CreateJobAsync(fakeTenant, expectedUserId, providedPayload.Scheduler, providedPayload.Identifier, providedPayload.Options))
+            .Setup(r => r.CreateJobAsync(expectedTenantId, expectedUserId, providedPayload.Scheduler, providedPayload.Identifier, providedPayload.Options))
             .ReturnsAsync(expectedEntry);
 
         var client = await CreateApplicationClientAsync("serviceApi", services =>
         {
             services.AddSingleton<IMapper>(mapper);
-            services.AddSingleton<ITenantMetaRepository>(tenantRepositoryMock.Object);
             services.AddSingleton<IJobMetaRepository>(repositoryMock.Object);
         }, app =>
         {
@@ -87,12 +76,6 @@ public class JobServiceApiTest : ApiMappingBaseTest
         var result = JsonSerializer.Deserialize<Data.Public.Job>(await response.Content.ReadAsStringAsync());
         
         Assert.That(DeepComparer.AreEqual(expectedEntry, result, TestContext.WriteLine), Is.True);
-        
-        // Act
-        var notFoundResponse = await client.PostAsync($"job/createjobfortenantbehalfofuser/{Guid.NewGuid()}/{expectedUserId}",
-            JsonContent.Create(providedPayload));
-        
-        Assert.That(notFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
     }
     
     [Test]
@@ -117,11 +100,6 @@ public class JobServiceApiTest : ApiMappingBaseTest
             Options = "{}",
             State = JobStates.InProgress
         };
-
-        var fakeTenant = new Data.Public.Tenant()
-        {
-            Id = expectedTenantId,
-        };
         
         var mapperConfig = new MapperConfiguration(cfg =>
         {
@@ -130,21 +108,15 @@ public class JobServiceApiTest : ApiMappingBaseTest
         
         var mapper = mapperConfig.CreateMapper();
 
-        var tenantRepositoryMock = new Mock<ITenantMetaRepository>();
         var repositoryMock = new Mock<IJobMetaRepository>();
-
-        tenantRepositoryMock
-            .Setup(r => r.ByIdAsync(expectedTenantId))
-            .ReturnsAsync(fakeTenant);
         
         repositoryMock
-            .Setup(r => r.UpdateJobAsync(fakeTenant, expectedUserId, providedPayload.Id, providedPayload.State, providedPayload.Result))
+            .Setup(r => r.UpdateJobAsync(expectedTenantId, expectedUserId, providedPayload.Id, providedPayload.State, providedPayload.Result))
             .ReturnsAsync(expectedEntry);
         
         var client = await CreateApplicationClientAsync("serviceApi", services =>
         {
             services.AddSingleton<IMapper>(mapper);
-            services.AddSingleton<ITenantMetaRepository>(tenantRepositoryMock.Object);
             services.AddSingleton<IJobMetaRepository>(repositoryMock.Object);
         }, app =>
         {
@@ -165,17 +137,10 @@ public class JobServiceApiTest : ApiMappingBaseTest
         Assert.That(DeepComparer.AreEqual(expectedEntry, result, TestContext.WriteLine), Is.True);
     
         repositoryMock.Verify(r => r.UpdateJobAsync(
-            fakeTenant,
+            expectedTenantId,
             expectedUserId,
             expectedEntry.Id,
             expectedEntry.State,
             expectedEntry.Result), Times.Once);
-        
-        // Act
-        var notFoundResponse = await client.PostAsync($"job/updatejobfortenantbehalfofuser/{Guid.NewGuid()}/{expectedUserId}",
-            JsonContent.Create(providedPayload));
-        
-        Assert.That(notFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
-
     }
 }

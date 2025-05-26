@@ -3,11 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Ballware.Meta.Api.Public;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Repository;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using MimeTypes;
 using Quartz;
 
@@ -21,35 +20,30 @@ public static class EndpointHandlerFactory
     private static readonly string RightEdit = "edit";
     private static readonly string RightDelete = "delete";
 
-    public delegate Task<IResult> HandleAllDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
-        ITenantMetaRepository tenantMetaRepository, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
+    public delegate Task<IResult> HandleAllDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
 
-    public delegate Task<IResult> HandleNewDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
-        ITenantMetaRepository tenantMetaRepository, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
+    public delegate Task<IResult> HandleNewDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
     
-    public delegate Task<IResult> HandleByIdDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
-        ITenantMetaRepository tenantMetaRepository, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier, Guid id) where TEntity : class;
+    public delegate Task<IResult> HandleByIdDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier, Guid id) where TEntity : class;
     
-    public delegate Task<IResult> HandleSaveDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
-        ITenantMetaRepository tenantMetaRepository, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier, TEntity value) where TEntity : class;
+    public delegate Task<IResult> HandleSaveDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, IRepository<TEntity> repository, ClaimsPrincipal user, string identifier, TEntity value) where TEntity : class;
     
-    public delegate Task<IResult> HandleRemoveDelegate<TEntity>(IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker,
-        ITenantMetaRepository tenantMetaRepository, IRepository<TEntity> repository, ClaimsPrincipal user, Guid id) where TEntity : class;
+    public delegate Task<IResult> HandleRemoveDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, IRepository<TEntity> repository, ClaimsPrincipal user, Guid id) where TEntity : class;
 
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public delegate Task<IResult> HandleImportDelegate(ISchedulerFactory schedulerFactory,
-        IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker, IJobMetaRepository jobMetaRepository,
-        ITenantMetaRepository tenantMetaRepository, ClaimsPrincipal user, IMetaFileStorageAdapter storageAdapter, string identifier,
+        IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, IJobMetaRepository jobMetaRepository, 
+        ClaimsPrincipal user, IMetaFileStorageAdapter storageAdapter, string identifier,
         IFormFileCollection files);
 
     public delegate Task<IResult> HandleExportDelegate<TEntity>(
-        IPrincipalUtils principalUtils, ITenantRightsChecker rightsChecker, ITenantMetaRepository tenantMetaRepository, 
+        IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, 
         IRepository<TEntity> repository, ClaimsPrincipal user, string identifier, HttpRequest request) 
         where TEntity : class;
     
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public delegate Task<IResult> HandleExportUrlDelegate<TEntity>(IPrincipalUtils principalUtils, 
-        ITenantRightsChecker rightsChecker, ITenantMetaRepository tenantMetaRepository, 
+        EditingEndpointBuilderFactory endpointFactory, 
         IExportMetaRepository exportMetaRepository, IRepository<TEntity> repository, IMetaFileStorageAdapter storageAdapter, 
         ClaimsPrincipal user, string identifier, HttpRequest request)
         where TEntity : class;
@@ -59,209 +53,156 @@ public static class EndpointHandlerFactory
     
     public static HandleAllDelegate<TEntity> CreateAllHandler<TEntity>(string application, string entity) where TEntity : class 
     {
-        return async (principalUtils, rightsChecker, tenantMetaRepository, repository, user, identifier) =>
+        return async (principalUtils, endpointFactory, repository, user, identifier) =>
         {
             var tenantId = principalUtils.GetUserTenandId(user);
-
             var claims = principalUtils.GetUserClaims(user);
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
 
-            if (tenant == null)
-            {
-                return Results.NotFound($"Tenant {tenantId} not found");
-            }
-            
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, RightView);
-            
-            if (!tenantAuthorized)
-            {
-                return Results.Unauthorized();
-            }
-            
-            return Results.Ok(await repository.AllAsync(identifier, claims));
+            return await endpointFactory.Create(application, entity)
+                .WithClaims(claims)
+                .CheckTenantRight(tenantId, RightView)
+                .ExecuteAsync(async () => Results.Ok(await repository.AllAsync(identifier, claims)));
         };
     }
 
     public static HandleNewDelegate<TEntity> CreateNewHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, rightsChecker, tenantMetaRepository,
+        return async (principalUtils, endpointFactory,
             repository, user, identifier) =>
         {
             var tenantId = principalUtils.GetUserTenandId(user);
 
             var claims = principalUtils.GetUserClaims(user);
 
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-
-            if (tenant == null)
-            {
-                return Results.NotFound($"Tenant {tenantId} not found");
-            }
-
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, RightAdd);
-
-            if (!tenantAuthorized)
-            {
-                return Results.Unauthorized();
-            }
-
-            return Results.Ok(await repository.NewAsync(identifier, claims));
+            return await endpointFactory.Create(application, entity)
+                .WithClaims(claims)
+                .CheckTenantRight(tenantId, RightAdd)
+                .ExecuteAsync(async () => Results.Ok(await repository.NewAsync(identifier, claims)));
         };
     }
 
     public static HandleByIdDelegate<TEntity> CreateByIdHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, rightsChecker, tenantMetaRepository,
+        return async (principalUtils, endpointFactory,
             repository, user, identifier, id) =>
         {
             var tenantId = principalUtils.GetUserTenandId(user);
 
             var claims = principalUtils.GetUserClaims(user);
 
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+            return await endpointFactory.Create(application, entity)
+                .WithClaims(claims)
+                .CheckTenantRight(tenantId, RightView)
+                .ExecuteAsync(async () =>
+                {
+                    var entry = await repository.ByIdAsync(identifier, claims, id);
 
-            if (tenant == null)
-            {
-                return Results.NotFound($"Tenant {tenantId} not found");
-            }
+                    if (entry == null)
+                    {
+                        return Results.NotFound($"Record with ID {id} not found in entity {entity}");
+                    }
 
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, RightView);
-
-            if (!tenantAuthorized)
-            {
-                return Results.Unauthorized();
-            }
-
-            var entry = await repository.ByIdAsync(identifier, claims, id);
-
-            if (entry == null)
-            {
-                return Results.NotFound($"Record with ID {id} not found in entity {entity}");
-            }
-
-            return Results.Ok(await repository.ByIdAsync(identifier, claims, id));
+                    return Results.Ok(await repository.ByIdAsync(identifier, claims, id));
+                });
         };
     }
     
     public static HandleSaveDelegate<TEntity> CreateSaveHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, rightsChecker, tenantMetaRepository,
+        return async (principalUtils, endpointFactory,
             repository, user, identifier, value) =>
         {
             var currentUserId = principalUtils.GetUserId(user);
             var tenantId = principalUtils.GetUserTenandId(user);
 
             var claims = principalUtils.GetUserClaims(user);
-            
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
 
-            if (tenant == null)
-            {
-                return Results.NotFound($"Tenant {tenantId} not found");
-            }
-            
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == DefaultQuery ? RightEdit : identifier);
-            
-            if (!tenantAuthorized)
-            {
-                return Results.Unauthorized();
-            }
+            return await endpointFactory.Create(application, entity)
+                .WithClaims(claims)
+                .CheckTenantRight(tenantId, identifier == DefaultQuery ? RightEdit : identifier)
+                .ExecuteAsync(async () =>
+                {
+                    await repository.SaveAsync(currentUserId, identifier, claims, value);
 
-            await repository.SaveAsync(currentUserId, identifier, claims, value);
-
-            return Results.Ok();
+                    return Results.Ok();
+                });
         };
     }
     
     public static HandleRemoveDelegate<TEntity> CreateRemoveHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, rightsChecker, tenantMetaRepository,
+        return async (principalUtils, endpointFactory,
             repository, user, id) =>
         {
             var currentUserId = principalUtils.GetUserId(user);
             var tenantId = principalUtils.GetUserTenandId(user);
             var claims = principalUtils.GetUserClaims(user);
 
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+            return await endpointFactory.Create(application, entity)
+                .WithClaims(claims)
+                .CheckTenantRight(tenantId, RightDelete)
+                .ExecuteAsync(async () =>
+                {
+                    var removeResult = await repository.RemoveAsync(currentUserId,claims, ImmutableDictionary.CreateRange(
+                    [
+                        new KeyValuePair<string, object>("Id", id)
+                    ]));
 
-            if (tenant == null)
-            {
-                return Results.NotFound($"Tenant {tenantId} not found");
-            }
-            
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, RightDelete);
-            
-            if (!tenantAuthorized)
-            {
-                return Results.Unauthorized();
-            }
+                    if (!removeResult.Result)
+                    {
+                        return Results.BadRequest(new Exception(string.Join("\r\n", removeResult.Messages)));
+                    }
 
-            var removeResult = await repository.RemoveAsync(currentUserId,claims, ImmutableDictionary.CreateRange(new []
-            {
-                new KeyValuePair<string, object>("Id", id),
-            }));
-
-            if (!removeResult.Result)
-            {
-                return Results.BadRequest(new Exception(string.Join("\r\n", removeResult.Messages)));
-            }
-
-            return Results.Ok();
+                    return Results.Ok();
+                });
         };
     }
     
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static HandleImportDelegate CreateImportHandler(string application, string entity)
     {
-        return async (schedulerFactory, principalUtils, rightsChecker, jobMetaRepository, tenantMetaRepository, user, storageAdapter, identifier, files) =>
+        return async (schedulerFactory, principalUtils, endpointFactory, jobMetaRepository, user, storageAdapter, identifier, files) =>
         {
             var currentUserId = principalUtils.GetUserId(user);
             var tenantId = principalUtils.GetUserTenandId(user);
 
             var claims = principalUtils.GetUserClaims(user);
             
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+            return await endpointFactory.Create(application, entity)
+                .WithClaims(claims)
+                .CheckTenantRight(tenantId, identifier == DefaultQuery ? RightEdit : identifier)
+                .ExecuteAsync(async () =>
+                {
+                    foreach (var file in files)
+                    {
+                        var jobData = new JobDataMap
+                        {
+                            ["tenantId"] = tenantId,
+                            ["userId"] = currentUserId,
+                            ["identifier"] = identifier,
+                            ["claims"] = JsonSerializer.Serialize(claims),
+                            ["filename"] = file.FileName
+                        };
 
-            if (tenant == null)
-            {
-                return Results.NotFound($"Tenant {tenantId} not found");
-            }
-            
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == DefaultQuery ? RightEdit : identifier);
-            
-            if (!tenantAuthorized)
-            {
-                return Results.Unauthorized();
-            }
+                        await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName,
+                            file.ContentType, file.OpenReadStream());
 
-            foreach (var file in files)
-            {
-                var jobData = new JobDataMap();
+                        var job = await jobMetaRepository.CreateJobAsync(tenantId, currentUserId, "meta",
+                            "import", JsonSerializer.Serialize(jobData));
 
-                jobData["tenantId"] = tenantId;
-                jobData["userId"] = currentUserId;
-                jobData["identifier"] = identifier;
-                jobData["claims"] = JsonSerializer.Serialize(claims);
-                jobData["filename"] = file.FileName;
+                        jobData["jobId"] = job.Id;
 
-                await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName,
-                    file.ContentType, file.OpenReadStream());
+                        await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", entity), jobData);
+                    }
 
-                var job = await jobMetaRepository.CreateJobAsync(tenant, currentUserId, "meta",
-                    "import", JsonSerializer.Serialize(jobData));
-
-                jobData["jobId"] = job.Id;
-
-                await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", entity), jobData);
-            }
-
-            return Results.Created();
+                    return Results.Created();
+                });
         };        
     }
     
     public static HandleExportDelegate<TEntity> CreateExportHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, rightsChecker, tenantMetaRepository,
+        return async (principalUtils, endpointFactory,
             repository, user, identifier, request) =>
         {
             var tenantId = principalUtils.GetUserTenandId(user);
@@ -276,23 +217,15 @@ public static class EndpointHandlerFactory
                 queryParams.Add(queryEntry.Key, queryEntry.Value);
             }
             
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-
-            if (tenant == null)
-            {
-                return Results.NotFound($"Tenant {tenantId} not found");
-            }
+            return await endpointFactory.Create(application, entity)
+                .WithClaims(claims)
+                .CheckTenantRight(tenantId, identifier)
+                .ExecuteAsync(async () =>
+                {
+                    var export = await repository.ExportAsync(identifier, claims, queryParams);
         
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
-        
-            if (!tenantAuthorized)
-            {
-                return Results.Unauthorized();
-            }
-        
-            var export = await repository.ExportAsync(identifier, claims, queryParams);
-        
-            return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
+                    return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
+                });
         }; 
     }
     
@@ -300,7 +233,7 @@ public static class EndpointHandlerFactory
     public static HandleExportUrlDelegate<TEntity> CreateExportUrlHandler<TEntity>(string application, string entity)
         where TEntity : class
     {
-        return async (principalUtils, rightsChecker, tenantMetaRepository, exportMetaRepository, repository, storageAdapter, user, identifier, request) =>
+        return async (principalUtils, endpointFactory, exportMetaRepository, repository, storageAdapter, user, identifier, request) =>
         {
             var query = await request.ReadFormAsync();
             var currentUserId = principalUtils.GetUserId(user);
@@ -314,35 +247,27 @@ public static class EndpointHandlerFactory
             {
                 queryParams.Add(queryEntry.Key, queryEntry.Value);
             }
+            
+            return await endpointFactory.Create(application, entity)
+                .WithClaims(claims)
+                .CheckTenantRight(tenantId, identifier)
+                .ExecuteAsync(async () =>
+                {
+                    var export = await repository.ExportAsync(identifier, claims, queryParams);
         
-            var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
+                    var exportEntry = await exportMetaRepository.NewAsync(tenantId, DefaultQuery, claims);
 
-            if (tenant == null)
-            {
-                return Results.NotFound($"Tenant {tenantId} not found");
-            }
-        
-            var tenantAuthorized = await rightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
-        
-            if (!tenantAuthorized)
-            {
-                return Results.Unauthorized();
-            }
-        
-            var export = await repository.ExportAsync(identifier, claims, queryParams);
-        
-            var exportEntry = await exportMetaRepository.NewAsync(tenantId, DefaultQuery, claims);
+                    exportEntry.Entity = entity;
+                    exportEntry.Query = identifier;
+                    exportEntry.MediaType = export.MediaType;
+                    exportEntry.ExpirationStamp = DateTime.Now.AddDays(1);
 
-            exportEntry.Entity = entity;
-            exportEntry.Query = identifier;
-            exportEntry.MediaType = export.MediaType;
-            exportEntry.ExpirationStamp = DateTime.Now.AddDays(1);
-
-            await storageAdapter.UploadFileForOwnerAsync("export", $"{exportEntry.Id}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
+                    await storageAdapter.UploadFileForOwnerAsync("export", $"{exportEntry.Id}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
         
-            await exportMetaRepository.SaveAsync(tenantId, currentUserId, DefaultQuery, claims, exportEntry);
+                    await exportMetaRepository.SaveAsync(tenantId, currentUserId, DefaultQuery, claims, exportEntry);
 
-            return Results.Content(exportEntry.Id.ToString());
+                    return Results.Content(exportEntry.Id.ToString());
+                });
         };
     }
 

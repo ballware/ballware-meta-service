@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Repository;
 using Ballware.Storage.Client;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Quartz;
 
@@ -56,7 +51,7 @@ public class MetaImportJob<TEntity, TRepository>
                 throw new ArgumentException($"Identifier unknown");
             }
             
-            await JobRepository.UpdateJobAsync(tenant, userId, jobId, JobStates.InProgress, string.Empty);
+            await JobRepository.UpdateJobAsync(tenantId, userId, jobId, JobStates.InProgress, string.Empty);
             
             var file = await StorageClient.FileByNameForOwnerAsync(userId.ToString(), filename);
 
@@ -68,13 +63,13 @@ public class MetaImportJob<TEntity, TRepository>
             });
 
             await StorageClient.RemoveFileForOwnerAsync(userId.ToString(), filename);
-            await JobRepository.UpdateJobAsync(tenant, userId, jobId, JobStates.Finished, string.Empty);
+            await JobRepository.UpdateJobAsync(tenantId, userId, jobId, JobStates.Finished, string.Empty);
         }
         catch (Exception ex)
         {
             if (tenant != null)
             {
-                await JobRepository.UpdateJobAsync(tenant, userId, jobId, JobStates.Error, JsonConvert.SerializeObject(ex));    
+                await JobRepository.UpdateJobAsync(tenantId, userId, jobId, JobStates.Error, JsonConvert.SerializeObject(ex));    
             }
             
             // do you want the job to refire?

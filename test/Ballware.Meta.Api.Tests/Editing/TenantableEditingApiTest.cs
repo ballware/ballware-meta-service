@@ -5,6 +5,7 @@ using System.Text;
 using AutoMapper;
 using Ballware.Meta.Api.Endpoints;
 using Ballware.Meta.Api.Mappings;
+using Ballware.Meta.Api.Public;
 using Ballware.Meta.Api.Tests.Utils;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Public;
@@ -73,6 +74,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
             services.AddSingleton(JobRepositoryMock.Object);
             services.AddSingleton(ExportRepositoryMock.Object);
             services.AddSingleton(RepositoryMock.Object);
+            services.AddSingleton<EditingEndpointBuilderFactory>();
         }, app =>
         {
             app.UseEndpoints(endpoints =>
@@ -1700,7 +1702,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
             });
 
         JobRepositoryMock
-            .Setup(r => r.CreateJobAsync(fakeTenant, expectedUserId, "meta", "import", It.IsAny<string>()))
+            .Setup(r => r.CreateJobAsync(expectedTenantId, expectedUserId, "meta", "import", It.IsAny<string>()))
             .ReturnsAsync(new Data.Public.Job()
                 {
                     Id = Guid.NewGuid(),
@@ -1803,7 +1805,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
             });
 
         JobRepositoryMock
-            .Setup(r => r.CreateJobAsync(fakeTenant, expectedUserId, "meta", "import", It.IsAny<string>()))
+            .Setup(r => r.CreateJobAsync(expectedTenantId, expectedUserId, "meta", "import", It.IsAny<string>()))
             .ReturnsAsync(new Data.Public.Job()
                 {
                     Id = Guid.NewGuid(),
@@ -1906,7 +1908,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
             });
 
         JobRepositoryMock
-            .Setup(r => r.CreateJobAsync(fakeTenant, expectedUserId, "meta", "import", It.IsAny<string>()))
+            .Setup(r => r.CreateJobAsync(expectedTenantId, expectedUserId, "meta", "import", It.IsAny<string>()))
             .ReturnsAsync(new Data.Public.Job()
                 {
                     Id = Guid.NewGuid(),

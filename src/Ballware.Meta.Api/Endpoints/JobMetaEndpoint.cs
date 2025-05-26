@@ -40,7 +40,6 @@ public static class JobMetaEndpoint
             .RequireAuthorization(authorizationScope)
             .Produces<IEnumerable<Job>>()
             .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "PendingForUser")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -61,7 +60,6 @@ public static class JobMetaEndpoint
             .DisableAntiforgery()
             .Produces<Job>()
             .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "CreateForTenantBehalfOfUser")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -72,7 +70,6 @@ public static class JobMetaEndpoint
             .DisableAntiforgery()
             .Produces<Job>()
             .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "UpdateForTenantBehalfOfUser")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
@@ -81,45 +78,24 @@ public static class JobMetaEndpoint
         return app;
     }
     
-    private static async Task<IResult> HandlePendingJobsForUserAsync(IPrincipalUtils principalUtils, ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, ClaimsPrincipal user)
+    private static async Task<IResult> HandlePendingJobsForUserAsync(IPrincipalUtils principalUtils, IJobMetaRepository repository, ClaimsPrincipal user)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
         var userId = principalUtils.GetUserId(user);
-
-        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-
-        if (tenant == null)
-        {
-            return Results.NotFound("Tenant not found");
-        }
-
-        return Results.Ok(await repository.PendingJobsForUser(tenant, userId));
+        
+        return Results.Ok(await repository.PendingJobsForUser(tenantId, userId));
     }
     
-    private static async Task<IResult> HandleCreateJobForTenantBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, Guid tenantId, Guid userId, JobCreatePayload data)
+    private static async Task<IResult> HandleCreateJobForTenantBehalfOfUserAsync(IJobMetaRepository repository, Guid tenantId, Guid userId, JobCreatePayload data)
     {
-        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-    
-        if (tenant == null)
-        {
-            return Results.NotFound("Tenant not found");
-        }
-        
-        var job = await repository.CreateJobAsync(tenant, userId, data.Scheduler, data.Identifier, data.Options);
+        var job = await repository.CreateJobAsync(tenantId, userId, data.Scheduler, data.Identifier, data.Options);
 
         return Results.Ok(job);
     }
     
-    private static async Task<IResult> HandleUpdateJobForTenantBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IJobMetaRepository repository, Guid tenantId, Guid userId, JobUpdatePayload data)
+    private static async Task<IResult> HandleUpdateJobForTenantBehalfOfUserAsync(IJobMetaRepository repository, Guid tenantId, Guid userId, JobUpdatePayload data)
     {
-        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-    
-        if (tenant == null)
-        {
-            return Results.NotFound("Tenant not found");
-        }
-        
-        var job = await repository.UpdateJobAsync(tenant, userId, data.Id, data.State, data.Result);
+        var job = await repository.UpdateJobAsync(tenantId, userId, data.Id, data.State, data.Result);
 
         return Results.Ok(job);
     }
