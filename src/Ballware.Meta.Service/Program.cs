@@ -6,9 +6,8 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+    .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
-    .WriteTo.Console()
     .CreateLogger();
 
 var environment = builder.Environment;
@@ -35,6 +34,8 @@ catch (ConfigurationException ex)
 }
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 startup.InitializeApp(app);
 

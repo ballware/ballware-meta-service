@@ -8,10 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Cache\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Ballware.Meta.Api\Ballware.Meta.Api.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Authorization.Jint\Ballware.Meta.Authorization.Jint.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Caching\Ballware.Meta.Caching.csproj" />
@@ -29,6 +25,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.16" />
       <PackageReference Include="MimeMapping" Version="3.1.0" />
       <PackageReference Include="Npgsql" Version="8.0.5" />
       <PackageReference Include="Quartz" Version="3.8.1" />

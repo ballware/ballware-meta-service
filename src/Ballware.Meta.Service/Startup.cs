@@ -2,6 +2,7 @@ using Ballware.Meta.Api;
 using Ballware.Meta.Api.Endpoints;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Authorization.Jint;
+using Ballware.Meta.Caching;
 using Ballware.Meta.Data.Ef;
 using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Public;
@@ -47,6 +48,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         AuthorizationOptions? authorizationOptions =
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
+        CacheOptions? cacheOptions = Configuration.GetSection("Cache").Get<CacheOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         
         ServiceClientOptions? storageClientOptions = Configuration.GetSection("StorageClient").Get<ServiceClientOptions>();
@@ -60,6 +62,14 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddOptionsWithValidateOnStart<StorageOptions>()
             .Bind(Configuration.GetSection("Storage"))
+            .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<Ballware.Meta.Caching.Configuration.CacheOptions>()
+            .Bind(Configuration.GetSection("Cache"))
+            .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<CacheOptions>()
+            .Bind(Configuration.GetSection("Cache"))
             .ValidateDataAnnotations();
 
         Services.AddOptionsWithValidateOnStart<SwaggerOptions>()
@@ -78,6 +88,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
+
+        if (cacheOptions == null)
+        {
+            cacheOptions = new CacheOptions();
+        }
         
         if (storageClientOptions == null)
         {
@@ -91,7 +106,21 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddLogging();
         Services.AddMemoryCache();
-        Services.AddDistributedMemoryCache();
+        
+        if (!string.IsNullOrEmpty(cacheOptions.RedisConfiguration))
+        {
+            Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = cacheOptions.RedisConfiguration;
+                options.InstanceName = cacheOptions.RedisInstanceName;
+            });
+        }
+        else
+        {
+            Services.AddDistributedMemoryCache();
+        }
+
+        Services.AddBallwareDistributedCaching();
         
         Services.AddAuthentication(options =>
         {
@@ -149,17 +178,19 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
         Services.AddQuartz(q =>
         {
-            q.AddJob<TenantImportJob>(new JobKey("import", "tenant"), configurator => configurator.StoreDurably());
+            string importJobName = "import";
+            
+            q.AddJob<TenantImportJob>(new JobKey(importJobName, "tenant"), configurator => configurator.StoreDurably());
                 
-            q.AddJob<MetaImportJob<Documentation, ITenantableRepository<Documentation>>>(new JobKey("import", "documentation"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Document, ITenantableRepository<Document>>>(new JobKey("import", "document"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<EntityMetadata, ITenantableRepository<EntityMetadata>>>(new JobKey("import", "entity"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Lookup, ITenantableRepository<Lookup>>>(new JobKey("import", "lookup"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<MlModel, ITenantableRepository<MlModel>>>(new JobKey("import", "mlmodel"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Notification, ITenantableRepository<Notification>>>(new JobKey("import", "notification"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Page, ITenantableRepository<Page>>>(new JobKey("import", "page"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Statistic, ITenantableRepository<Statistic>>>(new JobKey("import", "statistic"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Subscription, ITenantableRepository<Subscription>>>(new JobKey("import", "subscription"), configurator => configurator.StoreDurably());
+            q.AddJob<MetaImportJob<Documentation, ITenantableRepository<Documentation>>>(new JobKey(importJobName, "documentation"), configurator => configurator.StoreDurably());
+            q.AddJob<MetaImportJob<Document, ITenantableRepository<Document>>>(new JobKey(importJobName, "document"), configurator => configurator.StoreDurably());
+            q.AddJob<MetaImportJob<EntityMetadata, ITenantableRepository<EntityMetadata>>>(new JobKey(importJobName, "entity"), configurator => configurator.StoreDurably());
+            q.AddJob<MetaImportJob<Lookup, ITenantableRepository<Lookup>>>(new JobKey(importJobName, "lookup"), configurator => configurator.StoreDurably());
+            q.AddJob<MetaImportJob<MlModel, ITenantableRepository<MlModel>>>(new JobKey(importJobName, "mlmodel"), configurator => configurator.StoreDurably());
+            q.AddJob<MetaImportJob<Notification, ITenantableRepository<Notification>>>(new JobKey(importJobName, "notification"), configurator => configurator.StoreDurably());
+            q.AddJob<MetaImportJob<Page, ITenantableRepository<Page>>>(new JobKey(importJobName, "page"), configurator => configurator.StoreDurably());
+            q.AddJob<MetaImportJob<Statistic, ITenantableRepository<Statistic>>>(new JobKey(importJobName, "statistic"), configurator => configurator.StoreDurably());
+            q.AddJob<MetaImportJob<Subscription, ITenantableRepository<Subscription>>>(new JobKey(importJobName, "subscription"), configurator => configurator.StoreDurably());
         });
 
         Services.AddQuartzServer(options =>
