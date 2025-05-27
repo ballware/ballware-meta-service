@@ -8,7 +8,6 @@ using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Service.Adapter;
-using Ballware.Meta.Service.Cache;
 using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
 using Ballware.Meta.Service.Jobs;
@@ -65,6 +64,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .Bind(Configuration.GetSection("Storage"))
             .ValidateDataAnnotations();
         
+        Services.AddOptionsWithValidateOnStart<Ballware.Meta.Caching.Configuration.CacheOptions>()
+            .Bind(Configuration.GetSection("Cache"))
+            .ValidateDataAnnotations();
+        
         Services.AddOptionsWithValidateOnStart<CacheOptions>()
             .Bind(Configuration.GetSection("Cache"))
             .ValidateDataAnnotations();
@@ -116,8 +119,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             Services.AddDistributedMemoryCache();
         }
-        
-        Services.AddSingleton<ITenantAwareEntityCache, DistributedTenantAwareCache>();
+
+        Services.AddBallwareDistributedCaching();
         
         Services.AddAuthentication(options =>
         {

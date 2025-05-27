@@ -8,10 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Cache\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Ballware.Meta.Api\Ballware.Meta.Api.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Authorization.Jint\Ballware.Meta.Authorization.Jint.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Caching\Ballware.Meta.Caching.csproj" />

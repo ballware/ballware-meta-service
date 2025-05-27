@@ -1,10 +1,10 @@
-using Ballware.Meta.Caching;
-using Ballware.Meta.Service.Configuration;
+using Ballware.Meta.Caching.Configuration;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace Ballware.Meta.Service.Cache;
+namespace Ballware.Meta.Caching.Internal;
 
 class DistributedTenantAwareCache : ITenantAwareEntityCache
 {
@@ -30,7 +30,7 @@ class DistributedTenantAwareCache : ITenantAwareEntityCache
         
         if (cachedSerializedItem != null)
         {
-            Logger.LogInformation("Cache hit for {BuildKey}", BuildKey(tenantId, entity, key));
+            Logger.LogDebug("Cache hit for {BuildKey}", BuildKey(tenantId, entity, key));
             return JsonConvert.DeserializeObject<TItem>(cachedSerializedItem);
         }
         
@@ -54,13 +54,13 @@ class DistributedTenantAwareCache : ITenantAwareEntityCache
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(Options.CacheExpirationHours)
             });
         
-        Logger.LogInformation("Cache update for {BuildKey}", BuildKey(tenantId, entity, key));
+        Logger.LogDebug("Cache update for {BuildKey}", BuildKey(tenantId, entity, key));
     }
 
     public void PurgeItem(Guid tenantId, string entity, string key)
     {
         Cache.Remove(BuildKey(tenantId, entity, key));
 
-        Logger.LogInformation("Cache purge for {BuildKey}", BuildKey(tenantId, entity, key));
+        Logger.LogDebug("Cache purge for {BuildKey}", BuildKey(tenantId, entity, key));
     }
 }
