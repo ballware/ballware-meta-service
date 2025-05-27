@@ -27,8 +27,16 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantableRepository<Document>, DocumentMetaRepository>();
         services.AddScoped<IDocumentMetaRepository, DocumentMetaRepository>();
 
-        services.AddScoped<ITenantableRepository<EntityMetadata>, EntityMetaRepository>();
-        services.AddScoped<IEntityMetaRepository, EntityMetaRepository>();
+        if (options.EnableCaching)
+        {
+            services.AddScoped<ITenantableRepository<EntityMetadata>, CachableEntityMetaRepository>();
+            services.AddScoped<IEntityMetaRepository, CachableEntityMetaRepository>();
+        }
+        else
+        {
+            services.AddScoped<ITenantableRepository<EntityMetadata>, EntityMetaRepository>();
+            services.AddScoped<IEntityMetaRepository, EntityMetaRepository>();
+        }
 
         services.AddScoped<ITenantableRepository<Export>, ExportMetaRepository>();
         services.AddScoped<IExportMetaRepository, ExportMetaRepository>();
@@ -36,9 +44,17 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantableRepository<Job>, JobMetaRepository>();
         services.AddScoped<IJobMetaRepository, JobMetaRepository>();
 
-        services.AddScoped<ITenantableRepository<Lookup>, LookupMetaRepository>();
-        services.AddScoped<ILookupMetaRepository, LookupMetaRepository>();
-
+        if (options.EnableCaching)
+        {
+            services.AddScoped<ITenantableRepository<Lookup>, CachableLookupMetaRepository>();
+            services.AddScoped<ILookupMetaRepository, CachableLookupMetaRepository>();
+        }
+        else
+        {
+            services.AddScoped<ITenantableRepository<Lookup>, LookupMetaRepository>();
+            services.AddScoped<ILookupMetaRepository, LookupMetaRepository>();
+        }
+        
         services.AddScoped<ITenantableRepository<MlModel>, MlModelMetaRepository>();
         services.AddScoped<IMlModelMetaRepository, MlModelMetaRepository>();
 
@@ -69,9 +85,17 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantableRepository<Subscription>, SubscriptionMetaRepository>();
         services.AddScoped<ISubscriptionMetaRepository, SubscriptionMetaRepository>();
 
-        services.AddScoped<IRepository<Tenant>, TenantMetaRepository>();
-        services.AddScoped<ITenantMetaRepository, TenantMetaRepository>();
-
+        if (options.EnableCaching)
+        {
+            services.AddScoped<IRepository<Tenant>, CachableTenantMetaRepository>();
+            services.AddScoped<ITenantMetaRepository, CachableTenantMetaRepository>();
+        }
+        else
+        {
+            services.AddScoped<IRepository<Tenant>, TenantMetaRepository>();
+            services.AddScoped<ITenantMetaRepository, TenantMetaRepository>();
+        }
+        
         services.AddScoped<IMetadataSeeder>(sp => new MetadataFileSeeder(sp, options.SeedPath));
 
         services.AddSingleton<IMetaDbConnectionFactory>(new MetaDbConnectionFactory(connectionString));
