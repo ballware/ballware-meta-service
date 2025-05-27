@@ -2,7 +2,6 @@ using System.Text;
 using Ballware.Meta.Caching.Configuration;
 using Ballware.Meta.Caching.Internal;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -13,7 +12,7 @@ namespace Ballware.Meta.Caching.Tests;
 class TestItem
 {
     public Guid Id { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
 }
 
 [TestFixture]
