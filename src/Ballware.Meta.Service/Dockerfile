@@ -12,6 +12,7 @@ COPY ./Ballware.Meta.Authorization.Jint ./Ballware.Meta.Authorization.Jint
 COPY ./Ballware.Meta.Caching ./Ballware.Meta.Caching
 COPY ./Ballware.Meta.Data ./Ballware.Meta.Data
 COPY ./Ballware.Meta.Data.Ef ./Ballware.Meta.Data.Ef
+COPY ./Ballware.Meta.Jobs ./Ballware.Meta.Jobs
 COPY ./Ballware.Meta.Service ./Ballware.Meta.Service
 COPY ./Ballware.Schema.Client ./Ballware.Schema.Client
 COPY ./Ballware.Storage.Client ./Ballware.Storage.Client
