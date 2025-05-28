@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 
 # Local app settings
 appsettings*.local.json
+
+# Local certificates
+*.pfx
