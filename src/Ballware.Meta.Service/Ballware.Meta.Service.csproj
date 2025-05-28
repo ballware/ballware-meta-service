@@ -12,6 +12,7 @@
       <ProjectReference Include="..\Ballware.Meta.Authorization.Jint\Ballware.Meta.Authorization.Jint.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Caching\Ballware.Meta.Caching.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Data.Ef\Ballware.Meta.Data.Ef.csproj" />
+      <ProjectReference Include="..\Ballware.Meta.Jobs\Ballware.Meta.Jobs.csproj" />
       <ProjectReference Include="..\Ballware.Schema.Client\Ballware.Schema.Client.csproj" />
       <ProjectReference Include="..\Ballware.Storage.Client\Ballware.Storage.Client.csproj" />
     </ItemGroup>
@@ -37,6 +38,10 @@
       <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
       <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Jobs\" />
     </ItemGroup>
 
 </Project>

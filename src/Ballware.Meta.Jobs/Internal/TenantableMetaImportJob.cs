@@ -1,28 +1,28 @@
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Repository;
-using Ballware.Storage.Client;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Quartz;
 
-namespace Ballware.Meta.Service.Jobs;
+namespace Ballware.Meta.Jobs.Internal;
 
-public class MetaImportJob<TEntity, TRepository> 
+public class TenantableMetaImportJob<TEntity, TRepository> 
     : IJob where TEntity : class where TRepository : ITenantableRepository<TEntity>
 {
     private IServiceProvider ServiceProvider { get; }
     private IJobMetaRepository JobRepository { get; }
     private ITenantMetaRepository TenantRepository { get; }
     private ITenantRightsChecker TenantRightsChecker { get; }
-    private BallwareStorageClient StorageClient { get; }
+    private IJobsFileStorageAdapter StorageAdapter { get; }
     
-    public MetaImportJob(IServiceProvider serviceProvider, IJobMetaRepository jobRepository, ITenantMetaRepository tenantRepository, ITenantRightsChecker tenantRightsChecker, BallwareStorageClient storageClient)
+    public TenantableMetaImportJob(IServiceProvider serviceProvider, IJobMetaRepository jobRepository, ITenantMetaRepository tenantRepository, ITenantRightsChecker tenantRightsChecker, IJobsFileStorageAdapter storageAdapter)
     {
         ServiceProvider = serviceProvider;
         JobRepository = jobRepository;
         TenantRepository = tenantRepository;
         TenantRightsChecker = tenantRightsChecker;
-        StorageClient = storageClient;
+        StorageAdapter = storageAdapter;
     }
     
     public async Task Execute(IJobExecutionContext context)
@@ -31,38 +31,44 @@ public class MetaImportJob<TEntity, TRepository>
         var tenantId = context.MergedJobDataMap.GetGuidValue("tenantId");
         var jobId = context.MergedJobDataMap.GetGuidValue("jobId");
         var userId = context.MergedJobDataMap.GetGuidValue("userId");
-        var identifier = context.MergedJobDataMap.GetString("identifier");
+        context.MergedJobDataMap.TryGetString("identifier", out var identifier) ;
+                         
         var claims = JsonConvert.DeserializeObject<Dictionary<string, object>>(context.MergedJobDataMap.GetString("claims") ?? "{}") 
                      ?? new Dictionary<string, object>();
-        var filename = context.MergedJobDataMap.GetString("filename");
+        context.MergedJobDataMap.TryGetString("filename", out var filename);
         
         var tenant = await TenantRepository.ByIdAsync(tenantId);
         var repository = ServiceProvider.GetRequiredService<TRepository>();
         
         try
         {
+            if (identifier == null) 
+            {
+                throw new ArgumentException($"Identifier undefined");
+            }
+
+            if (filename == null)
+            {
+                throw new ArgumentException($"Filename undefined");
+            }
+            
             if (tenant == null)
             {
                 throw new ArgumentException($"Tenant {tenantId} unknown");
             }
             
-            if (identifier == null) 
-            {
-                throw new ArgumentException($"Identifier unknown");
-            }
-            
             await JobRepository.UpdateJobAsync(tenantId, userId, jobId, JobStates.InProgress, string.Empty);
             
-            var file = await StorageClient.FileByNameForOwnerAsync(userId.ToString(), filename);
+            var file = await StorageAdapter.FileByNameForOwnerAsync(userId.ToString(), filename);
 
-            await repository.ImportAsync(tenantId, userId, identifier, claims, file.Stream, async (item) =>
+            await repository.ImportAsync(tenantId, userId, identifier, claims, file, async (item) =>
             {
                 var tenantAuthorized = await TenantRightsChecker.HasRightAsync(tenant, "meta", jobKey.Group, claims, identifier);
 
                 return tenantAuthorized;
             });
 
-            await StorageClient.RemoveFileForOwnerAsync(userId.ToString(), filename);
+            await StorageAdapter.RemoveFileForOwnerAsync(userId.ToString(), filename);
             await JobRepository.UpdateJobAsync(tenantId, userId, jobId, JobStates.Finished, string.Empty);
         }
         catch (Exception ex)
@@ -73,7 +79,7 @@ public class MetaImportJob<TEntity, TRepository>
             }
             
             // do you want the job to refire?
-            throw new JobExecutionException(msg: "", refireImmediately: false, cause: ex);
+            throw new JobExecutionException(msg: ex.Message, refireImmediately: false, cause: ex);
         }
     }
 }

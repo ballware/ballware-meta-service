@@ -7,10 +7,10 @@ using Ballware.Meta.Data.Ef;
 using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Meta.Jobs;
 using Ballware.Meta.Service.Adapter;
 using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
-using Ballware.Meta.Service.Jobs;
 using Ballware.Schema.Client;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,7 +20,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Quartz;
-using Quartz.AspNetCore;
 using Serilog;
 
 namespace Ballware.Meta.Service;
@@ -104,6 +103,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             throw new ConfigurationException("Required configuration for schemaClient is missing");
         }
 
+        Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
+        
         Services.AddLogging();
         Services.AddMemoryCache();
         
@@ -175,28 +176,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddControllers()
             .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
         
-        Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
-        Services.AddQuartz(q =>
-        {
-            string importJobName = "import";
-            
-            q.AddJob<TenantImportJob>(new JobKey(importJobName, "tenant"), configurator => configurator.StoreDurably());
-                
-            q.AddJob<MetaImportJob<Documentation, ITenantableRepository<Documentation>>>(new JobKey(importJobName, "documentation"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Document, ITenantableRepository<Document>>>(new JobKey(importJobName, "document"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<EntityMetadata, ITenantableRepository<EntityMetadata>>>(new JobKey(importJobName, "entity"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Lookup, ITenantableRepository<Lookup>>>(new JobKey(importJobName, "lookup"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<MlModel, ITenantableRepository<MlModel>>>(new JobKey(importJobName, "mlmodel"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Notification, ITenantableRepository<Notification>>>(new JobKey(importJobName, "notification"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Page, ITenantableRepository<Page>>>(new JobKey(importJobName, "page"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Statistic, ITenantableRepository<Statistic>>>(new JobKey(importJobName, "statistic"), configurator => configurator.StoreDurably());
-            q.AddJob<MetaImportJob<Subscription, ITenantableRepository<Subscription>>>(new JobKey(importJobName, "subscription"), configurator => configurator.StoreDurably());
-        });
-
-        Services.AddQuartzServer(options =>
-        {
-            options.WaitForJobsToComplete = true;
-        });
         
         Services.AddClientCredentialsTokenManagement()
             .AddClient("storage", client =>
@@ -244,7 +223,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             config.AddBallwareMetaApiMappings();
         });
         
-        Services.AddScoped<IMetaFileStorageAdapter, StorageServiceMetaFileStorageAdapter>();
+        Services.AddScoped<IMetaFileStorageAdapter, StorageServiceFileStorageAdapter>();
+        Services.AddScoped<IJobsFileStorageAdapter, StorageServiceFileStorageAdapter>();
         Services.AddScoped<IRepositoryHook<Ballware.Meta.Data.Public.Tenant, Ballware.Meta.Data.Persistables.Tenant>, GenericSchemaTenantRepositoryHook>();
         Services.AddScoped<ITenantableRepositoryHook<Ballware.Meta.Data.Public.EntityMetadata, Ballware.Meta.Data.Persistables.EntityMetadata>, GenericSchemaEntityRepositoryHook>();
         
@@ -255,6 +235,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddBallwareMetaAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareMetaJintRightsChecker();
         Services.AddBallwareMetaApiDependencies();
+        Services.AddBallwareMetaBackgroundJobs();
 
         Services.AddEndpointsApiExplorer();
         
