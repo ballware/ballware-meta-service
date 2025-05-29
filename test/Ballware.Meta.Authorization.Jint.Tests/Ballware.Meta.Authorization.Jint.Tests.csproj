@@ -13,7 +13,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
         <PackageReference Include="Moq" Version="4.20.72" />
         <PackageReference Include="NUnit" Version="4.3.0" />
@@ -22,7 +23,6 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-        <PackageReference Include="Testcontainers.MsSql" Version="4.4.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -30,27 +30,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Ballware.Meta.Data.Ef\Ballware.Meta.Data.Ef.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <SeedSourceFiles Include="../../seed/**/*.*"/>
-        <SeedSourceFiles Update="..\..\seed\customer-tenant.json">
-          <Link>seed\customer-tenant.json</Link>
-        </SeedSourceFiles>
-    </ItemGroup>
-    
-    <Target Name="CopySeed" AfterTargets="AfterBuild">
-        <Copy SourceFiles="@(SeedSourceFiles)" DestinationFolder="$(OutDir)seed" SkipUnchangedFiles="true" />
-    </Target>
-
-    <ItemGroup>
-        <None Update="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="appsettings.local.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+      <ProjectReference Include="..\..\src\Ballware.Meta.Authorization.Jint\Ballware.Meta.Authorization.Jint.csproj" />
+      <ProjectReference Include="..\..\src\Ballware.Meta.Data\Ballware.Meta.Data.csproj" />
     </ItemGroup>
 
 </Project>

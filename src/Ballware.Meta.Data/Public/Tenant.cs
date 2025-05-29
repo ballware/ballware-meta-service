@@ -23,7 +23,7 @@ public class Tenant : IEditable
     public Guid Id { get; set; }
     public string? Name { get; set; }
     public string? Navigation { get; set; }
-    public string? RightsCheckScript { get; set; }
+    public virtual string? RightsCheckScript { get; set; }
     public string? Templates { get; set; }
 
     public string? ServerScriptDefinitions { get; set; }

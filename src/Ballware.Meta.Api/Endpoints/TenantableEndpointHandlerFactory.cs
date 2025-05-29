@@ -18,6 +18,11 @@ public static class TenantableEndpointHandlerFactory
 {
     private static readonly string DefaultQuery = "primary";
 
+    private static readonly string RightView = "view";
+    private static readonly string RightAdd = "add";
+    private static readonly string RightEdit = "edit";
+    private static readonly string RightDelete = "delete";
+    
     public delegate Task<IResult> HandleAllDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
 
     public delegate Task<IResult> HandleQueryDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier, QueryValueBag query) where TEntity : class;
@@ -58,11 +63,10 @@ public static class TenantableEndpointHandlerFactory
             var tenantId = principalUtils.GetUserTenandId(user);
             var claims = principalUtils.GetUserClaims(user);
 
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, "view")
+                .WithTenantAndEntityRightCheck(RightView, ImmutableDictionary<string, object>.Empty)
                 .ExecuteAsync(async () => Results.Ok(await repository.AllAsync(tenantId, identifier, claims)));
-            
         };
     }
     
@@ -75,9 +79,9 @@ public static class TenantableEndpointHandlerFactory
             var claims = principalUtils.GetUserClaims(user);
             var queryParams = GetQueryParams(query.Query);
             
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, "view")
+                .WithTenantAndEntityRightCheck(RightView, queryParams)
                 .ExecuteAsync(async () => Results.Ok(await repository.QueryAsync(tenantId, identifier, claims, queryParams)));
         };
     }
@@ -91,9 +95,9 @@ public static class TenantableEndpointHandlerFactory
 
             var claims = principalUtils.GetUserClaims(user);
             
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, "add")
+                .WithTenantAndEntityRightCheck(RightAdd, ImmutableDictionary<string, object>.Empty)
                 .ExecuteAsync(async () => Results.Ok(await repository.NewAsync(tenantId, identifier, claims)));
         };
     }
@@ -107,20 +111,17 @@ public static class TenantableEndpointHandlerFactory
 
             var claims = principalUtils.GetUserClaims(user);
             
-            return await endpointFactory.Create(application, entity)
+            var entry = await repository.ByIdAsync(tenantId, identifier, claims, id);
+
+            if (entry == null)
+            {
+                return Results.NotFound();
+            }
+
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, "view")
-                .ExecuteAsync(async () =>
-                {
-                    var entry = await repository.ByIdAsync(tenantId, identifier, claims, id);
-
-                    if (entry == null)
-                    {
-                        return Results.NotFound();
-                    }
-
-                    return Results.Ok(entry);
-                });
+                .WithTenantAndEntityRightCheck(RightView, entry)
+                .ExecuteAsync(() => Task.FromResult(Results.Ok(entry)));
         };
     }
     
@@ -134,10 +135,10 @@ public static class TenantableEndpointHandlerFactory
 
             var claims = principalUtils.GetUserClaims(user);
             
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId,
-                    identifier == DefaultQuery ? "edit" : identifier)
+                .WithTenantAndEntityRightCheck(
+                    identifier == DefaultQuery ? RightEdit : identifier, value)
                 .ExecuteAsync(async () =>
                 {
                     await repository.SaveAsync(tenantId, currentUserId, identifier, claims, value);
@@ -156,10 +157,17 @@ public static class TenantableEndpointHandlerFactory
             var tenantId = principalUtils.GetUserTenandId(user);
             var claims = principalUtils.GetUserClaims(user);
 
-            return await endpointFactory.Create(application, entity)
+            var entry = await repository.ByIdAsync(tenantId, DefaultQuery, claims, id);
+
+            if (entry == null)
+            {
+                return Results.NotFound();
+            }
+            
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId,
-                    "delete")
+                .WithTenantAndEntityRightCheck(
+                    RightDelete, entry)
                 .ExecuteAsync(async () =>
                 {
                     var removeResult = await repository.RemoveAsync(tenantId, currentUserId,claims, ImmutableDictionary.CreateRange(new []
@@ -187,10 +195,8 @@ public static class TenantableEndpointHandlerFactory
 
             var claims = principalUtils.GetUserClaims(user);
             
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId,
-                    identifier == DefaultQuery ? "edit" : identifier)
                 .ExecuteAsync(async () =>
                 {
                     foreach (var file in files)
@@ -235,9 +241,9 @@ public static class TenantableEndpointHandlerFactory
                 queryParams.Add(queryEntry.Key, queryEntry.Value);
             }
             
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, identifier)
+                .WithTenantAndEntityRightCheck(identifier, queryParams)
                 .ExecuteAsync(async () =>
                 {
                     var export = await repository.ExportAsync(tenantId, identifier, claims, queryParams);
@@ -266,9 +272,9 @@ public static class TenantableEndpointHandlerFactory
                 queryParams.Add(queryEntry.Key, queryEntry.Value);
             }
             
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, identifier)
+                .WithTenantAndEntityRightCheck(identifier, queryParams)
                 .ExecuteAsync(async () =>
                 {
                     var export = await repository.ExportAsync(tenantId, identifier, claims, queryParams);

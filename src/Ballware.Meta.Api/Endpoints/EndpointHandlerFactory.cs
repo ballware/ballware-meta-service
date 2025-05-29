@@ -58,9 +58,9 @@ public static class EndpointHandlerFactory
             var tenantId = principalUtils.GetUserTenandId(user);
             var claims = principalUtils.GetUserClaims(user);
 
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, RightView)
+                .WithTenantAndEntityRightCheck(RightView, ImmutableDictionary<string, object>.Empty)
                 .ExecuteAsync(async () => Results.Ok(await repository.AllAsync(identifier, claims)));
         };
     }
@@ -74,9 +74,9 @@ public static class EndpointHandlerFactory
 
             var claims = principalUtils.GetUserClaims(user);
 
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, RightAdd)
+                .WithTenantAndEntityRightCheck(RightAdd, ImmutableDictionary<string, object>.Empty)
                 .ExecuteAsync(async () => Results.Ok(await repository.NewAsync(identifier, claims)));
         };
     }
@@ -90,20 +90,17 @@ public static class EndpointHandlerFactory
 
             var claims = principalUtils.GetUserClaims(user);
 
-            return await endpointFactory.Create(application, entity)
+            var entry = await repository.ByIdAsync(identifier, claims, id);
+
+            if (entry == null)
+            {
+                return Results.NotFound($"Record with ID {id} not found in entity {entity}");
+            }
+            
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, RightView)
-                .ExecuteAsync(async () =>
-                {
-                    var entry = await repository.ByIdAsync(identifier, claims, id);
-
-                    if (entry == null)
-                    {
-                        return Results.NotFound($"Record with ID {id} not found in entity {entity}");
-                    }
-
-                    return Results.Ok(await repository.ByIdAsync(identifier, claims, id));
-                });
+                .WithTenantAndEntityRightCheck(RightView, entry)
+                .ExecuteAsync(() => Task.FromResult(Results.Ok(entry)));
         };
     }
     
@@ -117,9 +114,9 @@ public static class EndpointHandlerFactory
 
             var claims = principalUtils.GetUserClaims(user);
 
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, identifier == DefaultQuery ? RightEdit : identifier)
+                .WithTenantAndEntityRightCheck(identifier == DefaultQuery ? RightEdit : identifier, value)
                 .ExecuteAsync(async () =>
                 {
                     await repository.SaveAsync(currentUserId, identifier, claims, value);
@@ -138,9 +135,16 @@ public static class EndpointHandlerFactory
             var tenantId = principalUtils.GetUserTenandId(user);
             var claims = principalUtils.GetUserClaims(user);
 
-            return await endpointFactory.Create(application, entity)
+            var entry = await repository.ByIdAsync(DefaultQuery, claims, id);
+            
+            if (entry == null) 
+            {
+                return Results.NotFound($"Record with ID {id} not found in entity {entity}");
+            }
+            
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, RightDelete)
+                .WithTenantAndEntityRightCheck(RightDelete, entry)
                 .ExecuteAsync(async () =>
                 {
                     var removeResult = await repository.RemoveAsync(currentUserId,claims, ImmutableDictionary.CreateRange(
@@ -168,9 +172,8 @@ public static class EndpointHandlerFactory
 
             var claims = principalUtils.GetUserClaims(user);
             
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, identifier == DefaultQuery ? RightEdit : identifier)
                 .ExecuteAsync(async () =>
                 {
                     foreach (var file in files)
@@ -217,9 +220,9 @@ public static class EndpointHandlerFactory
                 queryParams.Add(queryEntry.Key, queryEntry.Value);
             }
             
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, identifier)
+                .WithTenantAndEntityRightCheck(identifier, queryParams)
                 .ExecuteAsync(async () =>
                 {
                     var export = await repository.ExportAsync(identifier, claims, queryParams);
@@ -248,9 +251,9 @@ public static class EndpointHandlerFactory
                 queryParams.Add(queryEntry.Key, queryEntry.Value);
             }
             
-            return await endpointFactory.Create(application, entity)
+            return await endpointFactory.Create(tenantId, application, entity)
                 .WithClaims(claims)
-                .CheckTenantRight(tenantId, identifier)
+                .WithTenantAndEntityRightCheck(identifier, queryParams)
                 .ExecuteAsync(async () =>
                 {
                     var export = await repository.ExportAsync(identifier, claims, queryParams);

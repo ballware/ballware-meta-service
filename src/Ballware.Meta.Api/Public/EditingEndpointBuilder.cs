@@ -9,23 +9,32 @@ public class EditingEndpointBuilder
 {
     private string Application { get; }
     private string Entity { get; }
-    private Guid? TenantId { get; set; }
+    private Guid? TenantId { get; }
     private IDictionary<string, object> Claims { get; set; } = ImmutableDictionary<string, object>.Empty;
     private ITenantRightsChecker TenantRightsChecker { get; }
+    private IEntityRightsChecker EntityRightsChecker { get; }
     private ITenantMetaRepository TenantMetaRepository { get; }
+    private IEntityMetaRepository EntityMetaRepository { get; }
     private string? Right { get; set; }
+    private bool CheckTenantRight { get; set; }
+    private bool CheckEntityRight { get; set; }
     
-    private EditingEndpointBuilder(ITenantMetaRepository tenantMetaRepository, ITenantRightsChecker tenantRightsChecker, string application, string entity)
+    private object? EntityRightParam { get; set; }
+    
+    private EditingEndpointBuilder(ITenantMetaRepository tenantMetaRepository, IEntityMetaRepository entityMetaRepository, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker, Guid tenantId, string application, string entity)
     {
         TenantMetaRepository = tenantMetaRepository;
+        EntityMetaRepository = entityMetaRepository;
         TenantRightsChecker = tenantRightsChecker;
+        EntityRightsChecker = entityRightsChecker;
+        TenantId = tenantId;
         Application = application;
         Entity = entity;
     }
 
-    public static EditingEndpointBuilder Create(ITenantMetaRepository tenantMetaRepository, ITenantRightsChecker tenantRightsChecker, string application, string entity)
+    public static EditingEndpointBuilder Create(ITenantMetaRepository tenantMetaRepository, IEntityMetaRepository entityMetaRepository, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker, Guid tenantId, string application, string entity)
     {
-        return new EditingEndpointBuilder(tenantMetaRepository, tenantRightsChecker, application, entity);
+        return new EditingEndpointBuilder(tenantMetaRepository, entityMetaRepository, tenantRightsChecker, entityRightsChecker, tenantId, application, entity);
     }
     
     public EditingEndpointBuilder WithClaims(IDictionary<string, object> claims)
@@ -33,18 +42,20 @@ public class EditingEndpointBuilder
         Claims = claims;
         return this;
     }
-
-    public EditingEndpointBuilder CheckTenantRight(Guid tenantId, string right)
+    
+    public EditingEndpointBuilder WithTenantAndEntityRightCheck(string right, object param)
     {
-        TenantId = tenantId;
         Right = right;
+        EntityRightParam = param;
+        CheckTenantRight = true;
+        CheckEntityRight = true;
         
         return this;
     }
     
     public async Task<IResult> ExecuteAsync(Func<Task<IResult>> executor)
     {
-        if (!string.IsNullOrEmpty(Right) && TenantId != null)
+        if (!string.IsNullOrEmpty(Right) && TenantId != null && CheckTenantRight)
         {
             var tenant = await TenantMetaRepository.ByIdAsync(TenantId.Value);
 
@@ -52,10 +63,22 @@ public class EditingEndpointBuilder
             {
                 return Results.NotFound($"Tenant {TenantId} not found");
             }
-            
-            var tenantAuthorized = await TenantRightsChecker.HasRightAsync(tenant, Application, Entity, Claims, Right);
         
-            if (!tenantAuthorized)
+            var authorized = await TenantRightsChecker.HasRightAsync(tenant, Application, Entity, Claims, Right);
+
+            if (CheckEntityRight)
+            {
+                var entity = await EntityMetaRepository.ByEntityAsync(TenantId.Value, Entity);
+                
+                if (entity == null)
+                {
+                    return Results.NotFound($"Entity {Entity} not found for tenant {TenantId}");
+                }
+                
+                authorized = await EntityRightsChecker.HasRightAsync(TenantId.Value, entity, Claims, Right, EntityRightParam, authorized);
+            }
+            
+            if (!authorized)
             {
                 return Results.Unauthorized();
             }
