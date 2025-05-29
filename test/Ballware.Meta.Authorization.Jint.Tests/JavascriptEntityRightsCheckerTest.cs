@@ -97,7 +97,7 @@ public class JavascriptEntityRightsCheckerTest
         var result = rightsChecker.HasRightAsync(
             expectedTenantId,
             entitymetadataMock.Object,
-            new Dictionary<string, object> { { "right", new string[] { "add", "delete" } } },
+            new Dictionary<string, object> { { "right", new string[] { "add", "edit" } } },
             "edit",
             new { Id = Guid.NewGuid() },
             true
