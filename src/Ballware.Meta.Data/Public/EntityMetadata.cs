@@ -133,7 +133,7 @@ public class EntityMetadata : IEditable
     public string? SaveScript { get; set; }
     public string? Lookups { get; set; }
     public string? Picklists { get; set; }
-    public string? CustomScripts { get; set; }
+    public virtual string? CustomScripts { get; set; }
     public string? GridLayout { get; set; }
     public string? EditLayout { get; set; }
     public string? CustomFunctions { get; set; }

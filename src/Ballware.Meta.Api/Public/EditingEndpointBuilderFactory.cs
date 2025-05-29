@@ -6,17 +6,23 @@ namespace Ballware.Meta.Api.Public;
 public class EditingEndpointBuilderFactory
 {
     private ITenantMetaRepository TenantMetaRepository { get; }
+    private IEntityMetaRepository EntityMetaRepository { get; }
     private ITenantRightsChecker TenantRightsChecker { get; }
+    private IEntityRightsChecker EntityRightsChecker { get; }
     
     public EditingEndpointBuilderFactory(ITenantMetaRepository tenantMetaRepository,
-        ITenantRightsChecker tenantRightsChecker)
+        IEntityMetaRepository entityMetaRepository,
+        ITenantRightsChecker tenantRightsChecker,
+        IEntityRightsChecker entityRightsChecker)
     {
         TenantMetaRepository = tenantMetaRepository;
+        EntityMetaRepository = entityMetaRepository;
         TenantRightsChecker = tenantRightsChecker;
+        EntityRightsChecker = entityRightsChecker;
     }
     
-    public EditingEndpointBuilder Create(string application, string entity)
+    public EditingEndpointBuilder Create(Guid tenantId, string application, string entity)
     {
-        return EditingEndpointBuilder.Create(TenantMetaRepository, TenantRightsChecker, application, entity);
+        return EditingEndpointBuilder.Create(TenantMetaRepository, EntityMetaRepository, TenantRightsChecker, EntityRightsChecker, tenantId, application, entity);
     }
 }
