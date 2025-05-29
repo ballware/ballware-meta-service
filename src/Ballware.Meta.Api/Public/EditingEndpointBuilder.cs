@@ -69,6 +69,12 @@ public class EditingEndpointBuilder
             if (CheckEntityRight)
             {
                 var entity = await EntityMetaRepository.ByEntityAsync(TenantId.Value, Entity);
+                
+                if (entity == null)
+                {
+                    return Results.NotFound($"Entity {Entity} not found for tenant {TenantId}");
+                }
+                
                 authorized = await EntityRightsChecker.HasRightAsync(TenantId.Value, entity, Claims, Right, EntityRightParam, authorized);
             }
             

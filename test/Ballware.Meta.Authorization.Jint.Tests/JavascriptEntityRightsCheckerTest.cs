@@ -31,7 +31,7 @@ public class JavascriptEntityRightsCheckerTest
         var result = rightsChecker.HasRightAsync(
             expectedTenantId,
             entitymetadataMock.Object,
-            new Dictionary<string, object> { { "right", new string[] { "right1", "right2" } } },
+            new Dictionary<string, object> { { "right", new string[] { "add", "custom" } } },
             "edit",
             new { Id = Guid.NewGuid() },
             true
@@ -64,7 +64,7 @@ public class JavascriptEntityRightsCheckerTest
         var result = rightsChecker.HasRightAsync(
             expectedTenantId,
             entitymetadataMock.Object,
-            new Dictionary<string, object> { { "right", new string[] { "right1", "right2" } } },
+            new Dictionary<string, object> { { "right", new string[] { "view", "add" } } },
             "edit",
             new { Id = Guid.NewGuid() },
             true
@@ -97,7 +97,7 @@ public class JavascriptEntityRightsCheckerTest
         var result = rightsChecker.HasRightAsync(
             expectedTenantId,
             entitymetadataMock.Object,
-            new Dictionary<string, object> { { "right", new string[] { "right1", "edit" } } },
+            new Dictionary<string, object> { { "right", new string[] { "add", "delete" } } },
             "edit",
             new { Id = Guid.NewGuid() },
             true

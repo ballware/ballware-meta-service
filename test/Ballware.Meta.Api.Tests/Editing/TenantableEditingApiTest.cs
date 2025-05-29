@@ -134,6 +134,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -222,6 +229,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -279,6 +293,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -380,6 +401,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -424,6 +452,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -434,7 +469,6 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
             .Setup(c => c.HasRightAsync(expectedTenantId, It.IsAny<EntityMetadata>(), It.IsAny<IDictionary<string, object>>(), 
                 "add", It.IsAny<object>(), true))
             .ReturnsAsync(true);
-
         
         RepositoryMock
             .Setup(r => r.NewAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>()))
@@ -530,6 +564,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -578,6 +619,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -730,6 +778,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -778,6 +833,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -900,6 +962,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -957,6 +1026,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -1091,6 +1167,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -1161,6 +1244,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
 
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -1252,6 +1342,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
         
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -1399,6 +1496,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
         
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
+        
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
                 It.IsAny<Dictionary<string, object>>(), "export"))
@@ -1467,6 +1571,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
         
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
@@ -1665,6 +1776,13 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         TenantRepositoryMock
             .Setup(r => r.ByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
         
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
