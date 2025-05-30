@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Ballware.Meta.Api.Bindings;
 using Ballware.Meta.Api.Internal;
 using Ballware.Meta.Api.Public;
 using Ballware.Meta.Authorization;
@@ -23,34 +24,35 @@ public static class TenantableEndpointHandlerFactory
     private static readonly string RightEdit = "edit";
     private static readonly string RightDelete = "delete";
     
-    public delegate Task<IResult> HandleAllDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
+    public delegate Task<IResult> HandleAllDelegate<TEntity>(UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, string identifier) where TEntity : class;
 
-    public delegate Task<IResult> HandleQueryDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier, QueryValueBag query) where TEntity : class;
+    public delegate Task<IResult> HandleQueryDelegate<TEntity>(UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, string identifier, QueryValueBag query) where TEntity : class;
     
-    public delegate Task<IResult> HandleNewDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier) where TEntity : class;
+    public delegate Task<IResult> HandleNewDelegate<TEntity>(UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, string identifier) where TEntity : class;
     
-    public delegate Task<IResult> HandleByIdDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier, Guid id) where TEntity : class;
+    public delegate Task<IResult> HandleByIdDelegate<TEntity>(UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, string identifier, Guid id) where TEntity : class;
     
-    public delegate Task<IResult> HandleSaveDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier, TEntity value) where TEntity : class;
+    public delegate Task<IResult> HandleSaveDelegate<TEntity>(UserId currentUserId, UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, string identifier, TEntity value) where TEntity : class;
     
-    public delegate Task<IResult> HandleRemoveDelegate<TEntity>(IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, ClaimsPrincipal user, Guid id) where TEntity : class;
+    public delegate Task<IResult> HandleRemoveDelegate<TEntity>(UserId currentUserId, UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, Guid id) where TEntity : class;
 
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public delegate Task<IResult> HandleImportDelegate(ISchedulerFactory schedulerFactory,
-        IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, IJobMetaRepository jobMetaRepository,
-        ClaimsPrincipal user, IMetaFileStorageAdapter storageAdapter, string identifier,
+        UserId currentUserId, UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, IJobMetaRepository jobMetaRepository,
+        IMetaFileStorageAdapter storageAdapter, string identifier,
         IFormFileCollection files);
 
     public delegate Task<IResult> HandleExportDelegate<TEntity>(
-        IPrincipalUtils principalUtils, EditingEndpointBuilderFactory endpointFactory, 
-        ITenantableRepository<TEntity> repository, ClaimsPrincipal user, string identifier, HttpRequest request) 
+        UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, 
+        ITenantableRepository<TEntity> repository, string identifier, HttpRequest request) 
         where TEntity : class;
     
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
-    public delegate Task<IResult> HandleExportUrlDelegate<TEntity>(IPrincipalUtils principalUtils, 
+    public delegate Task<IResult> HandleExportUrlDelegate<TEntity>(
+        UserId currentUserId, UserTenantId tenantId, UserClaims claims,
         EditingEndpointBuilderFactory endpointFactory, 
         IExportMetaRepository exportMetaRepository, ITenantableRepository<TEntity> repository, IMetaFileStorageAdapter storageAdapter, 
-        ClaimsPrincipal user, string identifier, HttpRequest request)
+        string identifier, HttpRequest request)
         where TEntity : class;
     
     public delegate Task<IResult> HandleDownloadExportDelegate(IExportMetaRepository exportMetaRepository, 
@@ -58,68 +60,54 @@ public static class TenantableEndpointHandlerFactory
     
     public static HandleAllDelegate<TEntity> CreateAllHandler<TEntity>(string application, string entity) where TEntity : class 
     {
-        return async (principalUtils, endpointFactory, repository, user, identifier) =>
+        return async (tenantId, claims, endpointFactory, repository, identifier) =>
         {
-            var tenantId = principalUtils.GetUserTenandId(user);
-            var claims = principalUtils.GetUserClaims(user);
-
-            return await endpointFactory.Create(tenantId, application, entity)
-                .WithClaims(claims)
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
                 .WithTenantAndEntityRightCheck(RightView, ImmutableDictionary<string, object>.Empty)
-                .ExecuteAsync(async () => Results.Ok(await repository.AllAsync(tenantId, identifier, claims)));
+                .ExecuteAsync(async () => Results.Ok(await repository.AllAsync(tenantId.Value, identifier, claims.Value)));
         };
     }
     
     public static HandleQueryDelegate<TEntity> CreateQueryHandler<TEntity>(string application, string entity) where TEntity : class 
     {
-        return async (principalUtils, endpointFactory, repository, user, identifier, query) =>
+        return async (tenantId, claims, endpointFactory, repository, identifier, query) =>
         {
-            var tenantId = principalUtils.GetUserTenandId(user);
-
-            var claims = principalUtils.GetUserClaims(user);
             var queryParams = GetQueryParams(query.Query);
             
-            return await endpointFactory.Create(tenantId, application, entity)
-                .WithClaims(claims)
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
                 .WithTenantAndEntityRightCheck(RightView, queryParams)
-                .ExecuteAsync(async () => Results.Ok(await repository.QueryAsync(tenantId, identifier, claims, queryParams)));
+                .ExecuteAsync(async () => Results.Ok(await repository.QueryAsync(tenantId.Value, identifier, claims.Value, queryParams)));
         };
     }
 
     public static HandleNewDelegate<TEntity> CreateNewHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, endpointFactory,
-            repository, user, identifier) =>
+        return async (tenantId, claims, endpointFactory,
+            repository, identifier) =>
         {
-            var tenantId = principalUtils.GetUserTenandId(user);
-
-            var claims = principalUtils.GetUserClaims(user);
-            
-            return await endpointFactory.Create(tenantId, application, entity)
-                .WithClaims(claims)
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
                 .WithTenantAndEntityRightCheck(RightAdd, ImmutableDictionary<string, object>.Empty)
-                .ExecuteAsync(async () => Results.Ok(await repository.NewAsync(tenantId, identifier, claims)));
+                .ExecuteAsync(async () => Results.Ok(await repository.NewAsync(tenantId.Value, identifier, claims.Value)));
         };
     }
 
     public static HandleByIdDelegate<TEntity> CreateByIdHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, endpointFactory,
-            repository, user, identifier, id) =>
+        return async (tenantId, claims, endpointFactory,
+            repository, identifier, id) =>
         {
-            var tenantId = principalUtils.GetUserTenandId(user);
-
-            var claims = principalUtils.GetUserClaims(user);
-            
-            var entry = await repository.ByIdAsync(tenantId, identifier, claims, id);
+            var entry = await repository.ByIdAsync(tenantId.Value, identifier, claims.Value, id);
 
             if (entry == null)
             {
                 return Results.NotFound();
             }
 
-            return await endpointFactory.Create(tenantId, application, entity)
-                .WithClaims(claims)
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
                 .WithTenantAndEntityRightCheck(RightView, entry)
                 .ExecuteAsync(() => Task.FromResult(Results.Ok(entry)));
         };
@@ -127,21 +115,16 @@ public static class TenantableEndpointHandlerFactory
     
     public static HandleSaveDelegate<TEntity> CreateSaveHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, endpointFactory,
-            repository, user, identifier, value) =>
+        return async (currentUserId, tenantId, claims, endpointFactory,
+            repository, identifier, value) =>
         {
-            var currentUserId = principalUtils.GetUserId(user);
-            var tenantId = principalUtils.GetUserTenandId(user);
-
-            var claims = principalUtils.GetUserClaims(user);
-            
-            return await endpointFactory.Create(tenantId, application, entity)
-                .WithClaims(claims)
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
                 .WithTenantAndEntityRightCheck(
                     identifier == DefaultQuery ? RightEdit : identifier, value)
                 .ExecuteAsync(async () =>
                 {
-                    await repository.SaveAsync(tenantId, currentUserId, identifier, claims, value);
+                    await repository.SaveAsync(tenantId.Value, currentUserId.Value, identifier, claims.Value, value);
 
                     return Results.Ok();
                 });
@@ -150,27 +133,23 @@ public static class TenantableEndpointHandlerFactory
     
     public static HandleRemoveDelegate<TEntity> CreateRemoveHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, endpointFactory,
-            repository, user, id) =>
+        return async (currentUserId, tenantId, claims, endpointFactory,
+            repository, id) =>
         {
-            var currentUserId = principalUtils.GetUserId(user);
-            var tenantId = principalUtils.GetUserTenandId(user);
-            var claims = principalUtils.GetUserClaims(user);
-
-            var entry = await repository.ByIdAsync(tenantId, DefaultQuery, claims, id);
+            var entry = await repository.ByIdAsync(tenantId.Value, DefaultQuery, claims.Value, id);
 
             if (entry == null)
             {
                 return Results.NotFound();
             }
             
-            return await endpointFactory.Create(tenantId, application, entity)
-                .WithClaims(claims)
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
                 .WithTenantAndEntityRightCheck(
                     RightDelete, entry)
                 .ExecuteAsync(async () =>
                 {
-                    var removeResult = await repository.RemoveAsync(tenantId, currentUserId,claims, ImmutableDictionary.CreateRange(new []
+                    var removeResult = await repository.RemoveAsync(tenantId.Value, currentUserId.Value, claims.Value, ImmutableDictionary.CreateRange(new []
                     {
                         new KeyValuePair<string, object>("Id", id),
                     }));
@@ -188,15 +167,10 @@ public static class TenantableEndpointHandlerFactory
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static HandleImportDelegate CreateImportHandler(string application, string entity)
     {
-        return async (schedulerFactory, principalUtils, endpointFactory, jobMetaRepository, user, storageAdapter, identifier, files) =>
+        return async (schedulerFactory, currentUserId, tenantId, claims, endpointFactory, jobMetaRepository, storageAdapter, identifier, files) =>
         {
-            var currentUserId = principalUtils.GetUserId(user);
-            var tenantId = principalUtils.GetUserTenandId(user);
-
-            var claims = principalUtils.GetUserClaims(user);
-            
-            return await endpointFactory.Create(tenantId, application, entity)
-                .WithClaims(claims)
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
                 .ExecuteAsync(async () =>
                 {
                     foreach (var file in files)
@@ -206,12 +180,12 @@ public static class TenantableEndpointHandlerFactory
                         jobData["tenantId"] = tenantId;
                         jobData["userId"] = currentUserId;
                         jobData["identifier"] = identifier;
-                        jobData["claims"] = JsonSerializer.Serialize(claims);
+                        jobData["claims"] = JsonSerializer.Serialize(claims.Value);
                         jobData["filename"] = file.FileName;
 
-                        await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
+                        await storageAdapter.UploadFileForOwnerAsync(currentUserId.Value.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
 
-                        var job = await jobMetaRepository.CreateJobAsync(tenantId, currentUserId, "meta",
+                        var job = await jobMetaRepository.CreateJobAsync(tenantId.Value, currentUserId.Value, "meta",
                             "import", JsonSerializer.Serialize(jobData));
 
                         jobData["jobId"] = job.Id;
@@ -226,12 +200,9 @@ public static class TenantableEndpointHandlerFactory
     
     public static HandleExportDelegate<TEntity> CreateExportHandler<TEntity>(string application, string entity) where TEntity : class
     {
-        return async (principalUtils, endpointFactory,
-            repository, user, identifier, request) =>
+        return async (tenantId, claims, endpointFactory,
+            repository, identifier, request) =>
         {
-            var tenantId = principalUtils.GetUserTenandId(user);
-
-            var claims = principalUtils.GetUserClaims(user);
             var query = request.Query;
             
             var queryParams = new Dictionary<string, object>();
@@ -241,12 +212,12 @@ public static class TenantableEndpointHandlerFactory
                 queryParams.Add(queryEntry.Key, queryEntry.Value);
             }
             
-            return await endpointFactory.Create(tenantId, application, entity)
-                .WithClaims(claims)
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
                 .WithTenantAndEntityRightCheck(identifier, queryParams)
                 .ExecuteAsync(async () =>
                 {
-                    var export = await repository.ExportAsync(tenantId, identifier, claims, queryParams);
+                    var export = await repository.ExportAsync(tenantId.Value, identifier, claims.Value, queryParams);
         
                     return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
                 });
@@ -257,13 +228,9 @@ public static class TenantableEndpointHandlerFactory
     public static HandleExportUrlDelegate<TEntity> CreateExportUrlHandler<TEntity>(string application, string entity)
         where TEntity : class
     {
-        return async (principalUtils, endpointFactory, exportMetaRepository, repository, storageAdapter, user, identifier, request) =>
+        return async (currentUserId, tenantId, claims, endpointFactory, exportMetaRepository, repository, storageAdapter, identifier, request) =>
         {
             var query = await request.ReadFormAsync();
-            var currentUserId = principalUtils.GetUserId(user);
-            var tenantId = principalUtils.GetUserTenandId(user);
-
-            var claims = principalUtils.GetUserClaims(user);
         
             var queryParams = new Dictionary<string, object>();
 
@@ -272,14 +239,14 @@ public static class TenantableEndpointHandlerFactory
                 queryParams.Add(queryEntry.Key, queryEntry.Value);
             }
             
-            return await endpointFactory.Create(tenantId, application, entity)
-                .WithClaims(claims)
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
                 .WithTenantAndEntityRightCheck(identifier, queryParams)
                 .ExecuteAsync(async () =>
                 {
-                    var export = await repository.ExportAsync(tenantId, identifier, claims, queryParams);
+                    var export = await repository.ExportAsync(tenantId.Value, identifier, claims.Value, queryParams);
         
-                    var exportEntry = await exportMetaRepository.NewAsync(tenantId, DefaultQuery, claims);
+                    var exportEntry = await exportMetaRepository.NewAsync(tenantId.Value, DefaultQuery, claims.Value);
 
                     exportEntry.Entity = entity;
                     exportEntry.Query = identifier;
@@ -288,7 +255,7 @@ public static class TenantableEndpointHandlerFactory
 
                     await storageAdapter.UploadFileForOwnerAsync("export", $"{exportEntry.Id}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
         
-                    await exportMetaRepository.SaveAsync(tenantId, currentUserId, DefaultQuery, claims, exportEntry);
+                    await exportMetaRepository.SaveAsync(tenantId.Value, currentUserId.Value, DefaultQuery, claims.Value, exportEntry);
 
                     return Results.Content(exportEntry.Id.ToString());
                 });
