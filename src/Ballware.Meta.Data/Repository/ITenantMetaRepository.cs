@@ -2,7 +2,7 @@ using Ballware.Meta.Data.SelectLists;
 
 namespace Ballware.Meta.Data.Repository;
 
-public interface ITenantMetaRepository : IRepository<Public.Tenant>
+public interface ITenantMetaRepository : ITenantableRepository<Public.Tenant>
 {
     Task<Public.Tenant?> ByIdAsync(Guid id);
     Task<IEnumerable<TenantSelectListEntry>> AllowedTenantsAsync(IDictionary<string, object> claims);

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Dapper;
@@ -68,5 +69,56 @@ class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>,
     public Task<string> GenerateListQueryAsync()
     {
         return Task.FromResult($"select Uuid as Id, Name from Tenant");
+    }
+
+    public async Task<IEnumerable<Tenant>> AllAsync(Guid tenantId, string identifier, IDictionary<string, object> claims)
+    {
+        return await AllAsync(identifier, claims);
+    }
+
+    public async Task<IEnumerable<Tenant>> QueryAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    {
+        return await QueryAsync(identifier, claims, queryParams);
+    }
+
+    public async Task<long> CountAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    {
+        return await CountAsync(identifier, claims, queryParams);
+    }
+
+    public async Task<Tenant?> ByIdAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, Guid id)
+    {
+        return await ByIdAsync(identifier, claims, id);
+    }
+
+    public async Task<Tenant> NewAsync(Guid tenantId, string identifier, IDictionary<string, object> claims)
+    {
+        return await NewAsync(identifier, claims);
+    }
+
+    public async Task<Tenant> NewQueryAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    {
+        return await NewQueryAsync(identifier, claims, queryParams);
+    }
+
+    public async Task SaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, Tenant value)
+    {
+        await SaveAsync(userId, identifier, claims, value);
+    }
+
+    public async Task<RemoveResult> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
+    {
+        return await RemoveAsync(userId, claims, removeParams);
+    }
+
+    public async Task ImportAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, Stream importStream,
+        Func<Tenant, Task<bool>> authorized)
+    {
+        await ImportAsync(userId, identifier, claims, importStream, authorized);
+    }
+
+    public async Task<ExportResult> ExportAsync(Guid tenantId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    {
+        return await ExportAsync(identifier, claims, queryParams);
     }
 }

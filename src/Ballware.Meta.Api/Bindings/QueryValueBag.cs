@@ -2,7 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-namespace Ballware.Meta.Api.Endpoints;
+namespace Ballware.Meta.Api.Bindings;
 
 public class QueryValueBag
 {

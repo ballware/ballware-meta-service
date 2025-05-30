@@ -330,7 +330,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         app.MapTenantMetaApi("/meta/tenant");
         app.MapTenantServiceApi("/meta/tenant");
-        app.MapEditingApi<Data.Public.Tenant>("/meta/tenant", "meta", "tenant", "Tenant", "Tenant");
+        app.MapTenantableEditingApi<Data.Public.Tenant>("/meta/tenant", "meta", "tenant", "Tenant", "Tenant");
         
         app.MapSubscriptionMetaApi("/meta/subscription");
         app.MapSubscriptionServiceApi("/meta/subscription");
