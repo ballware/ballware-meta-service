@@ -239,6 +239,30 @@ public static class TenantMetaEndpoint
         
         schemaDefinitions.Add(pickvalueLookupsSchemaDefinition);
         
+        var processingStateTables = new List<ReportDatasourceTable>();
+        
+        var processingStateAvailabilities = await processingStateMetaRepository.GetProcessingStateAvailabilityAsync(tenantId);
+        
+        foreach (var processingStateAvailability in processingStateAvailabilities)
+        {
+            var query = await processingStateMetaRepository.GenerateAvailableQueryAsync(tenantId, processingStateAvailability);
+            
+            processingStateTables.Add(new ReportDatasourceTable
+            {
+                Name = $"ProcessingState_{processingStateAvailability}",
+                Query = query
+            });
+        }
+        
+        var processingStatesSchemaDefinition = new ReportDatasourceDefinition
+        {
+            Name = "ProcessingStates",
+            ConnectionString = metaConnectionString,
+            Tables = processingStateTables
+        };
+        
+        schemaDefinitions.Add(processingStatesSchemaDefinition);
+        
         return Results.Ok(mapper.Map<IEnumerable<ServiceTenantReportDatasourceDefinition>>(schemaDefinitions));
     }
 }

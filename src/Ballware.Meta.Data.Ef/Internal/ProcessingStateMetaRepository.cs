@@ -68,8 +68,24 @@ class ProcessingStateMetaRepository : TenantableBaseRepository<Public.Processing
             .Select(c => new ProcessingStateSelectListEntry { Id = c.Uuid, State = c.State, Name = c.Name, Locked = c.RecordLocked, Finished = c.RecordFinished, ReasonRequired = c.ReasonRequired });
     }
 
+    public async Task<IEnumerable<string>> GetProcessingStateAvailabilityAsync(Guid tenantId)
+    {
+        return await Task.Run(() => Context.ProcessingStates
+            .Where(p => p.TenantId == tenantId)
+            .Select(p => new { p.Entity })
+            .Distinct()
+            .OrderBy(p => p.Entity)
+            .Select(p => p.Entity)
+            .ToListAsync());
+    }
+    
     public Task<string> GenerateListQueryAsync(Guid tenantId)
     {
         return Task.FromResult($"select Entity, State, Name from ProcessingState where TenantId='{tenantId}'");
+    }
+    
+    public Task<string> GenerateAvailableQueryAsync(Guid tenantId, string entity)
+    {
+        return Task.FromResult($"select Uuid as Id, State, Name from ProcessingState where TenantId='{tenantId}' and Entity='{entity}' order by State");
     }
 }

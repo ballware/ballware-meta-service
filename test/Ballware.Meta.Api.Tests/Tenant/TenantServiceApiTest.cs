@@ -220,6 +220,19 @@ public class TenantServiceApiTest : ApiMappingBaseTest
                     },
                 ]
             },
+            new()
+            {
+                Name = "ProcessingStates",
+                ConnectionString = expectedMetaConnectionString,
+                Tables =
+                [
+                    new ()
+                    {
+                        Name = "ProcessingState_entity1",
+                        Query = "fake state entity1 query"
+                    }
+                ]
+            }
         };
         
         var mapperConfig = new MapperConfiguration(cfg =>
@@ -295,6 +308,14 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
             .ReturnsAsync("fake entity state query");
         
+        processingStateMetaRepositoryMock
+            .Setup(r => r.GetProcessingStateAvailabilityAsync(expectedTenantId))
+            .ReturnsAsync(["entity1"]);
+        
+        processingStateMetaRepositoryMock
+            .Setup(r => r.GenerateAvailableQueryAsync(expectedTenantId, "entity1"))
+            .ReturnsAsync("fake state entity1 query");
+        
         pickvalueMetaRepositoryMock
             .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
             .ReturnsAsync("fake entity pickvalue query");
@@ -348,11 +369,12 @@ public class TenantServiceApiTest : ApiMappingBaseTest
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Count(), Is.EqualTo(3));
+            Assert.That(result.Count(), Is.EqualTo(4));
             Assert.That(DeepComparer.AreListsEqual(expectedEntries, result, TestContext.WriteLine), Is.True);
             Assert.That(DeepComparer.AreListsEqual(expectedEntries[0].Tables, result.ToList()[0].Tables, TestContext.WriteLine), Is.True);
             Assert.That(DeepComparer.AreListsEqual(expectedEntries[1].Tables, result.ToList()[1].Tables, TestContext.WriteLine), Is.True);
             Assert.That(DeepComparer.AreListsEqual(expectedEntries[2].Tables, result.ToList()[2].Tables, TestContext.WriteLine), Is.True);
+            Assert.That(DeepComparer.AreListsEqual(expectedEntries[3].Tables, result.ToList()[3].Tables, TestContext.WriteLine), Is.True);
         });
     }
 }
