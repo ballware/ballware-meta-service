@@ -10,3 +10,9 @@ public class Pickvalue : IEditable
     public string? Text { get; set; }
     public int? Sorting { get; set; }
 }
+
+public class PickvalueAvailability
+{
+    public string? Entity { get; set; }
+    public string? Field { get; set; }
+}

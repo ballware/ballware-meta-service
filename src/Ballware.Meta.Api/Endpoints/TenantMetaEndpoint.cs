@@ -211,6 +211,34 @@ public static class TenantMetaEndpoint
         
         schemaDefinitions.Add(metaLookupsSchemaDefinition);
         
+        var pickvalueAvailabilities = await pickvalueMetaRepository.GetPickvalueAvailabilityAsync(tenantId);
+
+        var pickvalueTables = new List<ReportDatasourceTable>();
+        
+        foreach (var pickvalueAvailability in pickvalueAvailabilities)
+        {
+            if (!string.IsNullOrEmpty(pickvalueAvailability.Entity) &&
+                !string.IsNullOrEmpty(pickvalueAvailability.Field))
+            {
+                var query = await pickvalueMetaRepository.GenerateAvailableQueryAsync(tenantId, pickvalueAvailability.Entity, pickvalueAvailability.Field);
+            
+                pickvalueTables.Add(new ReportDatasourceTable
+                {
+                    Name = $"Pickvalue_{pickvalueAvailability.Entity}_{pickvalueAvailability.Field}",
+                    Query = query
+                });
+            }
+        }
+        
+        var pickvalueLookupsSchemaDefinition = new ReportDatasourceDefinition()
+        {
+            Name = "Pickvalues",
+            ConnectionString = metaConnectionString,
+            Tables = pickvalueTables
+        };
+        
+        schemaDefinitions.Add(pickvalueLookupsSchemaDefinition);
+        
         return Results.Ok(mapper.Map<IEnumerable<ServiceTenantReportDatasourceDefinition>>(schemaDefinitions));
     }
 }
