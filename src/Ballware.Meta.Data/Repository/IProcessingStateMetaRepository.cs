@@ -12,5 +12,8 @@ public interface IProcessingStateMetaRepository : ITenantableRepository<Public.P
     Task<IEnumerable<ProcessingStateSelectListEntry>> SelectListPossibleSuccessorsForEntityAsync(Guid tenantId,
         string entity, int state);
 
+    Task<IEnumerable<string>> GetProcessingStateAvailabilityAsync(Guid tenantId);
+    
     Task<string> GenerateListQueryAsync(Guid tenantId);
+    Task<string> GenerateAvailableQueryAsync(Guid tenantId, string entity);
 }
