@@ -1,8 +1,9 @@
 using AutoMapper;
-using Ballware.Meta.Data.Persistables;
+using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Microsoft.EntityFrameworkCore;
+using Pickvalue = Ballware.Meta.Data.Persistables.Pickvalue;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
@@ -43,8 +44,25 @@ class PickvalueMetaRepository : TenantableBaseRepository<Public.Pickvalue, Persi
 
     }
 
+    public async Task<IEnumerable<PickvalueAvailability>> GetPickvalueAvailabilityAsync(Guid tenantId)
+    {
+        return await Task.Run(() => Context.Pickvalues
+            .Where(p => p.TenantId == tenantId)
+            .Select(p => new { p.Entity, p.Field })
+            .Distinct()
+            .OrderBy(p => p.Entity)
+            .ThenBy(p => p.Field)
+            .Select(p => new PickvalueAvailability { Entity = p.Entity, Field = p.Field })
+            .ToListAsync());
+    }
+
     public Task<string> GenerateListQueryAsync(Guid tenantId)
     {
         return Task.FromResult($"select Entity, Field, Value, Text, Sorting from Pickvalue where TenantId='{tenantId}'");
+    }
+
+    public Task<string> GenerateAvailableQueryAsync(Guid tenantId, string entity, string field)
+    {
+        return Task.FromResult($"select Uuid as Id, Value, Text as Name from Pickvalue where TenantId='{tenantId}' and Entity='{entity}' and Field='{field}' order by Sorting");
     }
 }
