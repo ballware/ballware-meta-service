@@ -87,12 +87,12 @@ public static class ServiceCollectionExtensions
 
         if (options.EnableCaching)
         {
-            services.AddScoped<IRepository<Tenant>, CachableTenantMetaRepository>();
+            services.AddScoped<ITenantableRepository<Tenant>, CachableTenantMetaRepository>();
             services.AddScoped<ITenantMetaRepository, CachableTenantMetaRepository>();
         }
         else
         {
-            services.AddScoped<IRepository<Tenant>, TenantMetaRepository>();
+            services.AddScoped<ITenantableRepository<Tenant>, TenantMetaRepository>();
             services.AddScoped<ITenantMetaRepository, TenantMetaRepository>();
         }
         
