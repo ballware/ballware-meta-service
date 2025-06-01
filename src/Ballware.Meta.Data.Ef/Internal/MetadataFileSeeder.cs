@@ -71,7 +71,7 @@ class MetadataFileSeeder : IMetadataSeeder
 
         if (tenant != null)
         {
-            await Services.GetRequiredService<IRepository<Tenant>>().SaveAsync(null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
+            await Services.GetRequiredService<ITenantableRepository<Tenant>>().SaveAsync(tenant.Id,null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
 
             var tenantId = tenant.Id;
 
@@ -105,7 +105,7 @@ class MetadataFileSeeder : IMetadataSeeder
             tenant.Id = tenantId;
             tenant.Name = name;
 
-            await Services.GetRequiredService<IRepository<Tenant>>().SaveAsync(null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
+            await Services.GetRequiredService<ITenantableRepository<Tenant>>().SaveAsync(tenantId, null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
         }
 
         await GenericSeedAsync<Document>(tenantId, "customer-document.json");
