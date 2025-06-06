@@ -1,12 +1,47 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using Ballware.Meta.Data.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Ballware.Meta.Data.Public;
+
+[System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumMemberConverter))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
+public enum EntityCustomFunctionTypes
+{
+    [EnumMember(Value="add")]
+    Add,
+    [EnumMember(Value="edit")]
+    Edit,
+    [EnumMember(Value="default_add")]
+    DefaultAdd,
+    [EnumMember(Value="default_view")]
+    DefaultView,
+    [EnumMember(Value="default_edit")]
+    DefaultEdit,
+    [EnumMember(Value="external")]
+    External,
+    [EnumMember(Value="export")]
+    Export,
+    [EnumMember(Value="import")]
+    Import
+}
 
 public class EntityCustomFunction
 {
     [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string? Identifier { get; set; }
+    
+    [JsonPropertyName("options")]
+    [JsonProperty("options")]
+    public object? Options { get; set; }
+    
+    [JsonPropertyName("type")]
+    [JsonProperty("type")]
+    public EntityCustomFunctionTypes? Type { get; set; }
 }
 
 public class EntityImportFunctionOptions
