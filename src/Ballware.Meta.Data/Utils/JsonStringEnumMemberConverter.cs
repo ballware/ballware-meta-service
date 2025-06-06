@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Ballware.Meta.Api.Internal;
+namespace Ballware.Meta.Data.Utils;
 
 public class JsonStringEnumMemberConverter : JsonConverterFactory
 {
