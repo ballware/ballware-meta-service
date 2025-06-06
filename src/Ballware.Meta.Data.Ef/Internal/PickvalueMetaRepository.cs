@@ -21,7 +21,25 @@ class PickvalueMetaRepository : TenantableBaseRepository<Public.Pickvalue, Persi
                 throw new ArgumentException("Entity parameter is required");
             }
 
-            return query.Where(er => er.Entity == entity.ToString());
+            return query.Where(er => er.Entity == entity.ToString())
+                .OrderBy(er => er.Field)
+                .ThenBy(er => er.Value);
+        }
+
+        if ("entityandfield".Equals(identifier, StringComparison.CurrentCultureIgnoreCase))
+        {
+            if (!queryParams.TryGetValue("entity", out var entity)) 
+            {
+                throw new ArgumentException("Entity parameter is required");
+            }
+
+            if (!queryParams.TryGetValue("field", out var field)) 
+            {
+                throw new ArgumentException("Field parameter is required");
+            }
+
+            return query.Where(er => er.Entity == entity.ToString() && er.Field == field.ToString())
+                .OrderBy(er => er.Value);
         }
         
         return base.ListQuery(query, identifier, claims, queryParams);
