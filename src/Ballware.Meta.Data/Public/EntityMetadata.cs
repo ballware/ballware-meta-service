@@ -123,7 +123,7 @@ public static class MetadataExtensions
 {
     public static EntityCustomScripts? GetCustomScripts(this string serializedCustomScripts)
     {
-        return JsonSerializer.Deserialize<EntityCustomScripts>(serializedCustomScripts);
+        return JsonConvert.DeserializeObject<EntityCustomScripts>(serializedCustomScripts);
     }
 }
 
