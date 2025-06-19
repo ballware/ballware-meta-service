@@ -38,4 +38,27 @@ class CachableEntityMetaRepository : EntityMetaRepository
 
         return result;
     }
+    
+    public override async Task SaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims,
+        EntityMetadata value)
+    {
+        await base.SaveAsync(tenantId, userId, identifier, claims, value);
+        
+        Cache.PurgeItem(tenantId, CacheKey, value.Id.ToString());
+        Cache.PurgeItem(tenantId, CacheKey, value.Entity);
+    }
+
+    public override async Task<RemoveResult<EntityMetadata>> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
+        IDictionary<string, object> removeParams)
+    {
+        var result = await base.RemoveAsync(tenantId, userId, claims, removeParams);
+
+        if (result.Value != null)
+        {
+            Cache.PurgeItem(tenantId, CacheKey, result.Value.Id.ToString());
+            Cache.PurgeItem(tenantId, CacheKey, result.Value.Entity);
+        }
+        
+        return result;
+    }
 }

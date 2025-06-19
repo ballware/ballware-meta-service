@@ -1050,7 +1050,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         
         RepositoryMock
             .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .ReturnsAsync(new RemoveResult()
+            .ReturnsAsync(new RemoveResult<TenantableFakeEntity>()
             {
                 Result = true
             })
@@ -1114,7 +1114,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
 
         RepositoryMock
             .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .ReturnsAsync(new RemoveResult()
+            .ReturnsAsync(new RemoveResult<TenantableFakeEntity>()
             {
                 Result = true
             })
@@ -1191,7 +1191,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
 
         RepositoryMock
             .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .ReturnsAsync(new RemoveResult()
+            .ReturnsAsync(new RemoveResult<TenantableFakeEntity>()
             {
                 Result = true
             })
@@ -1268,7 +1268,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
 
         RepositoryMock
             .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .ReturnsAsync(new RemoveResult()
+            .ReturnsAsync(new RemoveResult<TenantableFakeEntity>()
             {
                 Messages = ["An error occurred while trying to remove the entry."],
                 Result = false

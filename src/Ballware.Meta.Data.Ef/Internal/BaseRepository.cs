@@ -73,20 +73,21 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         Hook?.AfterSave(userId, identifier, claims, value, persistable, insert);
     }
     
-    protected virtual RemoveResult RemovePreliminaryCheck(Guid? userId, IDictionary<string, object> claims,
-        IDictionary<string, object> removeParams)
+    protected virtual RemoveResult<TEditable> RemovePreliminaryCheck(Guid? userId, IDictionary<string, object> claims,
+        IDictionary<string, object> removeParams, TEditable? removeValue)
     {
-        var hookResult = Hook?.RemovePreliminaryCheck(userId, claims, removeParams);
+        var hookResult = Hook?.RemovePreliminaryCheck(userId, claims, removeParams, removeValue);
         
         if (hookResult != null)
         {
             return hookResult.Value;
         }
         
-        return new RemoveResult()
+        return new RemoveResult<TEditable>()
         {
             Result = true,
-            Messages = Array.Empty<string>()
+            Messages = [],
+            Value = removeValue
         };
     }
 
@@ -181,31 +182,41 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         await Context.SaveChangesAsync();
     }
 
-    public async Task<RemoveResult> RemoveAsync(Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
+    public async Task<RemoveResult<TEditable>> RemoveAsync(Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
     {
-        var result = RemovePreliminaryCheck(userId, claims, removeParams);
+        TPersistable? persistedItem = null;
+        TEditable? editableItem = null;
+
+        if (removeParams.TryGetValue("Id", out var idParam) && Guid.TryParse(idParam.ToString(), out Guid id))
+        {
+            persistedItem = await Context.Set<TPersistable>()
+                .FirstOrDefaultAsync(t => t.Uuid == id);
+            
+            editableItem = persistedItem != null ? Mapper.Map<TEditable>(persistedItem) : null;
+        }
+
+        var result = RemovePreliminaryCheck(userId, claims, removeParams, editableItem);
 
         if (!result.Result)
         {
             return result;
         }
 
-        if (removeParams.TryGetValue("Id", out var idParam) && Guid.TryParse(idParam.ToString(), out Guid id))
+        if (persistedItem != null)
         {
-            var persistedItem = await Context.Set<TPersistable>()
-                .FirstOrDefaultAsync(t => t.Uuid == id);
+            BeforeRemove(userId, claims, persistedItem);
 
-            if (persistedItem != null)
-            {
-                BeforeRemove(userId, claims, persistedItem);
+            Context.Set<TPersistable>().Remove(persistedItem);
 
-                Context.Set<TPersistable>().Remove(persistedItem);
-
-                await Context.SaveChangesAsync();
-            }
+            await Context.SaveChangesAsync();
         }
-
-        return new RemoveResult() { Result = true, Messages = Array.Empty<string>() };
+        
+        return new RemoveResult<TEditable>()
+        {
+            Result = true, 
+            Messages = [],
+            Value = editableItem
+        };
     }
 
     public async Task ImportAsync(Guid? userId, string identifier, IDictionary<string, object> claims, Stream importStream,
