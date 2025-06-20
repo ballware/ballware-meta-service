@@ -18,6 +18,12 @@ public static class TenantMetaEndpoint
     private const string ApiTag = "Tenant";
     private const string ApiOperationPrefix = "Tenant";
     
+    private const string TenantLookupsDatasourceIdentifier = "Lookups";
+    private const string MetaDatasourceIdentifier = "Meta";
+    private const string MetaLookupsDatasourceIdentifier = "MetaLookups";
+    private const string PickvaluesDatasourceIdentifier = "Pickvalues";
+    private const string ProcessingStatesDatasourceIdentifier = "ProcessingStates";
+    
     public static IEndpointRouteBuilder MapTenantMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
         string apiTag = ApiTag,
@@ -91,6 +97,16 @@ public static class TenantMetaEndpoint
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
             .WithSummary("Query report meta datasources for tenant");
+        
+        app.MapGet(basePath + "/reportlookupmetadatafortenantdatasourceandidentifier/{tenantId}/{datasource}/{identifier}", HandleReportLookupMetadataForTenantAndLookup)
+            .RequireAuthorization(authorizationScope)
+            .Produces<Dictionary<string, object>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(apiOperationPrefix + "ReportLookupMetadataForTenantAndLookup")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query additional metadata for lookup by tenant, datasource and identifier");
         
         return app;
     }
@@ -175,7 +191,7 @@ public static class TenantMetaEndpoint
 
         var metaSchemaDefinition = new ReportDatasourceDefinition
         {
-            Name = "Meta",
+            Name = MetaDatasourceIdentifier,
             ConnectionString = metaConnectionString,
             Tables = new[] {
                 new ReportDatasourceTable { Name = "Pickvalue", Query = await pickvalueMetaRepository.GenerateListQueryAsync(tenantId) },
@@ -187,7 +203,7 @@ public static class TenantMetaEndpoint
         
         var metaLookupsSchemaDefinition = new ReportDatasourceDefinition
         {
-            Name = "MetaLookups",
+            Name = MetaLookupsDatasourceIdentifier,
             ConnectionString = metaConnectionString,
             Tables = new []
                 {
@@ -232,7 +248,7 @@ public static class TenantMetaEndpoint
         
         var pickvalueLookupsSchemaDefinition = new ReportDatasourceDefinition()
         {
-            Name = "Pickvalues",
+            Name = PickvaluesDatasourceIdentifier,
             ConnectionString = metaConnectionString,
             Tables = pickvalueTables
         };
@@ -256,7 +272,7 @@ public static class TenantMetaEndpoint
         
         var processingStatesSchemaDefinition = new ReportDatasourceDefinition
         {
-            Name = "ProcessingStates",
+            Name = ProcessingStatesDatasourceIdentifier,
             ConnectionString = metaConnectionString,
             Tables = processingStateTables
         };
@@ -264,5 +280,37 @@ public static class TenantMetaEndpoint
         schemaDefinitions.Add(processingStatesSchemaDefinition);
         
         return Results.Ok(mapper.Map<IEnumerable<ServiceTenantReportDatasourceDefinition>>(schemaDefinitions));
+    }
+
+    private static async Task<IResult> HandleReportLookupMetadataForTenantAndLookup(ILookupMetaRepository lookupMetaRepository, Guid tenantId, string datasource,
+        string identifier)
+    {
+        switch (datasource)
+        {
+            case TenantLookupsDatasourceIdentifier:
+            {
+                var lookup = await lookupMetaRepository.ByIdentifierAsync(tenantId, identifier);
+
+                if (lookup == null)
+                {
+                    return Results.NotFound($"Lookup with identifier '{identifier}' not found.");
+                }
+
+                return Results.Ok(new Dictionary<string, object>
+                {
+                    { "lookupId", lookup.Id },
+                    { "lookupIdentifier", lookup.Identifier }
+                });
+            }
+            case MetaLookupsDatasourceIdentifier:
+            {
+                return Results.Ok(new Dictionary<string, object>
+                {
+                    { "lookupIdentifier", identifier }
+                });
+            }
+            default:
+                return Results.NotFound($"Datasource '{datasource}' not found or not supported.");
+        }
     }
 }
