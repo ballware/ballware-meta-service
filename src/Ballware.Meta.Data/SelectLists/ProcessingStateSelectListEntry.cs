@@ -1,6 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Ballware.Meta.Data.SelectLists;
 
-public class ProcessingStateSelectListEntry
+public sealed class ProcessingStateSelectListEntry : IEquatable<ProcessingStateSelectListEntry>
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }
@@ -10,4 +12,19 @@ public class ProcessingStateSelectListEntry
     public bool Finished { get; set; }
 
     public bool ReasonRequired { get; set; }
+    
+    public bool Equals([AllowNull] ProcessingStateSelectListEntry other)
+    {
+        return Id == other?.Id;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as ProcessingStateSelectListEntry);
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
+    }
 }

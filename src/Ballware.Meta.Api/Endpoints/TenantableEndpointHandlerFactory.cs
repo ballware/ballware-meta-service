@@ -31,6 +31,8 @@ public static class TenantableEndpointHandlerFactory
     
     public delegate Task<IResult> HandleSaveDelegate<TEntity>(UserId currentUserId, UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, string identifier, TEntity value) where TEntity : class;
     
+    public delegate Task<IResult> HandleSaveBatchDelegate<TEntity>(UserId currentUserId, UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, string identifier, List<TEntity> values) where TEntity : class;
+    
     public delegate Task<IResult> HandleRemoveDelegate<TEntity>(UserId currentUserId, UserTenantId tenantId, UserClaims claims, EditingEndpointBuilderFactory endpointFactory, ITenantableRepository<TEntity> repository, Guid id) where TEntity : class;
 
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
@@ -122,6 +124,27 @@ public static class TenantableEndpointHandlerFactory
                 .ExecuteAsync(async () =>
                 {
                     await repository.SaveAsync(tenantId.Value, currentUserId.Value, identifier, claims.Value, value);
+
+                    return Results.Ok();
+                });
+        };
+    }
+    
+    public static HandleSaveBatchDelegate<TEntity> CreateSaveBatchHandler<TEntity>(string application, string entity) where TEntity : class
+    {
+        return async (currentUserId, tenantId, claims, endpointFactory,
+            repository, identifier, values) =>
+        {
+            return await endpointFactory.Create(tenantId.Value, application, entity)
+                .WithClaims(claims.Value)
+                .WithBatchTenantAndEntityRightCheck(
+                    identifier == DefaultQuery ? RightEdit : identifier, values)
+                .ExecuteAsync(async () =>
+                {
+                    foreach (var value in values)
+                    {
+                        await repository.SaveAsync(tenantId.Value, currentUserId.Value, identifier, claims.Value, value);    
+                    }
 
                     return Results.Ok();
                 });

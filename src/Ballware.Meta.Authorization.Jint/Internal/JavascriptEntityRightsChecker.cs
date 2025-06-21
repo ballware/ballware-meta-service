@@ -28,4 +28,21 @@ class JavascriptEntityRightsChecker : IEntityRightsChecker
 
         return await Task.FromResult(result);
     }
+    
+    public async Task<bool> StateAllowedAsync(Guid tenantId, EntityMetadata metadata, Guid id, int currentState, IEnumerable<string> rights)
+    {
+        if (!string.IsNullOrEmpty(metadata.StateAllowedScript))
+        {
+            var result = bool.Parse(new Engine()
+                .SetValue("state", currentState)
+                .SetValue("hasRight", new Func<string, bool>((right) => { return rights?.Contains(right.ToLowerInvariant()) ?? false; }))
+                .SetValue("hasAnyRight", new Func<string, bool>((right) => { return rights?.Any(r => r.StartsWith(right.ToLowerInvariant())) ?? false; }))
+                .Evaluate(metadata.StateAllowedScript)
+                .ToString());
+            
+            return await Task.FromResult(result);
+        }
+        
+        return await Task.FromResult(false);
+    }
 }

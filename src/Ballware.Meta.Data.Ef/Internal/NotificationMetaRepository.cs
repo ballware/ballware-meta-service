@@ -39,7 +39,15 @@ class NotificationMetaRepository : TenantableBaseRepository<Public.Notification,
                 { Id = r.Uuid, Name = r.Name })
             .FirstOrDefaultAsync();
     }
-    
+
+    public async Task<int?> GetCurrentStateForTenantAndIdAsync(Guid tenantId, Guid id)
+    {
+        return await Context.Notifications
+            .Where(d => d.TenantId == tenantId && d.Uuid == id)
+            .Select(d => (int?)d.State)
+            .FirstOrDefaultAsync();
+    }
+
     public Task<string> GenerateListQueryAsync(Guid tenantId)
     {
         return Task.FromResult($"select Uuid as Id, Name from Notification where TenantId='{tenantId}'");

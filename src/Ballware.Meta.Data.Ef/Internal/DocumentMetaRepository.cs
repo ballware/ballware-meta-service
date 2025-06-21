@@ -33,6 +33,14 @@ class DocumentMetaRepository : TenantableBaseRepository<Public.Document, Persist
             .FirstOrDefaultAsync();
     }
 
+    public async Task<int?> GetCurrentStateForTenantAndIdAsync(Guid tenantId, Guid id)
+    {
+        return await Context.Documents
+            .Where(d => d.TenantId == tenantId && d.Uuid == id)
+            .Select(d => (int?)d.State)
+            .FirstOrDefaultAsync();
+    }
+
     public virtual async Task<IEnumerable<DocumentSelectListEntry>> SelectListForTenantAndEntityAsync(Guid tenantId, string entity)
     {
         return await Task.FromResult(Context.Documents

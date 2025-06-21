@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Ballware.Meta.Api.Bindings;
 using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
@@ -66,6 +67,24 @@ public static class ProcessingStateMetaEndpoint
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
             .WithSummary("Query all possible successor processing states for entity by identifier and current state");
+        
+        app.MapGet(basePath + "/selectlistallowedsuccessorsforentities/document", HandleSelectListAllowedSuccessorsForDocumentByIdsAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<ProcessingStateSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectListAllSuccessorsForDocumentByIds")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query all possible successor processing states for documents by instance ids");
+        
+        app.MapGet(basePath + "/selectlistallowedsuccessorsforentities/notification", HandleSelectListAllowedSuccessorsForNotificationByIdsAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<ProcessingStateSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectListAllSuccessorsForNotificationByIds")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query all possible successor processing states for notifications by instance ids");
         
         return app;
     }
@@ -157,6 +176,96 @@ public static class ProcessingStateMetaEndpoint
         var tenantId = principalUtils.GetUserTenandId(user);
 
         return Results.Ok(await repository.SelectListPossibleSuccessorsForEntityAsync(tenantId, identifier, state));
+    }
+    
+    private static async Task<IResult> HandleSelectListAllowedSuccessorsForDocumentByIdsAsync(IPrincipalUtils principalUtils, IEntityRightsChecker entityRightsChecker, IEntityMetaRepository entityMetaRepository, IProcessingStateMetaRepository processingStateMetaRepository, IDocumentMetaRepository documentMetaRepository, ClaimsPrincipal user, QueryValueBag query)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+        var rights = principalUtils.GetUserRights(user);
+
+        var entityMeta = await entityMetaRepository.ByEntityAsync(tenantId, "document");
+
+        if (entityMeta == null)
+        {
+            return Results.NotFound($"Entity document not found.");
+        }
+        
+        if (query.Query.TryGetValue("id", out var ids))
+        {
+            var listOfStates = new List<IEnumerable<ProcessingStateSelectListEntry>>();
+
+            foreach (var id in ids.Select(Guid.Parse))
+            {
+                var currentState = await documentMetaRepository.GetCurrentStateForTenantAndIdAsync(tenantId, id);
+                var possibleStates = currentState != null
+                    ? (await processingStateMetaRepository.SelectListPossibleSuccessorsForEntityAsync(tenantId, "document",
+                        currentState.Value)).ToList()
+                    : [];
+                var allowedStates = possibleStates?.Where(ps => entityRightsChecker.StateAllowedAsync(tenantId, entityMeta, id, ps.State, rights).GetAwaiter().GetResult());
+
+                listOfStates.Add(allowedStates);
+            }
+
+            if (listOfStates.Count > 1)
+            {
+                return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0]), (h, e) =>
+                {
+                    h.IntersectWith(e);
+                    return h;
+                }));
+            }
+            
+            if (listOfStates.Count == 1)
+            {
+                return Results.Ok(listOfStates[0]);
+            }
+        }
+
+        return Results.Ok();
+    }
+    
+    private static async Task<IResult> HandleSelectListAllowedSuccessorsForNotificationByIdsAsync(IPrincipalUtils principalUtils, IEntityRightsChecker entityRightsChecker, IEntityMetaRepository entityMetaRepository, IProcessingStateMetaRepository processingStateMetaRepository, INotificationMetaRepository notificationMetaRepository, ClaimsPrincipal user, QueryValueBag query)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+        var rights = principalUtils.GetUserRights(user);
+
+        var entityMeta = await entityMetaRepository.ByEntityAsync(tenantId, "notification");
+
+        if (entityMeta == null)
+        {
+            return Results.NotFound($"Entity notification not found.");
+        }
+        
+        if (query.Query.TryGetValue("id", out var ids))
+        {
+            var listOfStates = (await Task.WhenAll(ids.Select(Guid.Parse).Select(async (id) =>
+            {
+                var currentState = await notificationMetaRepository.GetCurrentStateForTenantAndIdAsync(tenantId, id);
+                var possibleStates = currentState != null
+                    ? await processingStateMetaRepository.SelectListPossibleSuccessorsForEntityAsync(tenantId, "notification",
+                        currentState.Value)
+                    : [];
+                var allowedStates = possibleStates?.Where(ps => entityRightsChecker.StateAllowedAsync(tenantId, entityMeta, id, ps.State, rights).GetAwaiter().GetResult());
+
+                return allowedStates;
+            })))?.ToList();
+
+            if (listOfStates != null && listOfStates.Count > 1)
+            {
+                return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0]), (h, e) =>
+                {
+                    h.IntersectWith(e);
+                    return h;
+                }));
+            }
+            
+            if (listOfStates != null && listOfStates.Count == 1)
+            {
+                return Results.Ok(listOfStates[0]);
+            }
+        }
+
+        return Results.Ok();
     }
     
     private static async Task<IResult> HandleSelectListAllSuccessorsForTenantAndEntityByStateAsync(IProcessingStateMetaRepository repository, Guid tenantId, string identifier, int state)
