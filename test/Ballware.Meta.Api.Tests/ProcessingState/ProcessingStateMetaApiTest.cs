@@ -65,6 +65,10 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
         
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
+        var entityRightsCheckerMock = new Mock<IEntityRightsChecker>();
+        var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
+        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
+        var notificationRepositoryMock = new Mock<INotificationMetaRepository>();
         var repositoryMock = new Mock<IProcessingStateMetaRepository>();
 
         principalUtilsMock
@@ -74,12 +78,16 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
         repositoryMock
             .Setup(r => r.SelectListForTenantAsync(expectedTenantId))
             .ReturnsAsync(expectedList);
-
+        
         var client = await CreateApplicationClientAsync("metaApi", services =>
         {
             services.AddSingleton<IMapper>(mapper);
             services.AddSingleton<IPrincipalUtils>(principalUtilsMock.Object);
             services.AddSingleton<ITenantRightsChecker>(tenantRightsCheckerMock.Object);
+            services.AddSingleton<IEntityRightsChecker>(entityRightsCheckerMock.Object);
+            services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
+            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
+            services.AddSingleton<INotificationMetaRepository>(notificationRepositoryMock.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(repositoryMock.Object);
         }, app =>
         {
@@ -125,6 +133,10 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
 
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
+        var entityRightsCheckerMock = new Mock<IEntityRightsChecker>();
+        var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
+        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
+        var notificationRepositoryMock = new Mock<INotificationMetaRepository>();
         var repositoryMock = new Mock<IProcessingStateMetaRepository>();
 
         principalUtilsMock
@@ -140,6 +152,10 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
             services.AddSingleton<IMapper>(mapper);
             services.AddSingleton<IPrincipalUtils>(principalUtilsMock.Object);
             services.AddSingleton<ITenantRightsChecker>(tenantRightsCheckerMock.Object);
+            services.AddSingleton<IEntityRightsChecker>(entityRightsCheckerMock.Object);
+            services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
+            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
+            services.AddSingleton<INotificationMetaRepository>(notificationRepositoryMock.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(repositoryMock.Object);
         }, app =>
         {
@@ -221,6 +237,10 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
         
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
+        var entityRightsCheckerMock = new Mock<IEntityRightsChecker>();
+        var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
+        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
+        var notificationRepositoryMock = new Mock<INotificationMetaRepository>();
         var repositoryMock = new Mock<IProcessingStateMetaRepository>();
 
         principalUtilsMock
@@ -236,6 +256,10 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
             services.AddSingleton<IMapper>(mapper);
             services.AddSingleton<IPrincipalUtils>(principalUtilsMock.Object);
             services.AddSingleton<ITenantRightsChecker>(tenantRightsCheckerMock.Object);
+            services.AddSingleton<IEntityRightsChecker>(entityRightsCheckerMock.Object);
+            services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
+            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
+            services.AddSingleton<INotificationMetaRepository>(notificationRepositoryMock.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(repositoryMock.Object);
         }, app =>
         {
@@ -282,6 +306,10 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
 
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
+        var entityRightsCheckerMock = new Mock<IEntityRightsChecker>();
+        var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
+        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
+        var notificationRepositoryMock = new Mock<INotificationMetaRepository>();
         var repositoryMock = new Mock<IProcessingStateMetaRepository>();
 
         principalUtilsMock
@@ -297,6 +325,10 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
             services.AddSingleton<IMapper>(mapper);
             services.AddSingleton<IPrincipalUtils>(principalUtilsMock.Object);
             services.AddSingleton<ITenantRightsChecker>(tenantRightsCheckerMock.Object);
+            services.AddSingleton<IEntityRightsChecker>(entityRightsCheckerMock.Object);
+            services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
+            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
+            services.AddSingleton<INotificationMetaRepository>(notificationRepositoryMock.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(repositoryMock.Object);
         }, app =>
         {
@@ -378,6 +410,10 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
         
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
+        var entityRightsCheckerMock = new Mock<IEntityRightsChecker>();
+        var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
+        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
+        var notificationRepositoryMock = new Mock<INotificationMetaRepository>();
         var repositoryMock = new Mock<IProcessingStateMetaRepository>();
 
         principalUtilsMock
@@ -393,6 +429,10 @@ public class ProcessingStateMetaApiTest : ApiMappingBaseTest
             services.AddSingleton<IMapper>(mapper);
             services.AddSingleton<IPrincipalUtils>(principalUtilsMock.Object);
             services.AddSingleton<ITenantRightsChecker>(tenantRightsCheckerMock.Object);
+            services.AddSingleton<IEntityRightsChecker>(entityRightsCheckerMock.Object);
+            services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
+            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
+            services.AddSingleton<INotificationMetaRepository>(notificationRepositoryMock.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(repositoryMock.Object);
         }, app =>
         {
