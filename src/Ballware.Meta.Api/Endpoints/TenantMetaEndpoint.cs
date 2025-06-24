@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Ballware.Meta.Api.Public;
 using Ballware.Meta.Authorization;
@@ -23,6 +24,9 @@ public static class TenantMetaEndpoint
     private const string MetaLookupsDatasourceIdentifier = "MetaLookups";
     private const string PickvaluesDatasourceIdentifier = "Pickvalues";
     private const string ProcessingStatesDatasourceIdentifier = "ProcessingStates";
+    
+    private static readonly Regex ProcessingStateRegex = new Regex(@"^ProcessingState_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex PickvalueRegex = new Regex(@"^Pickvalue_([\w]+)_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     
     public static IEndpointRouteBuilder MapTenantMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
@@ -298,6 +302,7 @@ public static class TenantMetaEndpoint
 
                 return Results.Ok(new Dictionary<string, object>
                 {
+                    { "lookupType", "tenantlookup" },
                     { "lookupId", lookup.Id },
                     { "lookupIdentifier", lookup.Identifier }
                 });
@@ -306,7 +311,29 @@ public static class TenantMetaEndpoint
             {
                 return Results.Ok(new Dictionary<string, object>
                 {
+                    { "lookupType", "metalookup" },
                     { "lookupIdentifier", identifier }
+                });
+            }
+            case ProcessingStatesDatasourceIdentifier:
+            {
+                var match = ProcessingStateRegex.Match(identifier);
+                
+                return Results.Ok(new Dictionary<string, object>
+                {
+                    { "lookupType", "processingstate" },
+                    { "lookupEntity", match.Success ? match.Groups[1].Value : string.Empty }
+                });
+            }
+            case PickvaluesDatasourceIdentifier:
+            {
+                var match = PickvalueRegex.Match(identifier);
+                
+                return Results.Ok(new Dictionary<string, object>
+                {
+                    { "lookupType", "pickvalue" },
+                    { "lookupEntity", match.Success ? match.Groups[1].Value : string.Empty },
+                    { "lookupField", match.Success ? match.Groups[2].Value : string.Empty }
                 });
             }
             default:
