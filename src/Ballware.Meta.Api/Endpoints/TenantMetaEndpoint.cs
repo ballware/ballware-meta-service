@@ -27,8 +27,8 @@ public static class TenantMetaEndpoint
     
     private const string ReportLookupTypeIdentifier = "lookupType";
     
-    private static readonly Regex ProcessingStateRegex = new Regex(@"^ProcessingState_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex PickvalueRegex = new Regex(@"^Pickvalue_([\w]+)_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex ProcessingStateRegex = new Regex(@"^ProcessingState_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
+    private static readonly Regex PickvalueRegex = new Regex(@"^Pickvalue_([\w]+)_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
     
     public static IEndpointRouteBuilder MapTenantMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
