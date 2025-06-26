@@ -70,6 +70,8 @@ public class SubscriptionServiceApiTest : ApiMappingBaseTest
     public async Task HandleActiveSubscriptionsByFrequency_succeeds()
     {
         // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        
         var expectedEntries = new List<Data.Public.Subscription>
         {
             new()
@@ -105,7 +107,7 @@ public class SubscriptionServiceApiTest : ApiMappingBaseTest
         var repositoryMock = new Mock<ISubscriptionMetaRepository>();
 
         repositoryMock
-            .Setup(r => r.GetActiveSubscriptionsByFrequencyAsync(1))
+            .Setup(r => r.GetActiveSubscriptionsByTenantAndFrequencyAsync(expectedTenantId, 1))
             .ReturnsAsync(expectedEntries);
 
         // Act
@@ -121,7 +123,7 @@ public class SubscriptionServiceApiTest : ApiMappingBaseTest
             });
         });
         
-        var response = await client.GetAsync($"subscription/activeforfrequency/1");
+        var response = await client.GetAsync($"subscription/activebytenantandfrequency/{expectedTenantId}/1");
         
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         

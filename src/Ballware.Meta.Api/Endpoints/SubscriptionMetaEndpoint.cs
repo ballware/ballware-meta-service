@@ -63,7 +63,7 @@ public static class SubscriptionMetaEndpoint
             .WithTags(apiTag)
             .WithSummary("Query subscription metadata by tenant and id");
 
-        app.MapGet(basePath + "/activeforfrequency/{frequency}", HandleActiveSubscriptionsByFrequency)
+        app.MapGet(basePath + "/activebytenantandfrequency/{tenantId}/{frequency}", HandleActiveSubscriptionsForTenantAndFrequencyAsync)
             .RequireAuthorization(authorizationScope)
             .Produces<IEnumerable<Subscription>>()
             .Produces(StatusCodes.Status401Unauthorized)
@@ -118,10 +118,10 @@ public static class SubscriptionMetaEndpoint
         return Results.Ok(subscription);
     }
 
-    private static async Task<IResult> HandleActiveSubscriptionsByFrequency(ISubscriptionMetaRepository repository,
-        int frequency)
+    private static async Task<IResult> HandleActiveSubscriptionsForTenantAndFrequencyAsync(ISubscriptionMetaRepository repository,
+        Guid tenantId, int frequency)
     {
-        var subscriptions = await repository.GetActiveSubscriptionsByFrequencyAsync(frequency);
+        var subscriptions = await repository.GetActiveSubscriptionsByTenantAndFrequencyAsync(tenantId, frequency);
         
         return Results.Ok(subscriptions);
     }

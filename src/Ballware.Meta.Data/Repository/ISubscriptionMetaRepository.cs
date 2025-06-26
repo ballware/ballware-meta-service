@@ -6,7 +6,7 @@ public interface ISubscriptionMetaRepository : ITenantableRepository<Public.Subs
 {
     Task<Public.Subscription?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id);
 
-    Task<IEnumerable<Public.Subscription>> GetActiveSubscriptionsByFrequencyAsync(int frequency);
+    Task<IEnumerable<Public.Subscription>> GetActiveSubscriptionsByTenantAndFrequencyAsync(Guid tenantId, int frequency);
 
     Task SetLastErrorAsync(Guid tenantId, Guid id, string message);
     

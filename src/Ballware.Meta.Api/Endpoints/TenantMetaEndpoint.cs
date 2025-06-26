@@ -93,6 +93,15 @@ public static class TenantMetaEndpoint
             .WithTags(apiTag)
             .WithSummary("Query tenant metadata by id");
         
+        app.MapGet(basePath + "/reportallowedtenants", HandleReportAllowedTenantsAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<TenantSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "ReportAllowedTenants")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query list of allowed tenants for user for reporting purposes");
+        
         app.MapGet(basePath + "/reportmetadatasourcesfortenant/{tenantId}", HandleReportMetaDatasourcesForTenant)
             .RequireAuthorization(authorizationScope)
             .Produces<IEnumerable<ServiceTenantReportDatasourceDefinition>>()
@@ -171,6 +180,11 @@ public static class TenantMetaEndpoint
         var claims = principalUtils.GetUserClaims(user);
 
         return Results.Ok(await tenantMetaRepository.AllowedTenantsAsync(claims));
+    }
+    
+    private static async Task<IResult> HandleReportAllowedTenantsAsync(ITenantMetaRepository tenantMetaRepository)
+    {
+        return Results.Ok(await tenantMetaRepository.SelectListAsync());
     }
     
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
