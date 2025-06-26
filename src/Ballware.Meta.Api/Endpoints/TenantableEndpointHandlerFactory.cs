@@ -290,10 +290,15 @@ public static class TenantableEndpointHandlerFactory
 
             if (export == null || export.ExpirationStamp <= DateTime.Now)
             {
-                return Results.NotFound();
+                return Results.NotFound("Export not found or expired.");
             }
 
             var fileContent = await storageAdapter.FileByNameForOwnerAsync("export", $"{export.Id}{MimeTypeMap.GetExtension(export.MediaType)}");
+
+            if (fileContent == null)
+            {
+                return Results.NotFound("File not existing.");
+            }
 
             return Results.File(fileContent, export.MediaType, $"{export.Query}_{DateTime.Now:yyyyMMdd_HHmmss}{MimeTypeMap.GetExtension(export.MediaType)}");
         };

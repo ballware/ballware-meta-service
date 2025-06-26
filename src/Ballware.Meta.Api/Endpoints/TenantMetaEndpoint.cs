@@ -25,6 +25,8 @@ public static class TenantMetaEndpoint
     private const string PickvaluesDatasourceIdentifier = "Pickvalues";
     private const string ProcessingStatesDatasourceIdentifier = "ProcessingStates";
     
+    private const string ReportLookupTypeIdentifier = "lookupType";
+    
     private static readonly Regex ProcessingStateRegex = new Regex(@"^ProcessingState_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex PickvalueRegex = new Regex(@"^Pickvalue_([\w]+)_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     
@@ -305,7 +307,7 @@ public static class TenantMetaEndpoint
     {
         switch (datasource)
         {
-            case TenantLookupsDatasourceIdentifier:
+            case { } s when s.Equals(TenantLookupsDatasourceIdentifier, StringComparison.InvariantCultureIgnoreCase):
             {
                 var lookup = await lookupMetaRepository.ByIdentifierAsync(tenantId, identifier);
 
@@ -316,36 +318,36 @@ public static class TenantMetaEndpoint
 
                 return Results.Ok(new Dictionary<string, object>
                 {
-                    { "lookupType", "tenantlookup" },
+                    { ReportLookupTypeIdentifier, "tenantlookup" },
                     { "lookupId", lookup.Id },
                     { "lookupIdentifier", lookup.Identifier }
                 });
             }
-            case MetaLookupsDatasourceIdentifier:
+            case { } s when s.Equals(MetaLookupsDatasourceIdentifier, StringComparison.InvariantCultureIgnoreCase):
             {
                 return Results.Ok(new Dictionary<string, object>
                 {
-                    { "lookupType", "metalookup" },
+                    { ReportLookupTypeIdentifier, "metalookup" },
                     { "lookupIdentifier", identifier }
                 });
             }
-            case ProcessingStatesDatasourceIdentifier:
+            case { } s when s.Equals(ProcessingStatesDatasourceIdentifier, StringComparison.InvariantCultureIgnoreCase):
             {
                 var match = ProcessingStateRegex.Match(identifier);
                 
                 return Results.Ok(new Dictionary<string, object>
                 {
-                    { "lookupType", "processingstate" },
+                    { ReportLookupTypeIdentifier, "processingstate" },
                     { "lookupEntity", match.Success ? match.Groups[1].Value : string.Empty }
                 });
             }
-            case PickvaluesDatasourceIdentifier:
+            case { } s when s.Equals(PickvaluesDatasourceIdentifier, StringComparison.InvariantCultureIgnoreCase):
             {
                 var match = PickvalueRegex.Match(identifier);
                 
                 return Results.Ok(new Dictionary<string, object>
                 {
-                    { "lookupType", "pickvalue" },
+                    { ReportLookupTypeIdentifier, "pickvalue" },
                     { "lookupEntity", match.Success ? match.Groups[1].Value : string.Empty },
                     { "lookupField", match.Success ? match.Groups[2].Value : string.Empty }
                 });

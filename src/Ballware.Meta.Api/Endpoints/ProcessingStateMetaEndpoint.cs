@@ -189,39 +189,38 @@ public static class ProcessingStateMetaEndpoint
         {
             return Results.NotFound($"Entity document not found.");
         }
+
+        query.Query.TryGetValue("id", out var ids);
         
-        if (query.Query.TryGetValue("id", out var ids))
+        var listOfStates = new List<IEnumerable<ProcessingStateSelectListEntry>>();
+
+        foreach (var id in ids.Select(Guid.Parse))
         {
-            var listOfStates = new List<IEnumerable<ProcessingStateSelectListEntry>>();
+            var currentState = await documentMetaRepository.GetCurrentStateForTenantAndIdAsync(tenantId, id);
+            var possibleStates = currentState != null
+                ? (await processingStateMetaRepository.SelectListPossibleSuccessorsForEntityAsync(tenantId, "document",
+                    currentState.Value)).ToList()
+                : [];
+            var allowedStates = possibleStates?.Where(ps => entityRightsChecker.StateAllowedAsync(tenantId, entityMeta, id, ps.State, rights).GetAwaiter().GetResult());
 
-            foreach (var id in ids.Select(Guid.Parse))
-            {
-                var currentState = await documentMetaRepository.GetCurrentStateForTenantAndIdAsync(tenantId, id);
-                var possibleStates = currentState != null
-                    ? (await processingStateMetaRepository.SelectListPossibleSuccessorsForEntityAsync(tenantId, "document",
-                        currentState.Value)).ToList()
-                    : [];
-                var allowedStates = possibleStates?.Where(ps => entityRightsChecker.StateAllowedAsync(tenantId, entityMeta, id, ps.State, rights).GetAwaiter().GetResult());
-
-                listOfStates.Add(allowedStates);
-            }
-
-            if (listOfStates.Count > 1)
-            {
-                return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0]), (h, e) =>
-                {
-                    h.IntersectWith(e);
-                    return h;
-                }));
-            }
-            
-            if (listOfStates.Count == 1)
-            {
-                return Results.Ok(listOfStates[0]);
-            }
+            listOfStates.Add(allowedStates);
         }
 
-        return Results.Ok();
+        if (listOfStates.Count > 1)
+        {
+            return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0]), (h, e) =>
+            {
+                h.IntersectWith(e);
+                return h;
+            }));
+        }
+        
+        if (listOfStates.Count == 1)
+        {
+            return Results.Ok(listOfStates[0]);
+        }
+        
+        return Results.Ok(new List<ProcessingStateSelectListEntry>());
     }
     
     private static async Task<IResult> HandleSelectListAllowedSuccessorsForNotificationByIdsAsync(IPrincipalUtils principalUtils, IEntityRightsChecker entityRightsChecker, IEntityMetaRepository entityMetaRepository, IProcessingStateMetaRepository processingStateMetaRepository, INotificationMetaRepository notificationMetaRepository, ClaimsPrincipal user, QueryValueBag query)
@@ -235,37 +234,36 @@ public static class ProcessingStateMetaEndpoint
         {
             return Results.NotFound($"Entity notification not found.");
         }
+
+        query.Query.TryGetValue("id", out var ids);
         
-        if (query.Query.TryGetValue("id", out var ids))
+        var listOfStates = (await Task.WhenAll(ids.Select(Guid.Parse).Select(async (id) =>
         {
-            var listOfStates = (await Task.WhenAll(ids.Select(Guid.Parse).Select(async (id) =>
-            {
-                var currentState = await notificationMetaRepository.GetCurrentStateForTenantAndIdAsync(tenantId, id);
-                var possibleStates = currentState != null
-                    ? await processingStateMetaRepository.SelectListPossibleSuccessorsForEntityAsync(tenantId, "notification",
-                        currentState.Value)
-                    : [];
-                var allowedStates = possibleStates?.Where(ps => entityRightsChecker.StateAllowedAsync(tenantId, entityMeta, id, ps.State, rights).GetAwaiter().GetResult());
+            var currentState = await notificationMetaRepository.GetCurrentStateForTenantAndIdAsync(tenantId, id);
+            var possibleStates = currentState != null
+                ? await processingStateMetaRepository.SelectListPossibleSuccessorsForEntityAsync(tenantId, "notification",
+                    currentState.Value)
+                : [];
+            var allowedStates = possibleStates?.Where(ps => entityRightsChecker.StateAllowedAsync(tenantId, entityMeta, id, ps.State, rights).GetAwaiter().GetResult());
 
-                return allowedStates;
-            })))?.ToList();
+            return allowedStates;
+        })))?.ToList();
 
-            if (listOfStates != null && listOfStates.Count > 1)
+        if (listOfStates != null && listOfStates.Count > 1)
+        {
+            return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0]), (h, e) =>
             {
-                return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0]), (h, e) =>
-                {
-                    h.IntersectWith(e);
-                    return h;
-                }));
-            }
-            
-            if (listOfStates != null && listOfStates.Count == 1)
-            {
-                return Results.Ok(listOfStates[0]);
-            }
+                h.IntersectWith(e);
+                return h;
+            }));
         }
-
-        return Results.Ok();
+        
+        if (listOfStates != null && listOfStates.Count == 1)
+        {
+            return Results.Ok(listOfStates[0]);
+        }
+        
+        return Results.Ok(new List<ProcessingStateSelectListEntry>());
     }
     
     private static async Task<IResult> HandleSelectListAllSuccessorsForTenantAndEntityByStateAsync(IProcessingStateMetaRepository repository, Guid tenantId, string identifier, int state)
