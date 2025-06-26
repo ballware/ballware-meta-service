@@ -21,15 +21,23 @@ class DocumentMetaRepository : TenantableBaseRepository<Public.Document, Persist
     {
         return await Task.FromResult(Context.Documents
             .Where(p => p.TenantId == tenantId)
-            .Select(d => new { d.Uuid, d.DisplayName, d.State })
+            .Select(d => new { d.Uuid, d.DisplayName, d.State, d.ReportParameter })
             .OrderBy(c => c.DisplayName)
-            .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State }));
+            .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State, ReportParameter = d.ReportParameter}));
     }
     
     public virtual async Task<DocumentSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
     {
         return await Context.Documents.Where(r => r.TenantId == tenantId && r.Uuid == id)
-            .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State })
+            .Select(d => new DocumentSelectListEntry { Id = d.Uuid, Name = d.DisplayName, State = d.State, ReportParameter = d.ReportParameter })
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<int?> GetCurrentStateForTenantAndIdAsync(Guid tenantId, Guid id)
+    {
+        return await Context.Documents
+            .Where(d => d.TenantId == tenantId && d.Uuid == id)
+            .Select(d => (int?)d.State)
             .FirstOrDefaultAsync();
     }
 

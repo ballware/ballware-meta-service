@@ -17,9 +17,12 @@ public class EditingEndpointBuilder
     private IEntityMetaRepository EntityMetaRepository { get; }
     private string? Right { get; set; }
     private bool CheckTenantRight { get; set; }
-    private bool CheckEntityRight { get; set; }
     
+    private bool CheckEntityRight { get; set; }
     private object? EntityRightParam { get; set; }
+    
+    private bool CheckBatchEntityRight { get; set; }
+    private IEnumerable<object>? BatchEntityRightParams { get; set; }
     
     private EditingEndpointBuilder(ITenantMetaRepository tenantMetaRepository, IEntityMetaRepository entityMetaRepository, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker, Guid tenantId, string application, string entity)
     {
@@ -53,6 +56,16 @@ public class EditingEndpointBuilder
         return this;
     }
     
+    public EditingEndpointBuilder WithBatchTenantAndEntityRightCheck(string right, IEnumerable<object> batch)
+    {
+        Right = right;
+        BatchEntityRightParams = batch;
+        CheckTenantRight = true;
+        CheckBatchEntityRight = true;
+        
+        return this;
+    }
+    
     public async Task<IResult> ExecuteAsync(Func<Task<IResult>> executor)
     {
         if (!string.IsNullOrEmpty(Right) && TenantId != null && CheckTenantRight)
@@ -76,6 +89,26 @@ public class EditingEndpointBuilder
                 }
                 
                 authorized = await EntityRightsChecker.HasRightAsync(TenantId.Value, entity, Claims, Right, EntityRightParam, authorized);
+            }
+
+            if (CheckBatchEntityRight && BatchEntityRightParams != null)
+            {
+                var entity = await EntityMetaRepository.ByEntityAsync(TenantId.Value, Entity);
+                
+                if (entity == null)
+                {
+                    return Results.NotFound($"Entity {Entity} not found for tenant {TenantId}");
+                }
+                
+                foreach (var batchEntityRightParam in BatchEntityRightParams)
+                {
+                    authorized = await EntityRightsChecker.HasRightAsync(TenantId.Value, entity, Claims, Right, batchEntityRightParam, authorized);
+                    
+                    if (!authorized)
+                    {
+                        break;
+                    }
+                }
             }
             
             if (!authorized)

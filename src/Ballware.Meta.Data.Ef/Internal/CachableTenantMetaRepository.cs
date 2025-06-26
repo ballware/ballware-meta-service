@@ -1,5 +1,6 @@
 using AutoMapper;
 using Ballware.Meta.Caching;
+using Ballware.Meta.Data.Repository;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
@@ -28,5 +29,26 @@ class CachableTenantMetaRepository : TenantMetaRepository
         }
 
         return tenant;
+    }
+    
+    public override async Task SaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims,
+        Public.Tenant value)
+    {
+        await base.SaveAsync(userId, identifier, claims, value);
+        
+        Cache.PurgeItem(tenantId, CacheKey, value.Id.ToString());
+    }
+
+    public override async Task<RemoveResult<Public.Tenant>> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
+        IDictionary<string, object> removeParams)
+    {
+        var result = await base.RemoveAsync(userId, claims, removeParams);
+
+        if (result.Value != null)
+        {
+            Cache.PurgeItem(tenantId, CacheKey, result.Value.Id.ToString());
+        }
+        
+        return result;
     }
 }

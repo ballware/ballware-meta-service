@@ -994,6 +994,244 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         // Assert
         Assert.That(unauthorizedResponse.StatusCode,Is.EqualTo(HttpStatusCode.Unauthorized));
     }
+
+    [Test]
+    public async Task HandleSaveBatch_succeeds()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+
+        var expectedEntries = new List<TenantableFakeEntity>
+        {
+            new TenantableFakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 1"
+            },
+            new TenantableFakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 2"
+            },
+            new TenantableFakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 3"
+            },
+        };
+        
+        var fakeTenant = new Data.Public.Tenant()
+        {
+            Id = expectedTenantId,
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedTenantId);
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        TenantRepositoryMock
+            .Setup(r => r.ByIdAsync(expectedTenantId))
+            .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "edit"))
+            .ReturnsAsync(true);
+        
+        EntityRightsCheckerMock
+            .Setup(c => c.HasRightAsync(expectedTenantId, It.IsAny<EntityMetadata>(), It.IsAny<IDictionary<string, object>>(), 
+                "edit", It.IsAny<object>(), true))
+            .ReturnsAsync(true);
+        
+        RepositoryMock
+            .Setup(r => r.SaveAsync(expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntries[0]))
+            .Callback((Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TenantableFakeEntity entry) =>
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
+                    Assert.That(userId, Is.EqualTo(expectedUserId));
+                    Assert.That(identifier, Is.EqualTo("primary"));
+                    Assert.That(DeepComparer.AreEqual(expectedEntries[0], entry, TestContext.WriteLine), Is.True);    
+                });
+            });
+        
+        RepositoryMock
+            .Setup(r => r.SaveAsync(expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntries[1]))
+            .Callback((Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TenantableFakeEntity entry) =>
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
+                    Assert.That(userId, Is.EqualTo(expectedUserId));
+                    Assert.That(identifier, Is.EqualTo("primary"));
+                    Assert.That(DeepComparer.AreEqual(expectedEntries[1], entry, TestContext.WriteLine), Is.True);    
+                });
+            });
+        
+        RepositoryMock
+            .Setup(r => r.SaveAsync(expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntries[2]))
+            .Callback((Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TenantableFakeEntity entry) =>
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
+                    Assert.That(userId, Is.EqualTo(expectedUserId));
+                    Assert.That(identifier, Is.EqualTo("primary"));
+                    Assert.That(DeepComparer.AreEqual(expectedEntries[2], entry, TestContext.WriteLine), Is.True);    
+                });
+            });
+        
+        // Act
+        var response = await Client.PostAsync($"fakeentity/savebatch?identifier=primary", JsonContent.Create(expectedEntries));
+        
+        // Assert
+        Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
+        
+        RepositoryMock.Verify(r => r.SaveAsync(
+            expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<TenantableFakeEntity>()), Times.Exactly(3));
+    }
+    
+    [Test]
+    public async Task HandleSaveBatch_tenant_not_found()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+
+        var expectedEntries = new List<TenantableFakeEntity>
+        {
+            new TenantableFakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 1"
+            },
+            new TenantableFakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 2"
+            },
+            new TenantableFakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 3"
+            },
+        };
+        
+        var fakeTenant = new Data.Public.Tenant()
+        {
+            Id = expectedTenantId,
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(Guid.NewGuid());
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        TenantRepositoryMock
+            .Setup(r => r.ByIdAsync(expectedTenantId))
+            .ReturnsAsync(fakeTenant);
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "edit"))
+            .ReturnsAsync(true);
+        
+        // Act
+        var tenantNotFoundResponse = await Client.PostAsync($"fakeentity/savebatch?identifier=primary", JsonContent.Create(expectedEntries));
+        
+        // Assert
+        Assert.That(tenantNotFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
+        
+        RepositoryMock.Verify(r => r.SaveAsync(
+            expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<TenantableFakeEntity>()), Times.Never);
+    }
+    
+    [Test]
+    public async Task HandleSaveBatch_not_authorized()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+
+        var expectedEntries = new List<TenantableFakeEntity>
+        {
+            new TenantableFakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 1"
+            },
+            new TenantableFakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 2"
+            },
+            new TenantableFakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 3"
+            },
+        };
+        
+        var fakeTenant = new Data.Public.Tenant()
+        {
+            Id = expectedTenantId,
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedTenantId);
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        TenantRepositoryMock
+            .Setup(r => r.ByIdAsync(expectedTenantId))
+            .ReturnsAsync(fakeTenant);
+        
+        EntityRepositoryMock
+            .Setup(r => r.ByEntityAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(new Data.Public.EntityMetadata()
+            {
+                Entity = expectedEntity
+            });
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "edit"))
+            .ReturnsAsync(false);
+        
+        // Act
+        var unauthorizedResponse = await Client.PostAsync($"fakeentity/savebatch?identifier=primary", JsonContent.Create(expectedEntries));
+        
+        // Assert
+        Assert.That(unauthorizedResponse.StatusCode,Is.EqualTo(HttpStatusCode.Unauthorized));
+        
+        RepositoryMock.Verify(r => r.SaveAsync(
+            expectedTenantId, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<TenantableFakeEntity>()), Times.Never);
+    }
     
     [Test]
     public async Task HandleRemove_succeeds()
@@ -1050,7 +1288,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         
         RepositoryMock
             .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .ReturnsAsync(new RemoveResult()
+            .ReturnsAsync(new RemoveResult<TenantableFakeEntity>()
             {
                 Result = true
             })
@@ -1114,7 +1352,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
 
         RepositoryMock
             .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .ReturnsAsync(new RemoveResult()
+            .ReturnsAsync(new RemoveResult<TenantableFakeEntity>()
             {
                 Result = true
             })
@@ -1191,7 +1429,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
 
         RepositoryMock
             .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .ReturnsAsync(new RemoveResult()
+            .ReturnsAsync(new RemoveResult<TenantableFakeEntity>()
             {
                 Result = true
             })
@@ -1268,7 +1506,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
 
         RepositoryMock
             .Setup(r => r.RemoveAsync(expectedTenantId, expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .ReturnsAsync(new RemoveResult()
+            .ReturnsAsync(new RemoveResult<TenantableFakeEntity>()
             {
                 Messages = ["An error occurred while trying to remove the entry."],
                 Result = false
@@ -1922,5 +2160,98 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         
         // Assert
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.Created));
+    }
+    
+    [Test]
+    public async Task HandleDownloadExport_succeeds()
+    {
+        // Arrange
+        var expectedExportId = Guid.NewGuid();
+        var expectedFileExtension = "json";
+        var expectedMediaType = "application/json";
+        var expectedFilePayload = Encoding.UTF8.GetBytes("{ \"key\": \"value\" }");
+        
+        ExportRepositoryMock
+            .Setup(r => r.ByIdAsync(expectedExportId))
+            .ReturnsAsync(new Data.Public.Export()
+            {
+                Id = expectedExportId,
+                Application = ExpectedApplication,
+                Entity = ExpectedEntity,
+                ExpirationStamp = DateTime.Now.AddDays(1),
+                MediaType = expectedMediaType,
+                Query = "primary"
+            });
+        
+        StorageAdapterMock
+            .Setup(s => s.FileByNameForOwnerAsync("export", $"{expectedExportId}.{expectedFileExtension}"))
+            .ReturnsAsync(new MemoryStream(expectedFilePayload));
+        
+        // Act
+        var response = await Client.GetAsync($"fakeentity/download?id={expectedExportId}");
+        
+        // Assert
+        Assert.MultipleAsync(async () =>
+        {
+            Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response.Content.Headers.ContentType?.MediaType, Is.EqualTo(expectedMediaType));
+            Assert.That(response.Content.Headers.ContentDisposition, Is.Not.Null);
+            Assert.That(response.Content.Headers.ContentDisposition!.FileName, Is.Not.Null);
+            
+            var payload = await response.Content.ReadAsByteArrayAsync();
+            
+            Assert.That(payload, Is.EqualTo(expectedFilePayload));
+        });
+
+        ExportRepositoryMock
+            .Verify(r => r.ByIdAsync(expectedExportId), 
+                Times.Once);
+        
+        StorageAdapterMock
+            .Verify(r => r.FileByNameForOwnerAsync("export", $"{expectedExportId}.{expectedFileExtension}"), 
+                Times.Once);
+    }
+    
+    [Test]
+    public async Task HandleDownloadExport_notFound()
+    {
+        // Arrange
+        var exportNotFoundExportId = Guid.NewGuid();
+        var fileNotFoundExportId = Guid.NewGuid();
+        
+        ExportRepositoryMock
+            .Setup(r => r.ByIdAsync(fileNotFoundExportId))
+            .ReturnsAsync(new Data.Public.Export()
+            {
+                Id = fileNotFoundExportId,
+                Application = ExpectedApplication,
+                Entity = ExpectedEntity,
+                ExpirationStamp = DateTime.Now.AddDays(1),
+                MediaType = "application/json",
+                Query = "primary"
+            });
+        
+        // Act
+        var exportNotFoundResponse = await Client.GetAsync($"fakeentity/download?id={exportNotFoundExportId}");
+        var fileNotFoundResponse = await Client.GetAsync($"fakeentity/download?id={fileNotFoundExportId}");
+        
+        // Assert
+        Assert.MultipleAsync(async () =>
+        {
+            Assert.That(exportNotFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(fileNotFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
+        });
+
+        ExportRepositoryMock
+            .Verify(r => r.ByIdAsync(exportNotFoundExportId), 
+                Times.Once);
+        
+        ExportRepositoryMock
+            .Verify(r => r.ByIdAsync(fileNotFoundExportId), 
+                Times.Once);
+        
+        StorageAdapterMock
+            .Verify(r => r.FileByNameForOwnerAsync("export", $"{fileNotFoundExportId}.json"), 
+                Times.Once);
     }
 }

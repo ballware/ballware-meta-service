@@ -1,6 +1,7 @@
 namespace Ballware.Meta.Data.Repository;
 
-public interface ITenantableRepositoryHook<TEditable, TPersistable>
+public interface ITenantableRepositoryHook<TEditable, TPersistable> where TEditable : class
+    where TPersistable : class
 {
     void BeforeSave(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value,
         bool insert) {}
@@ -8,12 +9,13 @@ public interface ITenantableRepositoryHook<TEditable, TPersistable>
     void AfterSave(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value,
         TPersistable persistable, bool insert) {}
 
-    RemoveResult RemovePreliminaryCheck(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
-        IDictionary<string, object> removeParams)
+    RemoveResult<TEditable> RemovePreliminaryCheck(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
+        IDictionary<string, object> removeParams, TEditable? removeValue)
     {
-        return new RemoveResult()
+        return new RemoveResult<TEditable>()
         {
-            Result = true
+            Result = true,
+            Value = removeValue
         };
     }
 

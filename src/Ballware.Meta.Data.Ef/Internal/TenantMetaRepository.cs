@@ -101,12 +101,12 @@ class TenantMetaRepository : BaseRepository<Public.Tenant, Persistables.Tenant>,
         return await NewQueryAsync(identifier, claims, queryParams);
     }
 
-    public async Task SaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, Tenant value)
+    public virtual async Task SaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, Tenant value)
     {
         await SaveAsync(userId, identifier, claims, value);
     }
 
-    public async Task<RemoveResult> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
+    public virtual async Task<RemoveResult<Tenant>> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
     {
         return await RemoveAsync(userId, claims, removeParams);
     }

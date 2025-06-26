@@ -46,7 +46,7 @@ public static class TenantableEditingEndpoint
             .WithName(apiOperationPrefix + "New")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
-            .WithSummary("Query new tenant");
+            .WithSummary("Query new item template");
         
         app.MapGet(basePath + "/byid", TenantableEndpointHandlerFactory.CreateByIdHandler<TEntity>(application, entity))
             .RequireAuthorization(authorizationScope)
@@ -56,7 +56,7 @@ public static class TenantableEditingEndpoint
             .WithName(apiOperationPrefix + "ById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
-            .WithSummary("Query existing tenant");
+            .WithSummary("Query existing item");
         
         app.MapPost(basePath + "/save", TenantableEndpointHandlerFactory.CreateSaveHandler<TEntity>(application, entity))
             .RequireAuthorization(authorizationScope)
@@ -66,7 +66,17 @@ public static class TenantableEditingEndpoint
             .WithName(apiOperationPrefix + "Save")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
-            .WithSummary("Save existing or new tenant");
+            .WithSummary("Save existing or new item");
+        
+        app.MapPost(basePath + "/savebatch", TenantableEndpointHandlerFactory.CreateSaveBatchHandler<TEntity>(application, entity))
+            .RequireAuthorization(authorizationScope)
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(apiOperationPrefix + "SaveBatch")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Save existing or new items in batch");
         
         app.MapDelete(basePath + "/remove/{id}", TenantableEndpointHandlerFactory.CreateRemoveHandler<TEntity>(application, entity))
             .RequireAuthorization(authorizationScope)

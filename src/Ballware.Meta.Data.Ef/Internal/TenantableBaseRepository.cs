@@ -74,20 +74,21 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         await Task.Run(() => Hook?.AfterSave(tenantId, userId, identifier, claims, value, persistable, insert));
     }
     
-    protected virtual async Task<RemoveResult> RemovePreliminaryCheckAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
-        IDictionary<string, object> removeParams)
+    protected virtual async Task<RemoveResult<TEditable>> RemovePreliminaryCheckAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims,
+        IDictionary<string, object> removeParams, TEditable? removeValue)
     {
-        var hookResult = await Task.Run(() => Hook?.RemovePreliminaryCheck(tenantId, userId, claims, removeParams));
+        var hookResult = await Task.Run(() => Hook?.RemovePreliminaryCheck(tenantId, userId, claims, removeParams, removeValue));
         
         if (hookResult != null)
         {
             return hookResult.Value;
         }
         
-        return new RemoveResult()
+        return new RemoveResult<TEditable>()
         {
             Result = true,
-            Messages = []
+            Messages = [],
+            Value = removeValue
         };
     }
 
@@ -147,7 +148,7 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         return Mapper.Map<TEditable>(instance);
     }
 
-    public async Task SaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value)
+    public virtual async Task SaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value)
     {
         var persistedItem = await Context.Set<TPersistable>()
             .FirstOrDefaultAsync(t => t.TenantId == tenantId && t.Uuid == value.Id);
@@ -189,31 +190,41 @@ class TenantableBaseRepository<TEditable, TPersistable> : ITenantableRepository<
         await Context.SaveChangesAsync();
     }
 
-    public async Task<RemoveResult> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
+    public virtual async Task<RemoveResult<TEditable>> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
     {
-        var result = await RemovePreliminaryCheckAsync(tenantId, userId, claims, removeParams);
+        TPersistable? persistedItem = null;
+        TEditable? editableItem = null;
+
+        if (removeParams.TryGetValue("Id", out var idParam) && Guid.TryParse(idParam.ToString(), out Guid id))
+        {
+            persistedItem = await Context.Set<TPersistable>()
+                .FirstOrDefaultAsync(t => t.TenantId == tenantId && t.Uuid == id);
+            
+            editableItem = persistedItem != null ? Mapper.Map<TEditable>(persistedItem) : null;
+        }
+
+        var result = await RemovePreliminaryCheckAsync(tenantId, userId, claims, removeParams, editableItem);
 
         if (!result.Result)
         {
             return result;
         }
 
-        if (removeParams.TryGetValue("Id", out var idParam) && Guid.TryParse(idParam.ToString(), out Guid id))
+        if (persistedItem != null)
         {
-            var persistedItem = await Context.Set<TPersistable>()
-                .FirstOrDefaultAsync(t => t.TenantId == tenantId && t.Uuid == id);
+            await BeforeRemoveAsync(tenantId, userId, claims, persistedItem);
 
-            if (persistedItem != null)
-            {
-                await BeforeRemoveAsync(tenantId, userId, claims, persistedItem);
+            Context.Set<TPersistable>().Remove(persistedItem);
 
-                Context.Set<TPersistable>().Remove(persistedItem);
-
-                await Context.SaveChangesAsync();
-            }
+            await Context.SaveChangesAsync();
         }
 
-        return new RemoveResult() { Result = true, Messages = Array.Empty<string>() };
+        return new RemoveResult<TEditable>()
+        {
+            Result = true,
+            Messages = [],
+            Value = editableItem
+        };
     }
 
     public async Task ImportAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, Stream importStream,

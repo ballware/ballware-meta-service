@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Ballware.Meta.Api.Public;
 using Ballware.Meta.Authorization;
@@ -17,6 +18,17 @@ public static class TenantMetaEndpoint
 {
     private const string ApiTag = "Tenant";
     private const string ApiOperationPrefix = "Tenant";
+    
+    private const string TenantLookupsDatasourceIdentifier = "Lookups";
+    private const string MetaDatasourceIdentifier = "Meta";
+    private const string MetaLookupsDatasourceIdentifier = "MetaLookups";
+    private const string PickvaluesDatasourceIdentifier = "Pickvalues";
+    private const string ProcessingStatesDatasourceIdentifier = "ProcessingStates";
+    
+    private const string ReportLookupTypeIdentifier = "lookupType";
+    
+    private static readonly Regex ProcessingStateRegex = new Regex(@"^ProcessingState_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
+    private static readonly Regex PickvalueRegex = new Regex(@"^Pickvalue_([\w]+)_([\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
     
     public static IEndpointRouteBuilder MapTenantMetaApi(this IEndpointRouteBuilder app, 
         string basePath,
@@ -83,6 +95,15 @@ public static class TenantMetaEndpoint
             .WithTags(apiTag)
             .WithSummary("Query tenant metadata by id");
         
+        app.MapGet(basePath + "/reportallowedtenants", HandleReportAllowedTenantsAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<TenantSelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "ReportAllowedTenants")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query list of allowed tenants for user for reporting purposes");
+        
         app.MapGet(basePath + "/reportmetadatasourcesfortenant/{tenantId}", HandleReportMetaDatasourcesForTenant)
             .RequireAuthorization(authorizationScope)
             .Produces<IEnumerable<ServiceTenantReportDatasourceDefinition>>()
@@ -91,6 +112,16 @@ public static class TenantMetaEndpoint
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
             .WithSummary("Query report meta datasources for tenant");
+        
+        app.MapGet(basePath + "/reportlookupmetadatafortenantdatasourceandidentifier/{tenantId}/{datasource}/{identifier}", HandleReportLookupMetadataForTenantAndLookup)
+            .RequireAuthorization(authorizationScope)
+            .Produces<Dictionary<string, object>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(apiOperationPrefix + "ReportLookupMetadataForTenantAndLookup")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query additional metadata for lookup by tenant, datasource and identifier");
         
         return app;
     }
@@ -153,6 +184,11 @@ public static class TenantMetaEndpoint
         return Results.Ok(await tenantMetaRepository.AllowedTenantsAsync(claims));
     }
     
+    private static async Task<IResult> HandleReportAllowedTenantsAsync(ITenantMetaRepository tenantMetaRepository)
+    {
+        return Results.Ok(await tenantMetaRepository.SelectListAsync());
+    }
+    
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     private static async Task<IResult> HandleReportMetaDatasourcesForTenant(IMapper mapper, IMetaDbConnectionFactory metaDbConnectionFactory,
         ITenantMetaRepository tenantMetaRepository, 
@@ -175,7 +211,7 @@ public static class TenantMetaEndpoint
 
         var metaSchemaDefinition = new ReportDatasourceDefinition
         {
-            Name = "Meta",
+            Name = MetaDatasourceIdentifier,
             ConnectionString = metaConnectionString,
             Tables = new[] {
                 new ReportDatasourceTable { Name = "Pickvalue", Query = await pickvalueMetaRepository.GenerateListQueryAsync(tenantId) },
@@ -187,7 +223,7 @@ public static class TenantMetaEndpoint
         
         var metaLookupsSchemaDefinition = new ReportDatasourceDefinition
         {
-            Name = "MetaLookups",
+            Name = MetaLookupsDatasourceIdentifier,
             ConnectionString = metaConnectionString,
             Tables = new []
                 {
@@ -232,7 +268,7 @@ public static class TenantMetaEndpoint
         
         var pickvalueLookupsSchemaDefinition = new ReportDatasourceDefinition()
         {
-            Name = "Pickvalues",
+            Name = PickvaluesDatasourceIdentifier,
             ConnectionString = metaConnectionString,
             Tables = pickvalueTables
         };
@@ -256,7 +292,7 @@ public static class TenantMetaEndpoint
         
         var processingStatesSchemaDefinition = new ReportDatasourceDefinition
         {
-            Name = "ProcessingStates",
+            Name = ProcessingStatesDatasourceIdentifier,
             ConnectionString = metaConnectionString,
             Tables = processingStateTables
         };
@@ -264,5 +300,60 @@ public static class TenantMetaEndpoint
         schemaDefinitions.Add(processingStatesSchemaDefinition);
         
         return Results.Ok(mapper.Map<IEnumerable<ServiceTenantReportDatasourceDefinition>>(schemaDefinitions));
+    }
+
+    private static async Task<IResult> HandleReportLookupMetadataForTenantAndLookup(ILookupMetaRepository lookupMetaRepository, Guid tenantId, string datasource,
+        string identifier)
+    {
+        switch (datasource)
+        {
+            case { } s when s.Equals(TenantLookupsDatasourceIdentifier, StringComparison.InvariantCultureIgnoreCase):
+            {
+                var lookup = await lookupMetaRepository.ByIdentifierAsync(tenantId, identifier);
+
+                if (lookup == null)
+                {
+                    return Results.NotFound($"Lookup with identifier '{identifier}' not found.");
+                }
+
+                return Results.Ok(new Dictionary<string, object>
+                {
+                    { ReportLookupTypeIdentifier, "tenantlookup" },
+                    { "lookupId", lookup.Id },
+                    { "lookupIdentifier", lookup.Identifier }
+                });
+            }
+            case { } s when s.Equals(MetaLookupsDatasourceIdentifier, StringComparison.InvariantCultureIgnoreCase):
+            {
+                return Results.Ok(new Dictionary<string, object>
+                {
+                    { ReportLookupTypeIdentifier, "metalookup" },
+                    { "lookupIdentifier", identifier }
+                });
+            }
+            case { } s when s.Equals(ProcessingStatesDatasourceIdentifier, StringComparison.InvariantCultureIgnoreCase):
+            {
+                var match = ProcessingStateRegex.Match(identifier);
+                
+                return Results.Ok(new Dictionary<string, object>
+                {
+                    { ReportLookupTypeIdentifier, "processingstate" },
+                    { "lookupEntity", match.Success ? match.Groups[1].Value : string.Empty }
+                });
+            }
+            case { } s when s.Equals(PickvaluesDatasourceIdentifier, StringComparison.InvariantCultureIgnoreCase):
+            {
+                var match = PickvalueRegex.Match(identifier);
+                
+                return Results.Ok(new Dictionary<string, object>
+                {
+                    { ReportLookupTypeIdentifier, "pickvalue" },
+                    { "lookupEntity", match.Success ? match.Groups[1].Value : string.Empty },
+                    { "lookupField", match.Success ? match.Groups[2].Value : string.Empty }
+                });
+            }
+            default:
+                return Results.NotFound($"Datasource '{datasource}' not found or not supported.");
+        }
     }
 }

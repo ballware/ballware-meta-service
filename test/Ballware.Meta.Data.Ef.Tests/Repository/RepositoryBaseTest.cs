@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Ballware.Meta.Caching;
 using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Ef.Tests.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Ballware.Meta.Data.Ef.Tests.Repository;
 
@@ -43,6 +45,8 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
     protected Guid TenantId { get; private set; }
 
     protected WebApplication Application { get; private set; }
+    
+    protected Mock<ITenantAwareEntityCache> TenantAwareEntityCacheMock { get; private set; } = null!;
 
     [OneTimeSetUp]
     public async Task SetupApplication()
@@ -64,6 +68,8 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
     {
         base.SetupApplicationBuilder();
         
+        TenantAwareEntityCacheMock = new Mock<ITenantAwareEntityCache>();
+        
         var storageOptions = PreparedBuilder.Configuration.GetSection("Storage").Get<StorageOptions>();
         var connectionString = MasterConnectionString;
 
@@ -80,6 +86,7 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
             config.AddProvider(new NUnitLoggerProvider());
         });
             
+        PreparedBuilder.Services.AddSingleton<ITenantAwareEntityCache>(TenantAwareEntityCacheMock.Object);
         PreparedBuilder.Services.AddBallwareMetaStorage(storageOptions, connectionString);
         PreparedBuilder.Services.AddAutoMapper(config =>
         {

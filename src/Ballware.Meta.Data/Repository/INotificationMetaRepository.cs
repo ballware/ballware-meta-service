@@ -10,5 +10,7 @@ public interface INotificationMetaRepository : ITenantableRepository<Public.Noti
     Task<IEnumerable<NotificationSelectListEntry>> SelectListForTenantAsync(Guid tenantId);
     Task<NotificationSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id);
     
+    Task<int?> GetCurrentStateForTenantAndIdAsync(Guid tenantId, Guid id);
+    
     Task<string> GenerateListQueryAsync(Guid tenantId);
 }

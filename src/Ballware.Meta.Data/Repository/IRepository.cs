@@ -13,7 +13,7 @@ public interface IRepository<TEditable> where TEditable : class
 
     Task SaveAsync(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value);
 
-    Task<RemoveResult> RemoveAsync(Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams);
+    Task<RemoveResult<TEditable>> RemoveAsync(Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams);
 
     Task ImportAsync(Guid? userId,
         string identifier,

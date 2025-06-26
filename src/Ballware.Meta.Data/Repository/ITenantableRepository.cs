@@ -1,9 +1,10 @@
 namespace Ballware.Meta.Data.Repository;
 
-public struct RemoveResult
+public struct RemoveResult<TEditable> where TEditable : class
 {
     public bool Result { get; init; }
     public IEnumerable<string> Messages { get; init; }
+    public TEditable? Value { get; init; }
 }
 
 public struct ExportResult
@@ -26,7 +27,7 @@ public interface ITenantableRepository<TEditable> where TEditable : class
 
     Task SaveAsync(Guid tenantId, Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value);
 
-    Task<RemoveResult> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams);
+    Task<RemoveResult<TEditable>> RemoveAsync(Guid tenantId, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams);
 
     Task ImportAsync(Guid tenantId,
         Guid? userId,

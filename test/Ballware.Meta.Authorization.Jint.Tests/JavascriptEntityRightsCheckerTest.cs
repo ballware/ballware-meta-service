@@ -106,4 +106,88 @@ public class JavascriptEntityRightsCheckerTest
         // Assert
         Assert.That(result, Is.True);
     }
+    
+    [Test]
+    public void StateAllowedAsync_ShouldReturnFalse_WhenStateAllowedScriptIsEmpty()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedId = Guid.NewGuid();
+        var expectedCurrentState = 1;
+
+        var entityMetadata = new EntityMetadata()
+        {
+            StateAllowedScript = null
+        };
+        
+        // Act
+        var rightsChecker = new JavascriptEntityRightsChecker();
+        
+        var result = rightsChecker.StateAllowedAsync(
+            expectedTenantId,
+            entityMetadata,
+            expectedId,
+            expectedCurrentState,
+            ["edit", "view"]
+        ).Result;
+        
+        // Assert
+        Assert.That(result, Is.False);
+    }
+    
+    [Test]
+    public void StateAllowedAsync_ShouldReturnTrue_WhenUserHasDedicatedRight()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedId = Guid.NewGuid();
+        var expectedCurrentState = 1;
+
+        var entityMetadata = new EntityMetadata()
+        {
+            StateAllowedScript = "return hasRight('entity.edit');"
+        };
+        
+        // Act
+        var rightsChecker = new JavascriptEntityRightsChecker();
+        
+        var result = rightsChecker.StateAllowedAsync(
+            expectedTenantId,
+            entityMetadata,
+            expectedId,
+            expectedCurrentState,
+            ["entity.edit", "entity.view"]
+        ).Result;
+        
+        // Assert
+        Assert.That(result, Is.True);
+    }
+    
+    [Test]
+    public void StateAllowedAsync_ShouldReturnTrue_WhenUserHasAnyRight()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedId = Guid.NewGuid();
+        var expectedCurrentState = 1;
+
+        var entityMetadata = new EntityMetadata()
+        {
+            StateAllowedScript = "return hasAnyRight('entity');"
+        };
+        
+        // Act
+        var rightsChecker = new JavascriptEntityRightsChecker();
+        
+        var result = rightsChecker.StateAllowedAsync(
+            expectedTenantId,
+            entityMetadata,
+            expectedId,
+            expectedCurrentState,
+            ["entity.edit", "entity.view"]
+        ).Result;
+        
+        // Assert
+        Assert.That(result, Is.True);
+    }
 }
