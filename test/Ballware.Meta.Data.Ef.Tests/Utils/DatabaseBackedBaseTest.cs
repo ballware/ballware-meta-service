@@ -9,6 +9,8 @@ namespace Ballware.Meta.Data.Ef.Tests.Utils;
 public abstract class DatabaseBackedBaseTest
 {
     private MsSqlContainer? _mssqlContainer;
+
+    protected virtual string AdditionalSettingsFile { get; } = "appsettings.additional.json";
     
     protected WebApplicationBuilder PreparedBuilder { get; set; } = null!;
     protected string MasterConnectionString { get; set; } = null!;
@@ -18,6 +20,7 @@ public abstract class DatabaseBackedBaseTest
     {
         var configurationBuilder = new ConfigurationBuilder()
             .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"), optional: false)
+            .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AdditionalSettingsFile), optional: true)
             .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings.local.json"), true, true)
             .AddEnvironmentVariables();
         
@@ -77,6 +80,7 @@ public abstract class DatabaseBackedBaseTest
         PreparedBuilder.Configuration.Sources.Clear();
         PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"), optional: false);
         PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsetting.{PreparedBuilder.Environment.EnvironmentName}.json"), true, true);
+        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AdditionalSettingsFile), optional: true);
         PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings.local.json"), true, true);
         PreparedBuilder.Configuration.AddEnvironmentVariables();
     }
