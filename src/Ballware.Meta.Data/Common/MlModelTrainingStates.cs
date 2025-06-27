@@ -1,8 +1,5 @@
-using System.Text.Json.Serialization;
-
 namespace Ballware.Meta.Data.Common;
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum MlModelTrainingStates
 {
     Unknown = 0,

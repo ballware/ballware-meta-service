@@ -1,9 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace Ballware.Meta.Data.Common;
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum MlModelTypes : int
+public enum MlModelTypes
 {
     Undefined = 0,
     Regression = 1
