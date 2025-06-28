@@ -19,11 +19,9 @@ namespace Ballware.Meta.Api.Tests.Export;
 public class ExportServiceApiTest : ApiMappingBaseTest
 {
     [Test]
-    public async Task HandleFetchForTenantById_succeeds()
+    public async Task HandleFetchById_succeeds()
     {
         // Arrange
-        var expectedTenantId = Guid.NewGuid();
-        
         var expectedEntry = new Data.Public.Export()
         {
             Id = Guid.NewGuid(),
@@ -44,7 +42,7 @@ public class ExportServiceApiTest : ApiMappingBaseTest
         var repositoryMock = new Mock<IExportMetaRepository>();
 
         repositoryMock
-            .Setup(r => r.ByIdAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(r => r.ByIdAsync(expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
 
         // Act
@@ -60,7 +58,7 @@ public class ExportServiceApiTest : ApiMappingBaseTest
             });
         });
         
-        var response = await client.GetAsync($"export/exportbyidfortenant/{expectedTenantId}/{expectedEntry.Id}");
+        var response = await client.GetAsync($"export/exportbyid/{expectedEntry.Id}");
         
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
