@@ -10,8 +10,11 @@ class CachableTenantMetaRepository : TenantMetaRepository
     
     private ITenantAwareEntityCache Cache { get; }
 
-    public CachableTenantMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantAwareEntityCache cache)
-        : base(mapper, dbContext)
+    public CachableTenantMetaRepository(
+        IMapper mapper, MetaDbContext dbContext, 
+        ITenantAwareEntityCache cache,
+        IRepositoryHook<Public.Tenant, Persistables.Tenant>? hook = null)
+        : base(mapper, dbContext, hook)
     {
         Cache = cache;
     }

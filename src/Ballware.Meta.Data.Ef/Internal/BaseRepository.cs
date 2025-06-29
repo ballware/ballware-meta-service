@@ -15,7 +15,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
     protected MetaDbContext Context { get; }
     protected IRepositoryHook<TEditable, TPersistable> ? Hook { get; }
 
-    protected BaseRepository(IMapper mapper, MetaDbContext dbContext, IRepositoryHook<TEditable, TPersistable>? hook = null)
+    protected BaseRepository(IMapper mapper, MetaDbContext dbContext, IRepositoryHook<TEditable, TPersistable>? hook)
     {
         Mapper = mapper;
         Context = dbContext;
