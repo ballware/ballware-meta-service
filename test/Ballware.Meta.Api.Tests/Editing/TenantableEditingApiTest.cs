@@ -2144,6 +2144,9 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
                     Assert.That(jobKey, Is.EqualTo(JobKey.Create("import", "fakeentity")));
                     Assert.That(cancellationToken, Is.EqualTo(CancellationToken.None));
                     Assert.That(jobData, Is.Not.Null);
+                    Assert.That(jobData["tenantId"], Is.EqualTo(expectedTenantId));
+                    Assert.That(jobData["userId"], Is.EqualTo(expectedUserId));
+                    Assert.That(jobData["identifier"], Is.EqualTo("import"));
                 });
             });
         

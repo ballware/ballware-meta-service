@@ -197,8 +197,8 @@ public static class TenantableEndpointHandlerFactory
                     {
                         var jobData = new JobDataMap();
 
-                        jobData["tenantId"] = tenantId;
-                        jobData["userId"] = currentUserId;
+                        jobData["tenantId"] = tenantId.Value;
+                        jobData["userId"] = currentUserId.Value;
                         jobData["identifier"] = identifier;
                         jobData["claims"] = JsonSerializer.Serialize(claims.Value);
                         jobData["filename"] = file.FileName;
