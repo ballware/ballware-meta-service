@@ -33,8 +33,8 @@ public class TenantableMetaImportJob<TEntity, TRepository>
         var userId = context.MergedJobDataMap.GetGuidValue("userId");
         context.MergedJobDataMap.TryGetString("identifier", out var identifier) ;
                          
-        var claims = JsonConvert.DeserializeObject<Dictionary<string, object>>(context.MergedJobDataMap.GetString("claims") ?? "{}") 
-                     ?? new Dictionary<string, object>();
+        var claims = Utils.DropNullMember(Utils.NormalizeJsonMember(JsonConvert.DeserializeObject<Dictionary<string, object?>>(context.MergedJobDataMap.GetString("claims") ?? "{}")
+                                                                    ?? new Dictionary<string, object?>()));
         context.MergedJobDataMap.TryGetString("filename", out var filename);
         
         var tenant = await TenantRepository.ByIdAsync(tenantId);
