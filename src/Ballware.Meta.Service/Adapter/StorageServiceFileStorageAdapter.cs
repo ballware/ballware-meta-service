@@ -13,20 +13,32 @@ public class StorageServiceFileStorageAdapter : IMetaFileStorageAdapter, IJobsFi
         StorageClient = storageClient;
     }
     
-    public async Task<Stream> FileByNameForOwnerAsync(string owner, string fileName)
+    public async Task<Stream> FileByNameForEntityAndOwnerAsync(Guid tenantId, string entity, Guid ownerId, string fileName)
     {
-        var result = await StorageClient.FileByNameForOwnerAsync(owner, fileName);
+        var result = await StorageClient.AttachmentDownloadForTenantEntityAndOwnerByFilenameAsync(tenantId, entity, ownerId, fileName);
         
         return result.Stream;
     }
 
-    public async Task RemoveFileForOwnerAsync(string owner, string fileName)
+    public async Task RemoveFileByNameForEntityAndOwnerBehalfOfUserAsync(Guid tenantId, Guid userId, string entity, Guid ownerId, string fileName)
     {
-        await StorageClient.RemoveFileForOwnerAsync(owner, fileName);
+        await StorageClient.AttachmentDropForTenantEntityAndOwnerByFilenameBehalfOfUserAsync(tenantId, userId, entity, ownerId, fileName);
     }
 
-    public async Task UploadFileForOwnerAsync(string owner, string fileName, string contentType, Stream data)
+    public async Task UploadTemporaryFileBehalfOfUserAsync(Guid tenantId, Guid userId, Guid temporaryId, string fileName, string contentType, Stream data)
     {
-        await StorageClient.UploadFileForOwnerAsync(owner, new []{ new FileParameter(data, fileName, contentType) });
+        await StorageClient.TemporaryUploadForTenantAndIdBehalfOfUserAsync(tenantId, userId, temporaryId, [new FileParameter(data, fileName, contentType)]);
+    }
+
+    public async Task<Stream> TemporaryFileByIdAsync(Guid tenantId, Guid temporaryId)
+    {
+        var response = await StorageClient.TemporaryDownloadForTenantByIdAsync(tenantId, temporaryId); 
+        
+        return response.Stream;
+    }
+
+    public async Task RemoveTemporaryFileByIdBehalfOfUserAsync(Guid tenantId, Guid userId, Guid temporaryId)
+    {
+        await StorageClient.TemporaryDropForTenantAndIdBehalfOfUserAsync(tenantId, userId, temporaryId);
     }
 }

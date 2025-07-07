@@ -121,7 +121,7 @@ public static class TenantableEditingEndpoint
             .WithTags(apiTag)
             .WithSummary("Export to file by query");
         
-        app.MapGet(basePath + "/download", TenantableEndpointHandlerFactory.CreateDownloadExportHandler())
+        app.MapGet(basePath + "/download/{tenantId}/{id}", TenantableEndpointHandlerFactory.CreateDownloadExportHandler())
             .AllowAnonymous()
             .Produces(StatusCodes.Status200OK, contentType: "application/json")
             .Produces(StatusCodes.Status404NotFound)
