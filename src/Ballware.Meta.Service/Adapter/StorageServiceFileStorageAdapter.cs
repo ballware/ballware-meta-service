@@ -13,18 +13,6 @@ public class StorageServiceFileStorageAdapter : IMetaFileStorageAdapter, IJobsFi
         StorageClient = storageClient;
     }
     
-    public async Task<Stream> FileByNameForEntityAndOwnerAsync(Guid tenantId, string entity, Guid ownerId, string fileName)
-    {
-        var result = await StorageClient.AttachmentDownloadForTenantEntityAndOwnerByFilenameAsync(tenantId, entity, ownerId, fileName);
-        
-        return result.Stream;
-    }
-
-    public async Task RemoveFileByNameForEntityAndOwnerBehalfOfUserAsync(Guid tenantId, Guid userId, string entity, Guid ownerId, string fileName)
-    {
-        await StorageClient.AttachmentDropForTenantEntityAndOwnerByFilenameBehalfOfUserAsync(tenantId, userId, entity, ownerId, fileName);
-    }
-
     public async Task UploadTemporaryFileBehalfOfUserAsync(Guid tenantId, Guid userId, Guid temporaryId, string fileName, string contentType, Stream data)
     {
         await StorageClient.TemporaryUploadForTenantAndIdBehalfOfUserAsync(tenantId, userId, temporaryId, [new FileParameter(data, fileName, contentType)]);
