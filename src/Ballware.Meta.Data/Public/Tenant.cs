@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Ballware.Shared.Authorization;
 
 namespace Ballware.Meta.Data.Public;
 
@@ -18,7 +19,7 @@ public class ReportDatasourceDefinition
     public IEnumerable<ReportDatasourceTable>? Tables { get; set; }
 }
 
-public class Tenant : IEditable
+public class Tenant : IEditable, ITenantAuthorizationMetadata
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }

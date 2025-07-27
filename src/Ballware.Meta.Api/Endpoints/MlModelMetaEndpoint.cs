@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Ballware.Meta.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;

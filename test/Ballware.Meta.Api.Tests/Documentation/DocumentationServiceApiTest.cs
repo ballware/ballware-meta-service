@@ -4,7 +4,6 @@ using System.Security.Claims;
 using System.Text.Json;
 using Ballware.Meta.Api.Endpoints;
 using Ballware.Meta.Api.Tests.Utils;
-using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Microsoft.AspNetCore.Builder;

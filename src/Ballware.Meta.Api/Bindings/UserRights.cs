@@ -1,5 +1,5 @@
 using System.Reflection;
-using Ballware.Meta.Authorization;
+using Ballware.Shared.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 

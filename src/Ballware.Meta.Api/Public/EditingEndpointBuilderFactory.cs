@@ -1,4 +1,4 @@
-using Ballware.Meta.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Meta.Data.Repository;
 
 namespace Ballware.Meta.Api.Public;

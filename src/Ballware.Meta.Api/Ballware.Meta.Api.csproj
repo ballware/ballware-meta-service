@@ -17,11 +17,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Ballware.Meta.Authorization\Ballware.Meta.Authorization.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.4" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
       <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
       <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
@@ -32,6 +29,10 @@
 
     <ItemGroup>
       <Folder Include="Internal\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Ballware.Meta.Data\Ballware.Meta.Data.csproj" />
     </ItemGroup>
 
 </Project>
