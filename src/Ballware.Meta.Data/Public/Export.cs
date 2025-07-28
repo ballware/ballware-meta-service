@@ -1,3 +1,5 @@
+using Ballware.Shared.Data.Public;
+
 namespace Ballware.Meta.Data.Public;
 
 public class Export : IEditable

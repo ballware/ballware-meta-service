@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Ballware.Meta.Data.Ef;
 
-public class MetaDbContext : DbContext
+public class MetaDbContext : DbContext, IMetaDbContext
 {
     private ILoggerFactory LoggerFactory { get; }
     

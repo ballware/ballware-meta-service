@@ -2,13 +2,15 @@ using AutoMapper;
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Ballware.Shared.Data.Ef.Repository;
+using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class CharacteristicAssociationMetaRepository : TenantableBaseRepository<Public.CharacteristicAssociation, Persistables.CharacteristicAssociation>, ICharacteristicAssociationMetaRepository
+class CharacteristicAssociationMetaRepository : TenantableRepository<Public.CharacteristicAssociation, Persistables.CharacteristicAssociation>, ICharacteristicAssociationMetaRepository
 {
-    public CharacteristicAssociationMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.CharacteristicAssociation, Persistables.CharacteristicAssociation>? hook = null) 
+    public CharacteristicAssociationMetaRepository(IMapper mapper, IMetaDbContext dbContext, ITenantableRepositoryHook<Public.CharacteristicAssociation, Persistables.CharacteristicAssociation>? hook = null) 
         : base(mapper, dbContext, hook) { }
 
     protected override IQueryable<CharacteristicAssociation> ListQuery(IQueryable<CharacteristicAssociation> query, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)

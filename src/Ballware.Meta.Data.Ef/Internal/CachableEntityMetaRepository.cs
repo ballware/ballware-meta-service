@@ -2,6 +2,7 @@ using AutoMapper;
 using Ballware.Meta.Caching;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Data.Repository;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
@@ -11,7 +12,7 @@ class CachableEntityMetaRepository : EntityMetaRepository
     
     private ITenantAwareEntityCache Cache { get; }
 
-    public CachableEntityMetaRepository(IMapper mapper, MetaDbContext dbContext,
+    public CachableEntityMetaRepository(IMapper mapper, IMetaDbContext dbContext,
         IProcessingStateMetaRepository processingStateMetaRepository,
         IPickvalueMetaRepository pickvalueMetaRepository,
         IEntityRightMetaRepository entityRightMetaRepository,

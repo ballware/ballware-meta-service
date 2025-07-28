@@ -2,6 +2,7 @@ using AutoMapper;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Ballware.Shared.Data.Repository;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 

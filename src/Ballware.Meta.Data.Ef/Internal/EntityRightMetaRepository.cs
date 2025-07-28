@@ -2,14 +2,22 @@ using AutoMapper;
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Ballware.Shared.Data.Ef.Repository;
+using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class EntityRightMetaRepository : TenantableBaseRepository<Public.EntityRight, Persistables.EntityRight>, IEntityRightMetaRepository
+class EntityRightMetaRepository : TenantableRepository<Public.EntityRight, Persistables.EntityRight>, IEntityRightMetaRepository
 {
-    public EntityRightMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.EntityRight, Persistables.EntityRight>? hook = null) 
-        : base(mapper, dbContext, hook) { }
+    private IMetaDbContext MetaContext { get; }
+
+    public EntityRightMetaRepository(IMapper mapper, IMetaDbContext dbContext,
+        ITenantableRepositoryHook<Public.EntityRight, Persistables.EntityRight>? hook = null)
+        : base(mapper, dbContext, hook)
+    {
+        MetaContext = dbContext;
+    }
 
     protected override IQueryable<EntityRight> ListQuery(IQueryable<EntityRight> query, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
@@ -28,7 +36,7 @@ class EntityRightMetaRepository : TenantableBaseRepository<Public.EntityRight, P
     
     public virtual async Task<IEnumerable<EntityRightSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {
-        return await Task.FromResult(Context.EntityRights.Where(r => r.TenantId == tenantId)
+        return await Task.FromResult(MetaContext.EntityRights.Where(r => r.TenantId == tenantId)
             .OrderBy(r => r.Identifier)
             .Select(r => new EntityRightSelectListEntry
                 { Id = r.Uuid, Identifier = r.Identifier, Name = r.DisplayName, Container = r.Container }));
@@ -36,7 +44,7 @@ class EntityRightMetaRepository : TenantableBaseRepository<Public.EntityRight, P
     
     public virtual async Task<EntityRightSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
     {
-        return await Context.EntityRights.Where(r => r.TenantId == tenantId && r.Uuid == id)
+        return await MetaContext.EntityRights.Where(r => r.TenantId == tenantId && r.Uuid == id)
             .Select(r => new EntityRightSelectListEntry
                 { Id = r.Uuid, Identifier = r.Identifier, Name = r.DisplayName, Container = r.Container })
             .FirstOrDefaultAsync();

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Data.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using Document = Ballware.Meta.Data.Public.Document;
 using Documentation = Ballware.Meta.Data.Public.Documentation;

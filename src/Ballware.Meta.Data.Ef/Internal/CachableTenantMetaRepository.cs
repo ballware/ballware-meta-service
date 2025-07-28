@@ -1,6 +1,7 @@
 using AutoMapper;
 using Ballware.Meta.Caching;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Data.Repository;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 

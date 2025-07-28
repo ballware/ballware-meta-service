@@ -4,6 +4,9 @@ using AutoMapper;
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Data.Persistables;
+using Ballware.Shared.Data.Public;
+using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 

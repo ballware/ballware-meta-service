@@ -2,15 +2,23 @@ using AutoMapper;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Ballware.Shared.Data.Ef.Repository;
+using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using Pickvalue = Ballware.Meta.Data.Persistables.Pickvalue;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class PickvalueMetaRepository : TenantableBaseRepository<Public.Pickvalue, Persistables.Pickvalue>, IPickvalueMetaRepository
+class PickvalueMetaRepository : TenantableRepository<Public.Pickvalue, Persistables.Pickvalue>, IPickvalueMetaRepository
 {
-    public PickvalueMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Pickvalue, Persistables.Pickvalue>? hook = null) 
-        : base(mapper, dbContext, hook) { }
+    private IMetaDbContext MetaContext { get; }
+
+    public PickvalueMetaRepository(IMapper mapper, IMetaDbContext dbContext,
+        ITenantableRepositoryHook<Public.Pickvalue, Persistables.Pickvalue>? hook = null)
+        : base(mapper, dbContext, hook)
+    {
+        MetaContext = dbContext;
+    }
 
     protected override IQueryable<Pickvalue> ListQuery(IQueryable<Pickvalue> query, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
@@ -47,7 +55,7 @@ class PickvalueMetaRepository : TenantableBaseRepository<Public.Pickvalue, Persi
 
     public async Task<IEnumerable<PickvalueSelectEntry>> SelectListForEntityFieldAsync(Guid tenantId, string entity, string field)
     {
-        return await Task.Run(() => Context.Pickvalues
+        return await Task.Run(() => MetaContext.Pickvalues
             .Where(p => p.TenantId == tenantId && p.Entity == entity && p.Field == field)
             .OrderBy(p => p.Sorting)
             .Select(p => new PickvalueSelectEntry { Id = p.Uuid, Name = p.Text, Value = p.Value })
@@ -56,7 +64,7 @@ class PickvalueMetaRepository : TenantableBaseRepository<Public.Pickvalue, Persi
 
     public async Task<PickvalueSelectEntry?> SelectByValueAsync(Guid tenantId, string entity, string field, int value)
     {
-        return await Task.Run(() => Context.Pickvalues.SingleOrDefault(p =>
+        return await Task.Run(() => MetaContext.Pickvalues.SingleOrDefault(p =>
                 p.TenantId == tenantId && p.Entity == entity && p.Field == field && p.Value == value)
             .As(p => p != null ? new PickvalueSelectEntry { Id = p.Uuid, Name = p.Text, Value = p.Value } : null));
 
@@ -64,7 +72,7 @@ class PickvalueMetaRepository : TenantableBaseRepository<Public.Pickvalue, Persi
 
     public async Task<IEnumerable<PickvalueAvailability>> GetPickvalueAvailabilityAsync(Guid tenantId)
     {
-        return await Task.Run(() => Context.Pickvalues
+        return await Task.Run(() => MetaContext.Pickvalues
             .Where(p => p.TenantId == tenantId)
             .Select(p => new { p.Entity, p.Field })
             .Distinct()

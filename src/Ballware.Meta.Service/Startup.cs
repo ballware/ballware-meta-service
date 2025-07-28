@@ -12,6 +12,7 @@ using Ballware.Meta.Service.Adapter;
 using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
 using Ballware.Schema.Client;
+using Ballware.Shared.Data.Repository;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;

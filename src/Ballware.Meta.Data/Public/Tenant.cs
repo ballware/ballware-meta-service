@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Ballware.Shared.Authorization;
+using Ballware.Shared.Data.Public;
 
 namespace Ballware.Meta.Data.Public;
 

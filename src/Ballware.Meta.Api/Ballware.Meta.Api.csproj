@@ -28,10 +28,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Internal\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Ballware.Meta.Data\Ballware.Meta.Data.csproj" />
     </ItemGroup>
 

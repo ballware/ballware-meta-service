@@ -1,25 +1,33 @@
 using AutoMapper;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Ballware.Shared.Data.Ef.Repository;
+using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class LookupMetaRepository : TenantableBaseRepository<Public.Lookup, Persistables.Lookup>, ILookupMetaRepository
+class LookupMetaRepository : TenantableRepository<Public.Lookup, Persistables.Lookup>, ILookupMetaRepository
 {
-    public LookupMetaRepository(IMapper mapper, MetaDbContext dbContext, ITenantableRepositoryHook<Public.Lookup, Persistables.Lookup>? hook = null) 
-        : base(mapper, dbContext, hook) { }
+    private IMetaDbContext MetaContext { get; }
+
+    public LookupMetaRepository(IMapper mapper, IMetaDbContext dbContext,
+        ITenantableRepositoryHook<Public.Lookup, Persistables.Lookup>? hook = null)
+        : base(mapper, dbContext, hook)
+    {
+        MetaContext = dbContext;
+    }
 
     public virtual async Task<IEnumerable<Public.Lookup>> AllForTenantAsync(Guid tenantId)
     {
-        return await Task.FromResult(Context.Lookups.Where(d => d.TenantId == tenantId)
+        return await Task.FromResult(MetaContext.Lookups.Where(d => d.TenantId == tenantId)
             .OrderBy(c => c.Name)
             .Select(l => Mapper.Map<Public.Lookup>(l)));
     }
 
     public virtual async Task<Public.Lookup?> ByIdAsync(Guid tenantId, Guid id)
     {
-        var result = await Context.Lookups.SingleOrDefaultAsync(e =>
+        var result = await MetaContext.Lookups.SingleOrDefaultAsync(e =>
             e.TenantId == tenantId && e.Uuid == id);
 
         return result != null ? Mapper.Map<Public.Lookup>(result) : null;
@@ -27,14 +35,14 @@ class LookupMetaRepository : TenantableBaseRepository<Public.Lookup, Persistable
 
     public virtual async Task<Public.Lookup?> ByIdentifierAsync(Guid tenantId, string identifier)
     {
-        var result = await Context.Lookups.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Identifier == identifier);
+        var result = await MetaContext.Lookups.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Identifier == identifier);
 
         return result != null ? Mapper.Map<Public.Lookup>(result) : null;
     }
     
     public virtual async Task<IEnumerable<LookupSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {
-        return await Task.FromResult(Context.Lookups.Where(r => r.TenantId == tenantId)
+        return await Task.FromResult(MetaContext.Lookups.Where(r => r.TenantId == tenantId)
             .OrderBy(r => r.Identifier)
             .Select(r => new LookupSelectListEntry
                 { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name }));
@@ -42,7 +50,7 @@ class LookupMetaRepository : TenantableBaseRepository<Public.Lookup, Persistable
     
     public virtual async Task<LookupSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
     {
-        return await Context.Lookups.Where(r => r.TenantId == tenantId && r.Uuid == id)
+        return await MetaContext.Lookups.Where(r => r.TenantId == tenantId && r.Uuid == id)
             .Select(r => new LookupSelectListEntry
                 { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name })
             .FirstOrDefaultAsync();

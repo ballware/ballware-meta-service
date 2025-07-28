@@ -1,14 +1,19 @@
 using AutoMapper;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Ballware.Shared.Data.Ef.Repository;
+using Ballware.Shared.Data.Public;
+using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Internal;
 
-class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Persistables.EntityMetadata>, IEntityMetaRepository
+class EntityMetaRepository : TenantableRepository<Public.EntityMetadata, Persistables.EntityMetadata>, IEntityMetaRepository
 {
     private string ChildQueryIdentifier { get; } = "entity";
     private string ChildQueryEntityParamIdentifier { get; } = "entity";
+    
+    private IMetaDbContext MetaContext { get; }
     
     private IProcessingStateMetaRepository ProcessingStateMetaRepository { get; }
     private IPickvalueMetaRepository PickvalueMetaRepository { get; }
@@ -20,10 +25,11 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
         IPickvalueMetaRepository pickvalueMetaRepository,
         IEntityRightMetaRepository entityRightMetaRepository,
         ICharacteristicAssociationMetaRepository characteristicAssociationMetaRepository,
-        MetaDbContext dbContext,
+        IMetaDbContext dbContext,
         ITenantableRepositoryHook<Public.EntityMetadata, Persistables.EntityMetadata>? hook = null)
         : base(mapper, dbContext, hook)
     {
+        MetaContext = dbContext;
         ProcessingStateMetaRepository = processingStateMetaRepository;
         PickvalueMetaRepository = pickvalueMetaRepository;
         EntityRightMetaRepository = entityRightMetaRepository;
@@ -150,7 +156,7 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
     }
 
     private static async Task MergeChildCollectionsAsync<TEditable>(Guid tenantId, Guid? userId, IDictionary<string, object> claims, string entity, IEnumerable<TEditable> nextChildren,
-        ITenantableRepository<TEditable> repository) where TEditable : class, Public.IEditable
+        ITenantableRepository<TEditable> repository) where TEditable : class, IEditable
     {
         var existingChildren = (await repository.QueryAsync(tenantId, "entity", claims,
             new Dictionary<string, object>
@@ -174,21 +180,21 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
 
     public virtual async Task<Public.EntityMetadata?> ByIdAsync(Guid tenantId, Guid id)
     {
-        var result = await Context.Entities.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Uuid == id);
+        var result = await MetaContext.Entities.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Uuid == id);
 
         return result != null ? Mapper.Map<Public.EntityMetadata>(result) : null;
     }
 
     public virtual async Task<Public.EntityMetadata?> ByEntityAsync(Guid tenantId, string entity)
     {
-        var result = await Context.Entities.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Entity == entity);
+        var result = await MetaContext.Entities.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Entity == entity);
 
         return result != null ? Mapper.Map<Public.EntityMetadata>(result) : null;
     }
 
     public virtual async Task<IEnumerable<EntityRightSelectListEntry>> SelectListEntityRightsForTenantAsync(Guid tenantId)
     {
-        return await Task.FromResult(Context.EntityRights.Where(r => r.TenantId == tenantId)
+        return await Task.FromResult(MetaContext.EntityRights.Where(r => r.TenantId == tenantId)
             .OrderBy(r => r.Container).ThenBy(r => r.Identifier)
             .Select(r => new EntityRightSelectListEntry
             { Id = r.Uuid, Identifier = r.Identifier, Name = r.DisplayName, Container = r.Container }));
@@ -196,7 +202,7 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
     
     public virtual async Task<IEnumerable<EntitySelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {
-        return await Task.FromResult(Context.Entities.Where(r => r.TenantId == tenantId)
+        return await Task.FromResult(MetaContext.Entities.Where(r => r.TenantId == tenantId)
             .OrderBy(r => r.Entity)
             .Select(r => new EntitySelectListEntry
                 { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName }));
@@ -204,7 +210,7 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
     
     public virtual async Task<EntitySelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
     {
-        return await Context.Entities.Where(r => r.TenantId == tenantId && r.Uuid == id)
+        return await MetaContext.Entities.Where(r => r.TenantId == tenantId && r.Uuid == id)
             .Select(r => new EntitySelectListEntry
                 { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName })
             .FirstOrDefaultAsync();
@@ -212,7 +218,7 @@ class EntityMetaRepository : TenantableBaseRepository<Public.EntityMetadata, Per
     
     public virtual async Task<EntitySelectListEntry?> SelectByIdentifierForTenantAsync(Guid tenantId, string identifier)
     {
-        return await Context.Entities.Where(r => r.TenantId == tenantId && r.Entity == identifier)
+        return await MetaContext.Entities.Where(r => r.TenantId == tenantId && r.Entity == identifier)
             .Select(r => new EntitySelectListEntry
                 { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName })
             .FirstOrDefaultAsync();

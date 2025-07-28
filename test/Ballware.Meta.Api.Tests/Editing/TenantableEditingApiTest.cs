@@ -10,6 +10,8 @@ using Ballware.Meta.Api.Tests.Utils;
 using Ballware.Shared.Authorization;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Data.Public;
+using Ballware.Shared.Data.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;

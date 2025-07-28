@@ -2,6 +2,7 @@ using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Ef.Internal;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,8 +19,9 @@ public static class ServiceCollectionExtensions
             {
                 o.MigrationsAssembly(typeof(MetaDbContext).Assembly.FullName);
             });
-
         });
+        
+        services.AddScoped<IMetaDbContext, MetaDbContext>();
 
         services.AddScoped<ITenantableRepository<Documentation>, DocumentationMetaRepository>();
         services.AddScoped<IDocumentationMetaRepository, DocumentationMetaRepository>();

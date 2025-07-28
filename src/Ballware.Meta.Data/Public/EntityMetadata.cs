@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using Ballware.Meta.Data.Utils;
 using Ballware.Shared.Authorization;
+using Ballware.Shared.Data.Public;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using JsonSerializer = System.Text.Json.JsonSerializer;
