@@ -1,9 +1,11 @@
 using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Ef.Internal;
+using Ballware.Meta.Data.Ef.Model;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ballware.Meta.Data.Ef;
@@ -19,6 +21,8 @@ public static class ServiceCollectionExtensions
             {
                 o.MigrationsAssembly(typeof(MetaDbContext).Assembly.FullName);
             });
+            
+            o.ReplaceService<IModelCustomizer, MetaModelBaseCustomizer>();
         });
         
         services.AddScoped<IMetaDbContext, MetaDbContext>();
