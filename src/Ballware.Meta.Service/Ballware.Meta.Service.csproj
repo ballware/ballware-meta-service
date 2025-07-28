@@ -10,6 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Ballware.Meta.Api\Ballware.Meta.Api.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Caching\Ballware.Meta.Caching.csproj" />
+      <ProjectReference Include="..\Ballware.Meta.Data.Ef.SqlServer\Ballware.Meta.Data.Ef.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Data.Ef\Ballware.Meta.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Jobs\Ballware.Meta.Jobs.csproj" />
       <ProjectReference Include="..\Ballware.Schema.Client\Ballware.Schema.Client.csproj" />

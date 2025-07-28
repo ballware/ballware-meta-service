@@ -5,6 +5,7 @@ using Ballware.Shared.Authorization.Jint;
 using Ballware.Meta.Caching;
 using Ballware.Meta.Data.Ef;
 using Ballware.Meta.Data.Ef.Configuration;
+using Ballware.Meta.Data.Ef.SqlServer;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Jobs;
@@ -229,9 +230,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddScoped<IRepositoryHook<Ballware.Meta.Data.Public.Tenant, Ballware.Meta.Data.Persistables.Tenant>, GenericSchemaTenantRepositoryHook>();
         Services.AddScoped<ITenantableRepositoryHook<Ballware.Meta.Data.Public.EntityMetadata, Ballware.Meta.Data.Persistables.EntityMetadata>, GenericSchemaEntityRepositoryHook>();
         
-        Services.AddBallwareMetaStorage(
-            storageOptions,
-            metaConnectionString);
+        if ("mssql".Equals(storageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(metaConnectionString))
+        {
+            Services.AddBallwareMetaStorageForSqlServer(storageOptions, metaConnectionString);
+        }
 
         Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareSharedJintRightsChecker();

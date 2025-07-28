@@ -1,5 +1,6 @@
 using AutoMapper;
 using Ballware.Meta.Data.Ef.Internal;
+using Ballware.Meta.Data.Ef.Mapping;
 
 namespace Ballware.Meta.Data.Ef;
 
