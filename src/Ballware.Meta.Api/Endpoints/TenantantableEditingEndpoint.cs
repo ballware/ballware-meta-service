@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Ballware.Meta.Api.Public;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -113,7 +114,7 @@ public static class TenantableEditingEndpoint
             .RequireAuthorization(authorizationScope)
             .DisableAntiforgery()
             .Accepts<IFormCollection>("application/x-www-form-urlencoded")
-            .Produces<string>()
+            .Produces<ExportUrlResult>()
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "ExportUrl")
@@ -121,7 +122,7 @@ public static class TenantableEditingEndpoint
             .WithTags(apiTag)
             .WithSummary("Export to file by query");
         
-        app.MapGet(basePath + "/download", TenantableEndpointHandlerFactory.CreateDownloadExportHandler())
+        app.MapGet(basePath + "/download/{tenantId}/{id}", TenantableEndpointHandlerFactory.CreateDownloadExportHandler())
             .AllowAnonymous()
             .Produces(StatusCodes.Status200OK, contentType: "application/json")
             .Produces(StatusCodes.Status404NotFound)

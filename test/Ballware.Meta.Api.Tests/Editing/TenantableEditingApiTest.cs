@@ -1859,10 +1859,15 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         // Assert
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
-        var result = await response.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<ExportUrlResult>(await response.Content.ReadAsStringAsync());
 
-        Assert.That(result, Is.EqualTo(expectedExportId.ToString()));
-
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result?.TenantId, Is.EqualTo(expectedTenantId));
+            Assert.That(result?.Id, Is.EqualTo(expectedExportId));
+        });
+        
         ExportRepositoryMock
             .Verify(r => r.NewAsync(expectedTenantId, "primary", It.IsAny<IDictionary<string, object>>()), 
                 Times.Once);
@@ -2065,6 +2070,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         // Arrange
         var expectedTenantId = Guid.NewGuid();
         var expectedUserId = Guid.NewGuid();
+        var expectedTemporaryId = Guid.NewGuid();
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
         
@@ -2110,13 +2116,15 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         StorageAdapterMock
-            .Setup(s => s.UploadFileForOwnerAsync(expectedUserId.ToString(), "import.json", "application/json",
+            .Setup(s => s.UploadTemporaryFileBehalfOfUserAsync(expectedTenantId, expectedUserId, expectedTemporaryId, "import.json", "application/json",
                 It.IsAny<Stream>()))
-            .Callback((string owner, string fileName, string mediaType, Stream stream) =>
+            .Callback((Guid tenantId, Guid userId, Guid temporaryId, string fileName, string mediaType, Stream stream) =>
             {
                 Assert.Multiple(() =>
                 {
-                    Assert.That(owner, Is.EqualTo(expectedUserId.ToString()));
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
+                    Assert.That(userId, Is.EqualTo(expectedUserId));
+                    Assert.That(temporaryId, Is.EqualTo(expectedTemporaryId));
                     Assert.That(fileName, Is.EqualTo("import.json"));
                     Assert.That(mediaType, Is.EqualTo("application/json"));
                     using var reader = new StreamReader(stream);
@@ -2169,8 +2177,8 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
     public async Task HandleDownloadExport_succeeds()
     {
         // Arrange
+        var expectedTenantId = Guid.NewGuid();
         var expectedExportId = Guid.NewGuid();
-        var expectedFileExtension = "json";
         var expectedMediaType = "application/json";
         var expectedFilePayload = Encoding.UTF8.GetBytes("{ \"key\": \"value\" }");
         
@@ -2187,11 +2195,11 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
             });
         
         StorageAdapterMock
-            .Setup(s => s.FileByNameForOwnerAsync("export", $"{expectedExportId}.{expectedFileExtension}"))
+            .Setup(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedExportId))
             .ReturnsAsync(new MemoryStream(expectedFilePayload));
         
         // Act
-        var response = await Client.GetAsync($"fakeentity/download?id={expectedExportId}");
+        var response = await Client.GetAsync($"fakeentity/download/{expectedTenantId}/{expectedExportId}");
         
         // Assert
         Assert.MultipleAsync(async () =>
@@ -2211,7 +2219,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
                 Times.Once);
         
         StorageAdapterMock
-            .Verify(r => r.FileByNameForOwnerAsync("export", $"{expectedExportId}.{expectedFileExtension}"), 
+            .Verify(r => r.TemporaryFileByIdAsync(expectedTenantId, expectedExportId), 
                 Times.Once);
     }
     
@@ -2219,6 +2227,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
     public async Task HandleDownloadExport_notFound()
     {
         // Arrange
+        var expectedTenantId = Guid.NewGuid();
         var exportNotFoundExportId = Guid.NewGuid();
         var fileNotFoundExportId = Guid.NewGuid();
         
@@ -2235,11 +2244,11 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
             });
         
         // Act
-        var exportNotFoundResponse = await Client.GetAsync($"fakeentity/download?id={exportNotFoundExportId}");
-        var fileNotFoundResponse = await Client.GetAsync($"fakeentity/download?id={fileNotFoundExportId}");
+        var exportNotFoundResponse = await Client.GetAsync($"fakeentity/download/{expectedTenantId}/{exportNotFoundExportId}");
+        var fileNotFoundResponse = await Client.GetAsync($"fakeentity/download/{expectedTenantId}/{fileNotFoundExportId}");
         
         // Assert
-        Assert.MultipleAsync(async () =>
+        Assert.Multiple(() =>
         {
             Assert.That(exportNotFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
             Assert.That(fileNotFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
@@ -2254,7 +2263,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
                 Times.Once);
         
         StorageAdapterMock
-            .Verify(r => r.FileByNameForOwnerAsync("export", $"{fileNotFoundExportId}.json"), 
+            .Verify(r => r.TemporaryFileByIdAsync(expectedTenantId, fileNotFoundExportId), 
                 Times.Once);
     }
 }
