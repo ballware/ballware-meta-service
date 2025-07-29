@@ -28,7 +28,7 @@ public abstract class PageBaseRepository : TenantableRepository<Public.Page, Per
     public virtual async Task<IEnumerable<PageSelectListEntry>> SelectListForTenantAsync(Guid tenantId)
     {
         return await Task.FromResult(MetaContext.Pages.Where(r => r.TenantId == tenantId)
-            .OrderBy(r => new { r.Identifier })
+            .OrderBy(r => r.Identifier)
             .Select(r => new PageSelectListEntry
                 { Id = r.Uuid, Name = r.Name }));
     }

@@ -76,4 +76,24 @@ public class ProcessingStateMetaRepositoryTest : RepositoryBaseTest
             }
         });
     }
+    
+    [Test]
+    public async Task Execute_generated_list_query_succeeds()
+    {
+        using var scope = Application.Services.CreateScope();
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<MetaDbContext>();
+        var repository = scope.ServiceProvider.GetRequiredService<IProcessingStateMetaRepository>();
+
+        var listQuery = await repository.GenerateListQueryAsync(TenantId);
+
+        var connection = dbContext.Database.GetDbConnection();
+        
+        var result = await connection.QueryAsync(listQuery);
+        
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Count(), Is.EqualTo(13));
+        });
+    }
 }

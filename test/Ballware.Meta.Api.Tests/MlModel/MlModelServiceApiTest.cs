@@ -53,7 +53,7 @@ public class MlModelServiceApiTest : ApiMappingBaseTest
             .ReturnsAsync(fakeTenant);
         
         repositoryMock
-            .Setup(r => r.MetadataByTenantAndIdAsync(fakeTenant, expectedEntry.Id))
+            .Setup(r => r.MetadataByTenantAndIdAsync(expectedTenantId, expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
 
         // Act
@@ -120,7 +120,7 @@ public class MlModelServiceApiTest : ApiMappingBaseTest
             .ReturnsAsync(fakeTenant);
         
         repositoryMock
-            .Setup(r => r.MetadataByTenantAndIdentifierAsync(fakeTenant, expectedEntry.Identifier))
+            .Setup(r => r.MetadataByTenantAndIdentifierAsync(expectedTenantId, expectedEntry.Identifier))
             .ReturnsAsync(expectedEntry);
 
         // Act
@@ -188,12 +188,12 @@ public class MlModelServiceApiTest : ApiMappingBaseTest
             .ReturnsAsync(fakeTenant);
 
         repositoryMock
-            .Setup(r => r.SaveTrainingStateAsync(fakeTenant, expectedUserId, It.IsAny<MlModelTrainingState>()))
-            .Callback<Data.Public.Tenant, Guid, MlModelTrainingState>((tenant, userId, trainingState) =>
+            .Setup(r => r.SaveTrainingStateAsync(expectedTenantId, expectedUserId, It.IsAny<MlModelTrainingState>()))
+            .Callback<Guid, Guid, MlModelTrainingState>((tenantId, userId, trainingState) =>
             {
                 Assert.Multiple(() =>
                 {
-                    Assert.That(tenant, Is.EqualTo(fakeTenant));
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(DeepComparer.AreEqual(providedPayload, trainingState, TestContext.WriteLine), Is.True);
                 });
@@ -219,14 +219,9 @@ public class MlModelServiceApiTest : ApiMappingBaseTest
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
         repositoryMock.Verify(r => r.SaveTrainingStateAsync(
-            fakeTenant,
+            expectedTenantId,
             expectedUserId,
             It.IsAny<MlModelTrainingState>()), Times.Once);
         
-        // Act
-        var notFoundResponse = await client.PostAsync($"mlmodel/savetrainingstatebehalfofuser/{Guid.NewGuid()}/{expectedUserId}",
-            JsonContent.Create(providedPayload));
-        
-        Assert.That(notFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
     }
 }

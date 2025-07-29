@@ -19,24 +19,24 @@ public abstract class MlModelBaseRepository : TenantableRepository<Public.MlMode
         MetaContext = dbContext;
     }
 
-    public virtual async Task<Public.MlModel?> MetadataByTenantAndIdAsync(Public.Tenant tenant, Guid id)
+    public virtual async Task<Public.MlModel?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id)
     {
-        var result = await MetaContext.MlModels.SingleOrDefaultAsync(d => d.TenantId == tenant.Id && d.Uuid == id);
+        var result = await MetaContext.MlModels.SingleOrDefaultAsync(d => d.TenantId == tenantId && d.Uuid == id);
 
         return result != null ? Mapper.Map<Public.MlModel>(result) : null;
     }
 
-    public virtual async Task<Public.MlModel?> MetadataByTenantAndIdentifierAsync(Public.Tenant tenant, string identifier)
+    public virtual async Task<Public.MlModel?> MetadataByTenantAndIdentifierAsync(Guid tenantId, string identifier)
     {
 
-        var result = await MetaContext.MlModels.SingleOrDefaultAsync(d => d.TenantId == tenant.Id && d.Identifier == identifier);
+        var result = await MetaContext.MlModels.SingleOrDefaultAsync(d => d.TenantId == tenantId && d.Identifier == identifier);
 
         return result != null ? Mapper.Map<Public.MlModel>(result) : null;
     }
 
-    public virtual async Task SaveTrainingStateAsync(Public.Tenant tenant, Guid userId, MlModelTrainingState state)
+    public virtual async Task SaveTrainingStateAsync(Guid tenantId, Guid userId, MlModelTrainingState state)
     {
-        var model = await MetaContext.MlModels.SingleOrDefaultAsync(j => j.TenantId == tenant.Id && j.Uuid == state.Id);
+        var model = await MetaContext.MlModels.SingleOrDefaultAsync(j => j.TenantId == tenantId && j.Uuid == state.Id);
 
         if (model == null)
         {

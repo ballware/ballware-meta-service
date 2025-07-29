@@ -6,10 +6,10 @@ namespace Ballware.Meta.Data.Repository;
 
 public interface IMlModelMetaRepository : ITenantableRepository<Public.MlModel>
 {
-    Task<Public.MlModel?> MetadataByTenantAndIdAsync(Public.Tenant tenant, Guid id);
-    Task<Public.MlModel?> MetadataByTenantAndIdentifierAsync(Public.Tenant tenant, string identifier);
+    Task<Public.MlModel?> MetadataByTenantAndIdAsync(Guid tenantId, Guid id);
+    Task<Public.MlModel?> MetadataByTenantAndIdentifierAsync(Guid tenantId, string identifier);
 
-    Task SaveTrainingStateAsync(Public.Tenant tenant, Guid userId, MlModelTrainingState state);
+    Task SaveTrainingStateAsync(Guid tenantId, Guid userId, MlModelTrainingState state);
     
     Task<IEnumerable<MlModelSelectListEntry>> SelectListForTenantAsync(Guid tenantId);
     Task<MlModelSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id);

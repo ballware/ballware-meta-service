@@ -143,7 +143,7 @@ public class MetadataFileSeeder : IMetadataSeeder
 
         foreach (var item in items)
         {
-            await Services.GetRequiredService<ITenantableRepository<TEntity>>().SaveAsync(tenantId, null, "seed", ImmutableDictionary<string, object>.Empty, item);
+            await Services.GetRequiredService<ITenantableRepository<TEntity>>().SaveAsync(tenantId, null, "importjson", ImmutableDictionary<string, object>.Empty, item);
         }
     }
 }
