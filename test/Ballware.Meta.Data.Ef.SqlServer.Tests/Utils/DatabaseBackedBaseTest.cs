@@ -1,5 +1,6 @@
 using DotNet.Testcontainers.Builders;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Testcontainers.MsSql;
@@ -83,5 +84,10 @@ public abstract class DatabaseBackedBaseTest
         PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AdditionalSettingsFile), optional: true);
         PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings.local.json"), true, true);
         PreparedBuilder.Configuration.AddEnvironmentVariables();
+        
+        PreparedBuilder.WebHost.UseKestrel(options =>
+        {
+            options.ListenAnyIP(0);
+        });
     }
 }

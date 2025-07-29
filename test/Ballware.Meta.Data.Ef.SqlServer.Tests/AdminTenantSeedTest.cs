@@ -36,7 +36,7 @@ public class AdminTenantSeedTest : DatabaseBackedBaseTest
         storageOptions.AutoSeedAdminTenant = true;
 
         PreparedBuilder.Services.AddBallwareMetaStorageForSqlServer(storageOptions, connectionString);
-
+        
         var app = PreparedBuilder.Build();
 
         await app.StartAsync();
