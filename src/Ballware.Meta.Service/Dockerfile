@@ -7,8 +7,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
 WORKDIR /src
 
 COPY ./Ballware.Meta.Api ./Ballware.Meta.Api
-COPY ./Ballware.Meta.Authorization ./Ballware.Meta.Authorization
-COPY ./Ballware.Meta.Authorization.Jint ./Ballware.Meta.Authorization.Jint
 COPY ./Ballware.Meta.Caching ./Ballware.Meta.Caching
 COPY ./Ballware.Meta.Data ./Ballware.Meta.Data
 COPY ./Ballware.Meta.Data.Ef ./Ballware.Meta.Data.Ef

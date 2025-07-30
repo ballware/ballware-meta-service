@@ -1,6 +1,7 @@
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
 using Ballware.Schema.Client;
+using Ballware.Shared.Data.Repository;
 
 namespace Ballware.Meta.Service.Extensions;
 

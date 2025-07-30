@@ -1,6 +1,6 @@
-using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Quartz;

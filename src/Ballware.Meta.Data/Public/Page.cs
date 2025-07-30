@@ -1,4 +1,6 @@
-﻿namespace Ballware.Meta.Data.Public;
+﻿using Ballware.Shared.Data.Public;
+
+namespace Ballware.Meta.Data.Public;
 
 public class Page : IEditable
 {

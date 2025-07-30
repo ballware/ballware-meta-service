@@ -7,6 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.4" />
+      <PackageReference Include="Ballware.Shared.Data" Version="0.0.4" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 

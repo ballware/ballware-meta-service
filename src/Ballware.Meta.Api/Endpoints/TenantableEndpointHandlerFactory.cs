@@ -4,6 +4,7 @@ using System.Text;
 using Ballware.Meta.Api.Bindings;
 using Ballware.Meta.Api.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Data.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using MimeTypes;

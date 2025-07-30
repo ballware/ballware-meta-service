@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Ballware.Shared.Data.Persistables;
 
 namespace Ballware.Meta.Data.Persistables;
 

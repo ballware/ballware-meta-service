@@ -1,10 +1,11 @@
 using Ballware.Meta.Api;
 using Ballware.Meta.Api.Endpoints;
-using Ballware.Meta.Authorization;
-using Ballware.Meta.Authorization.Jint;
+using Ballware.Shared.Authorization;
+using Ballware.Shared.Authorization.Jint;
 using Ballware.Meta.Caching;
 using Ballware.Meta.Data.Ef;
 using Ballware.Meta.Data.Ef.Configuration;
+using Ballware.Meta.Data.Ef.SqlServer;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Jobs;
@@ -12,6 +13,7 @@ using Ballware.Meta.Service.Adapter;
 using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
 using Ballware.Schema.Client;
+using Ballware.Shared.Data.Repository;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
@@ -228,12 +230,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddScoped<IRepositoryHook<Ballware.Meta.Data.Public.Tenant, Ballware.Meta.Data.Persistables.Tenant>, GenericSchemaTenantRepositoryHook>();
         Services.AddScoped<ITenantableRepositoryHook<Ballware.Meta.Data.Public.EntityMetadata, Ballware.Meta.Data.Persistables.EntityMetadata>, GenericSchemaEntityRepositoryHook>();
         
-        Services.AddBallwareMetaStorage(
-            storageOptions,
-            metaConnectionString);
+        if ("mssql".Equals(storageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(metaConnectionString))
+        {
+            Services.AddBallwareMetaStorageForSqlServer(storageOptions, metaConnectionString);
+        }
 
-        Services.AddBallwareMetaAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
-        Services.AddBallwareMetaJintRightsChecker();
+        Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
+        Services.AddBallwareSharedJintRightsChecker();
         Services.AddBallwareMetaApiDependencies();
         Services.AddBallwareMetaBackgroundJobs();
 

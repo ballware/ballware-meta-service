@@ -1,8 +1,9 @@
-using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Jobs.Internal;
+using Ballware.Shared.Authorization;
+using Ballware.Shared.Data.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
