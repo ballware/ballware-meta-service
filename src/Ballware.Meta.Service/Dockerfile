@@ -13,6 +13,7 @@ COPY ./Ballware.Meta.Api ./Ballware.Meta.Api
 COPY ./Ballware.Meta.Caching ./Ballware.Meta.Caching
 COPY ./Ballware.Meta.Data ./Ballware.Meta.Data
 COPY ./Ballware.Meta.Data.Ef ./Ballware.Meta.Data.Ef
+COPY ./Ballware.Meta.Data.Ef.SqlServer ./Ballware.Meta.Data.Ef.SqlServer
 COPY ./Ballware.Meta.Jobs ./Ballware.Meta.Jobs
 COPY ./Ballware.Meta.Service ./Ballware.Meta.Service
 COPY ./Ballware.Schema.Client ./Ballware.Schema.Client
