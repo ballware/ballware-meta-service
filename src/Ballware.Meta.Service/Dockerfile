@@ -4,6 +4,9 @@ EXPOSE 5000
 EXPOSE 5001
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
+
+ARG GITHUB_PAT
+
 WORKDIR /src
 
 COPY ./Ballware.Meta.Api ./Ballware.Meta.Api
@@ -16,6 +19,8 @@ COPY ./Ballware.Schema.Client ./Ballware.Schema.Client
 COPY ./Ballware.Storage.Client ./Ballware.Storage.Client
 
 WORKDIR "/src/Ballware.Meta.Service"
+RUN dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" --name github --username frankball --password "$GITHUB_PAT" --store-password-in-clear-text
+RUN dotnet restore "Ballware.Meta.Service.csproj"
 RUN dotnet build "Ballware.Meta.Service.csproj" -c Release -o /app/build
 
 FROM build AS publish
