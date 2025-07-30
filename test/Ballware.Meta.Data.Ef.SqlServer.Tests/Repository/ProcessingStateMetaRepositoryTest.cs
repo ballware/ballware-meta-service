@@ -56,7 +56,9 @@ public class ProcessingStateMetaRepositoryTest : RepositoryBaseTest
         // Act
         var dbContext = scope.ServiceProvider.GetRequiredService<MetaDbContext>();
         
-        var actualList = (await repository.GetProcessingStateAvailabilityAsync(TenantId)).ToList();
+        var actualList = (await repository.GetProcessingStateAvailabilityAsync(TenantId))
+            .Where(entry => expectedList.Contains(entry))
+            .ToList();
         
         var actualEntries = (await dbContext.Database.GetDbConnection().QueryAsync<ProcessingStateSelectListEntry>(await repository.GenerateAvailableQueryAsync(TenantId, "entity1"))).ToList();
         

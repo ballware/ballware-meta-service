@@ -59,7 +59,11 @@ public class PickvalueBaseRepositoryTest : RepositoryBaseTest
         // Act
         var dbContext = scope.ServiceProvider.GetRequiredService<MetaDbContext>();
         
-        var actualList = (await repository.GetPickvalueAvailabilityAsync(TenantId)).ToList();
+        var relevantEntities = expectedList.Select(entry => entry.Entity).Distinct().ToList();
+        
+        var actualList = (await repository.GetPickvalueAvailabilityAsync(TenantId))
+            .Where(entry => relevantEntities.Contains(entry.Entity))
+            .ToList();
         
         var actualEntries = (await dbContext.Database.GetDbConnection().QueryAsync<PickvalueSelectEntry>(await repository.GenerateAvailableQueryAsync(TenantId, "entity1", "field2"))).ToList();
         

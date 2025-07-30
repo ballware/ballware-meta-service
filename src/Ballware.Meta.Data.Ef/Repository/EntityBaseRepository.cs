@@ -79,16 +79,40 @@ public abstract class EntityBaseRepository : TenantableRepository<Public.EntityM
         if (value.Entity != null && ("importjson".Equals(identifier, StringComparison.InvariantCultureIgnoreCase) 
                                      || "primary".Equals(identifier, StringComparison.InvariantCultureIgnoreCase)))
         {
-            await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, value.States,
+            await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, 
+                value.States.Select(child =>
+                {
+                    child.Entity = value.Entity;
+
+                    return child;
+                }),
                 ProcessingStateMetaRepository);
             
-            await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, value.Pickvalues,
+            await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, 
+                value.Pickvalues.Select(child =>
+                {
+                    child.Entity = value.Entity;
+
+                    return child;
+                }),
                 PickvalueMetaRepository);
             
-            await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, value.Rights,
+            await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, 
+                value.Rights.Select(child =>
+                {
+                    child.Entity = value.Entity;
+
+                    return child;
+                }),
                 EntityRightMetaRepository);
             
-            await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, value.CharacteristicAssociations,
+            await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, 
+                value.CharacteristicAssociations.Select(child =>
+                {
+                    child.Entity = value.Entity;
+
+                    return child;
+                }),
                 CharacteristicAssociationMetaRepository);
         }
         
