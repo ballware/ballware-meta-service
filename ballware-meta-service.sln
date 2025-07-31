@@ -26,6 +26,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Jobs.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Data.Ef.SqlServer", "src\Ballware.Meta.Data.Ef.SqlServer\Ballware.Meta.Data.Ef.SqlServer.csproj", "{E473B891-F1AA-43A2-A1CD-6B47F008F0F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Data.Ef.Postgres", "src\Ballware.Meta.Data.Ef.Postgres\Ballware.Meta.Data.Ef.Postgres.csproj", "{90D3682B-E67D-4653-954C-6A246FE39BA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Data.Ef.Postgres.Tests", "test\Ballware.Meta.Data.Ef.Postgres.Tests\Ballware.Meta.Data.Ef.Postgres.Tests.csproj", "{0F454219-9A94-40C7-9369-EC939FA6AF6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +88,13 @@ Global
 		{E473B891-F1AA-43A2-A1CD-6B47F008F0F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E473B891-F1AA-43A2-A1CD-6B47F008F0F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E473B891-F1AA-43A2-A1CD-6B47F008F0F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90D3682B-E67D-4653-954C-6A246FE39BA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90D3682B-E67D-4653-954C-6A246FE39BA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90D3682B-E67D-4653-954C-6A246FE39BA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90D3682B-E67D-4653-954C-6A246FE39BA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F454219-9A94-40C7-9369-EC939FA6AF6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F454219-9A94-40C7-9369-EC939FA6AF6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F454219-9A94-40C7-9369-EC939FA6AF6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F454219-9A94-40C7-9369-EC939FA6AF6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

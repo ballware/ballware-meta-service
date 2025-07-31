@@ -10,6 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Ballware.Meta.Api\Ballware.Meta.Api.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Caching\Ballware.Meta.Caching.csproj" />
+      <ProjectReference Include="..\Ballware.Meta.Data.Ef.Postgres\Ballware.Meta.Data.Ef.Postgres.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Data.Ef.SqlServer\Ballware.Meta.Data.Ef.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Data.Ef\Ballware.Meta.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Jobs\Ballware.Meta.Jobs.csproj" />
@@ -29,7 +30,7 @@
       </PackageReference>
       <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.16" />
       <PackageReference Include="MimeMapping" Version="3.1.0" />
-      <PackageReference Include="Npgsql" Version="8.0.5" />
+      <PackageReference Include="Npgsql" Version="8.0.7" />
       <PackageReference Include="Quartz" Version="3.8.1" />
       <PackageReference Include="Quartz.AspNetCore" Version="3.8.1" />
       <PackageReference Include="Quartz.Serialization.Json" Version="3.8.1" />

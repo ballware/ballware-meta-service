@@ -1,0 +1,118 @@
+using Ballware.Shared.Data.Repository;
+using Ballware.Meta.Data.Ef.Configuration;
+using Ballware.Meta.Data.Ef.Model;
+using Ballware.Meta.Data.Ef.Postgres.Internal;
+using Ballware.Meta.Data.Ef.Postgres.Repository;
+using Ballware.Meta.Data.Ef.Repository;
+using Ballware.Meta.Data.Ef.Seeding;
+using Ballware.Meta.Data.Ef.Postgres.Model;
+using Ballware.Meta.Data.Public;
+using Ballware.Meta.Data.Repository;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Ballware.Meta.Data.Ef.Postgres;
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddBallwareMetaStorageForPostgres(this IServiceCollection services, StorageOptions options, string connectionString)
+    {
+        services.AddSingleton(options);
+        services.AddDbContext<MetaDbContext>(o =>
+        {
+            o.UseNpgsql(connectionString, o =>
+            {
+                o.MigrationsAssembly(typeof(MetaDbContext).Assembly.FullName);
+            });
+
+            o.UseSnakeCaseNamingConvention();
+
+            o.ReplaceService<IModelCustomizer, PostgresMetaModelCustomizer>();
+        });
+
+        services.AddScoped<IMetaDbContext, MetaDbContext>();
+        
+        services.AddScoped<ITenantableRepository<Documentation>, DocumentationRepository>();
+        services.AddScoped<IDocumentationMetaRepository, DocumentationRepository>();
+
+        services.AddScoped<ITenantableRepository<Document>, DocumentRepository>();
+        services.AddScoped<IDocumentMetaRepository, DocumentRepository>();
+
+        if (options.EnableCaching)
+        {
+            services.AddScoped<ITenantableRepository<EntityMetadata>, CachableEntityRepository>();
+            services.AddScoped<IEntityMetaRepository, CachableEntityRepository>();
+        }
+        else
+        {
+            services.AddScoped<ITenantableRepository<EntityMetadata>, EntityRepository>();
+            services.AddScoped<IEntityMetaRepository, EntityRepository>();
+        }
+
+        services.AddScoped<ITenantableRepository<Export>, ExportBaseRepository>();
+        services.AddScoped<IExportMetaRepository, ExportBaseRepository>();
+
+        services.AddScoped<ITenantableRepository<Job>, JobBaseRepository>();
+        services.AddScoped<IJobMetaRepository, JobBaseRepository>();
+
+        if (options.EnableCaching)
+        {
+            services.AddScoped<ITenantableRepository<Lookup>, CachableLookupRepository>();
+            services.AddScoped<ILookupMetaRepository, CachableLookupRepository>();
+        }
+        else
+        {
+            services.AddScoped<ITenantableRepository<Lookup>, LookupRepository>();
+            services.AddScoped<ILookupMetaRepository, LookupRepository>();
+        }
+        
+        services.AddScoped<ITenantableRepository<MlModel>, MlModelRepository>();
+        services.AddScoped<IMlModelMetaRepository, MlModelRepository>();
+
+        services.AddScoped<ITenantableRepository<Notification>, NotificationRepository>();
+        services.AddScoped<INotificationMetaRepository, NotificationRepository>();
+
+        services.AddScoped<ITenantableRepository<NotificationTrigger>, NotificationTriggerBaseRepository>();
+        services.AddScoped<INotificationTriggerMetaRepository, NotificationTriggerBaseRepository>();
+
+        services.AddScoped<ITenantableRepository<Page>, PageRepository>();
+        services.AddScoped<IPageMetaRepository, PageRepository>();
+
+        services.AddScoped<ITenantableRepository<Pickvalue>, PickvalueRepository>();
+        services.AddScoped<IPickvalueMetaRepository, PickvalueRepository>();
+
+        services.AddScoped<ITenantableRepository<ProcessingState>, ProcessingStateRepository>();
+        services.AddScoped<IProcessingStateMetaRepository, ProcessingStateRepository>();
+        
+        services.AddScoped<ITenantableRepository<EntityRight>, EntityRightBaseRepository>();
+        services.AddScoped<IEntityRightMetaRepository, EntityRightBaseRepository>();
+        
+        services.AddScoped<ITenantableRepository<CharacteristicAssociation>, CharacteristicAssociationBaseRepository>();
+        services.AddScoped<ICharacteristicAssociationMetaRepository, CharacteristicAssociationBaseRepository>();
+
+        services.AddScoped<ITenantableRepository<Statistic>, StatisticRepository>();
+        services.AddScoped<IStatisticMetaRepository, StatisticRepository>();
+
+        services.AddScoped<ITenantableRepository<Subscription>, SubscriptionRepository>();
+        services.AddScoped<ISubscriptionMetaRepository, SubscriptionRepository>();
+
+        if (options.EnableCaching)
+        {
+            services.AddScoped<ITenantableRepository<Tenant>, CachableTenantRepository>();
+            services.AddScoped<ITenantMetaRepository, CachableTenantRepository>();
+        }
+        else
+        {
+            services.AddScoped<ITenantableRepository<Tenant>, TenantRepository>();
+            services.AddScoped<ITenantMetaRepository, TenantRepository>();
+        }
+
+        services.AddScoped<IMetadataSeeder>(sp => new MetadataFileSeeder(sp, options.SeedPath));
+
+        services.AddSingleton<IMetaDbConnectionFactory>(new MetaDbConnectionFactory(connectionString));
+        services.AddHostedService<InitializationWorker>();
+
+        return services;
+    }
+}

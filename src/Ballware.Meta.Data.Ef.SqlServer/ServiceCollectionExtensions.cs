@@ -4,6 +4,7 @@ using Ballware.Meta.Data.Ef.Model;
 using Ballware.Meta.Data.Ef.Repository;
 using Ballware.Meta.Data.Ef.Seeding;
 using Ballware.Meta.Data.Ef.SqlServer.Internal;
+using Ballware.Meta.Data.Ef.SqlServer.Model;
 using Ballware.Meta.Data.Ef.SqlServer.Repository;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
@@ -25,7 +26,7 @@ public static class ServiceCollectionExtensions
                 o.MigrationsAssembly(typeof(MetaDbContext).Assembly.FullName);
             });
 
-            o.ReplaceService<IModelCustomizer, MetaModelBaseCustomizer>();
+            o.ReplaceService<IModelCustomizer, SqlServerMetaModelCustomizer>();
         });
 
         services.AddScoped<IMetaDbContext, MetaDbContext>();
