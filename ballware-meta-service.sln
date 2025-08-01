@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Data.Ef.Postg
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Data.Ef.Postgres.Tests", "test\Ballware.Meta.Data.Ef.Postgres.Tests\Ballware.Meta.Data.Ef.Postgres.Tests.csproj", "{0F454219-9A94-40C7-9369-EC939FA6AF6F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Data.Caching", "src\Ballware.Meta.Data.Caching\Ballware.Meta.Data.Caching.csproj", "{100C4C72-9103-411E-9CF6-B96014F59A04}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,5 +98,9 @@ Global
 		{0F454219-9A94-40C7-9369-EC939FA6AF6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F454219-9A94-40C7-9369-EC939FA6AF6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F454219-9A94-40C7-9369-EC939FA6AF6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{100C4C72-9103-411E-9CF6-B96014F59A04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{100C4C72-9103-411E-9CF6-B96014F59A04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{100C4C72-9103-411E-9CF6-B96014F59A04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{100C4C72-9103-411E-9CF6-B96014F59A04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
