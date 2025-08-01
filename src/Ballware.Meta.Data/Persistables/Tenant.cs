@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Ballware.Shared.Data.Persistables;
 
 namespace Ballware.Meta.Data.Persistables;
 
-[Table("Tenant")]
 public class Tenant : IEntity, IAuditable
 {
     [JsonIgnore]

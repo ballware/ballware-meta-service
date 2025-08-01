@@ -1,10 +1,8 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Ballware.Shared.Data.Persistables;
 
 namespace Ballware.Meta.Data.Persistables;
 
-[Table("Export")]
 public class Export : IEntity, IAuditable, ITenantable
 {
     [JsonIgnore]

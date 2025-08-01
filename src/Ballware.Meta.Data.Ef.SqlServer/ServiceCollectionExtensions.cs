@@ -1,9 +1,11 @@
+using Ballware.Meta.Data.Caching;
 using Ballware.Shared.Data.Repository;
 using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Ef.Model;
 using Ballware.Meta.Data.Ef.Repository;
 using Ballware.Meta.Data.Ef.Seeding;
 using Ballware.Meta.Data.Ef.SqlServer.Internal;
+using Ballware.Meta.Data.Ef.SqlServer.Model;
 using Ballware.Meta.Data.Ef.SqlServer.Repository;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
@@ -25,7 +27,7 @@ public static class ServiceCollectionExtensions
                 o.MigrationsAssembly(typeof(MetaDbContext).Assembly.FullName);
             });
 
-            o.ReplaceService<IModelCustomizer, MetaModelBaseCustomizer>();
+            o.ReplaceService<IModelCustomizer, SqlServerMetaModelCustomizer>();
         });
 
         services.AddScoped<IMetaDbContext, MetaDbContext>();
@@ -36,10 +38,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantableRepository<Document>, DocumentRepository>();
         services.AddScoped<IDocumentMetaRepository, DocumentRepository>();
 
+        services.AddScoped<EntityRepository>();
+        
         if (options.EnableCaching)
         {
-            services.AddScoped<ITenantableRepository<EntityMetadata>, CachableEntityRepository>();
-            services.AddScoped<IEntityMetaRepository, CachableEntityRepository>();
+            services.AddScoped<ITenantableRepository<EntityMetadata>, CachableEntityRepository<EntityRepository>>();
+            services.AddScoped<IEntityMetaRepository, CachableEntityRepository<EntityRepository>>();
         }
         else
         {
@@ -53,10 +57,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantableRepository<Job>, JobBaseRepository>();
         services.AddScoped<IJobMetaRepository, JobBaseRepository>();
 
+        services.AddScoped<LookupRepository>();       
+        
         if (options.EnableCaching)
         {
-            services.AddScoped<ITenantableRepository<Lookup>, CachableLookupRepository>();
-            services.AddScoped<ILookupMetaRepository, CachableLookupRepository>();
+            services.AddScoped<ITenantableRepository<Lookup>, CachableLookupRepository<LookupRepository>>();
+            services.AddScoped<ILookupMetaRepository, CachableLookupRepository<LookupRepository>>();
         }
         else
         {
@@ -94,10 +100,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantableRepository<Subscription>, SubscriptionRepository>();
         services.AddScoped<ISubscriptionMetaRepository, SubscriptionRepository>();
 
+        services.AddScoped<TenantRepository>();
+        
         if (options.EnableCaching)
         {
-            services.AddScoped<ITenantableRepository<Tenant>, CachableTenantRepository>();
-            services.AddScoped<ITenantMetaRepository, CachableTenantRepository>();
+            services.AddScoped<ITenantableRepository<Tenant>, CachableTenantRepository<TenantRepository>>();
+            services.AddScoped<ITenantMetaRepository, CachableTenantRepository<TenantRepository>>();
         }
         else
         {

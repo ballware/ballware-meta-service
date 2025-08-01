@@ -5,6 +5,7 @@ using Ballware.Shared.Authorization.Jint;
 using Ballware.Meta.Caching;
 using Ballware.Meta.Data.Ef;
 using Ballware.Meta.Data.Ef.Configuration;
+using Ballware.Meta.Data.Ef.Postgres;
 using Ballware.Meta.Data.Ef.SqlServer;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
@@ -233,6 +234,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         if ("mssql".Equals(storageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(metaConnectionString))
         {
             Services.AddBallwareMetaStorageForSqlServer(storageOptions, metaConnectionString);
+        } else if ("postgres".Equals(storageOptions.Provider, StringComparison.InvariantCultureIgnoreCase) &&
+                   !string.IsNullOrEmpty(metaConnectionString))
+        {
+            Services.AddBallwareMetaStorageForPostgres(storageOptions, metaConnectionString);
         }
 
         Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
