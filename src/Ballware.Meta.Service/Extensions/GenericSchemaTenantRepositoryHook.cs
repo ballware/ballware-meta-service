@@ -1,6 +1,8 @@
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
 using Ballware.Schema.Client;
+using Newtonsoft.Json;
+using Quartz;
 
 namespace Ballware.Meta.Service.Extensions;
 
@@ -9,11 +11,16 @@ public class GenericSchemaTenantRepositoryHook
 {
     private ILogger<GenericSchemaTenantRepositoryHook> Logger { get; }
     
+    private ISchedulerFactory SchedulerFactory { get; }
+    
+    private IJobMetaRepository JobMetaRepository { get; }
     private BallwareSchemaClient SchemaClient { get; }
     
-    public GenericSchemaTenantRepositoryHook(ILogger<GenericSchemaTenantRepositoryHook> logger, BallwareSchemaClient schemaClient)
+    public GenericSchemaTenantRepositoryHook(ILogger<GenericSchemaTenantRepositoryHook> logger, ISchedulerFactory schedulerFactory, IJobMetaRepository jobMetaRepository, BallwareSchemaClient schemaClient)
     {
         Logger = logger;
+        SchedulerFactory = schedulerFactory;   
+        JobMetaRepository = jobMetaRepository;   
         SchemaClient = schemaClient;
     }
     
@@ -28,6 +35,21 @@ public class GenericSchemaTenantRepositoryHook
                 UserId = userId,
                 SerializedTenantModel = value.ProviderModelDefinition
             });    
+        }
+
+        if (value.Seed)
+        {
+            var jobData = new JobDataMap();
+
+            jobData["tenantId"] = value.Id;
+            jobData["userId"] = userId ?? Guid.Empty;
+
+            var job = JobMetaRepository.CreateJobAsync(value.Id, userId ?? Guid.Empty, "tenant",
+                "seed", JsonConvert.SerializeObject(jobData)).GetAwaiter().GetResult();
+
+            jobData["jobId"] = job.Id;
+
+            SchedulerFactory.GetScheduler().GetAwaiter().GetResult().TriggerJob(JobKey.Create("seed", "tenant"), jobData).GetAwaiter().GetResult();
         }
     }
 

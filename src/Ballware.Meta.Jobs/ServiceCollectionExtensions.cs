@@ -27,6 +27,8 @@ public static class ServiceCollectionExtensions
             q.AddJob<TenantableMetaImportJob<Page, ITenantableRepository<Page>>>(new JobKey(importJobName, "page"), configurator => configurator.StoreDurably());
             q.AddJob<TenantableMetaImportJob<Statistic, ITenantableRepository<Statistic>>>(new JobKey(importJobName, "statistic"), configurator => configurator.StoreDurably());
             q.AddJob<TenantableMetaImportJob<Subscription, ITenantableRepository<Subscription>>>(new JobKey(importJobName, "subscription"), configurator => configurator.StoreDurably());
+
+            q.AddJob<TenantSeedJob>(TenantSeedJob.Key, configurator => configurator.StoreDurably());
         });
 
         services.AddQuartzServer(options =>

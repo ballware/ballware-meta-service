@@ -93,7 +93,7 @@ public class TenantMetaRepositoryTest : RepositoryBaseTest
             Assert.That(actualSelectByIdItem, Is.Not.Null);
             Assert.That(actualSelectByIdItem?.Id, Is.EqualTo(fakeTenantIds[0]));
             Assert.That(actualTenantItem?.Name, Is.EqualTo($"Customer_{TenantId.ToString()}"));
-            Assert.That(actualTenantItem?.Provider, Is.EqualTo("mssql"));
+            Assert.That(actualTenantItem?.Provider, Is.EqualTo("postgres"));
         });
     }
 

@@ -1,0 +1,155 @@
+[
+  {
+    "Id": "12aecb61-b708-483a-ac04-02d03529179a",
+    "Identifier": "notificationPage",
+    "Name": "Benachrichtigungen",
+    "Layout": "{\n    title: 'Benachrichtigungen',\n    documentationEntity: 'notification',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'notification',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": null
+  },
+  {
+    "Id": "e5f33ee2-2aab-4816-9243-04ecd1ab310a",
+    "Identifier": "statisticPage",
+    "Name": "Auswertungen",
+    "Layout": "{\n    title: 'Auswertungen',\n    documentationEntity: 'statistic',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'statistic',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": null
+  },
+  {
+    "Id": "a717c658-777a-47d6-845e-3105bf320e5c",
+    "Identifier": "pagePage",
+    "Name": "Bildschirmseiten",
+    "Layout": "{\n    title: 'Bildschirmseiten',\n    documentationEntity: 'page',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'page',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": "{pageVisible:\"return rights.Claims.includes('meta.page.view');\",pageEnabled:\"return rights.Claims.includes('meta.page.view');\"}"
+  },
+  {
+    "Id": "204febab-102b-454f-ac03-3d32fd095ed6",
+    "Identifier": "processingstatePage",
+    "Name": "Statuswerte",
+    "Layout": "{\n    title: 'Statuswerte',\n    documentationEntity: 'processingstate',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'processingstate',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": null,
+    "CustomScripts": null
+  },
+  {
+    "Id": "827314a0-dff9-42a7-850b-48c0fa964885",
+    "Identifier": "mlmodelPage",
+    "Name": "Machine Learning Modelle",
+    "Layout": "{\n    title: 'Machine Learning Modelle',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'mlmodel',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": null,
+    "CustomScripts": null
+  },
+  {
+    "Id": "b0893b28-e4b5-4ea7-b884-654e65e6ad42",
+    "Identifier": "entityrightPage",
+    "Name": "Benutzerrechte",
+    "Layout": "{\n    title: 'Benutzerrechte',\n    documentationEntity: 'entityright',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'entityright',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": null,
+    "CustomScripts": null
+  },
+  {
+    "Id": "70aba4a3-6eb7-424a-ba2e-6b0a81fa8106",
+    "Identifier": "userPage",
+    "Name": "Benutzer",
+    "Layout": "{\n    title: 'Benutzer',\n    documentationEntity: 'user',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'user',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": null
+  },
+  {
+    "Id": "05978340-1c17-47f9-93bf-6db7a0df577f",
+    "Identifier": "tenantPage",
+    "Name": "Mandanten",
+    "Layout": "{\n    title: 'Mandanten',\n    documentationEntity: 'tenant',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'tenant',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": null
+  },
+  {
+    "Id": "05000db5-7408-4a70-983d-71c1ae020eae",
+    "Identifier": "documentationPage",
+    "Name": "Dokumentation",
+    "Layout": "{\n    title: 'Dokumentation',\n    documentationEntity: 'documentation',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'documentation',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": null
+  },
+  {
+    "Id": "42c25b8a-8c5c-42b1-a622-733c939af354",
+    "Identifier": "rolePage",
+    "Name": "Rollen",
+    "Layout": "{\n    title: 'Rollen',\n    documentationEntity: 'role',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'role',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": null
+  },
+  {
+    "Id": "e31a5b62-fa69-470e-9772-86a4a01b38e7",
+    "Identifier": "lookupPage",
+    "Name": "Auswahllisten",
+    "Layout": "{\n    title: 'Auswahllisten',\n    documentationEntity: 'lookup',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'lookup',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": null
+  },
+  {
+    "Id": "ac9b394b-c747-43db-ad6d-952b55e91995",
+    "Identifier": "reportPage",
+    "Name": "Berichte",
+    "Layout": "{\n\ttitle: 'Berichte',\n\tdocumentationEntity: 'report',\n\ttoolbaritems: [\n\t\t{\n\t\t\ttype: 'datetime',\n\t\t\tcaption: 'Von',\n\t\t\tname: 'from',\n\t\t},\n\t\t{\n\t\t\ttype: 'datetime',\n\t\t\tcaption: 'Bis',\n\t\t\tname: 'to',\n\t\t},\n\t\t{\n\t\t\ttype: 'dropdownbutton',\n\t\t\tcaption: 'Anwenden',\n\t\t\tname: 'filterselector',\n\t\t\toptions: {\n\t\t\t\titems: [\n\t\t\t\t\t{\n\t\t\t\t\t\tid: 1,\n\t\t\t\t\t\ttext: 'Letztes Jahr',\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\tid: 2,\n\t\t\t\t\t\ttext: 'Aktuelles Jahr',\n\t\t\t\t\t},\n\t\t\t\t],\n\t\t\t},\n\t\t},\n\t],\n\titems: [\n\t\t{\n\t\t\ttype: 'entitygrid',\n\t\t\toptions: {\n\t\t\t\titemoptions: {\n\t\t\t\t\tentity: 'report',\n                    identifier: 'report'\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": "{paramEditorInitialized:\"console.log(pageParam);\\n\\nif (name === 'from') {\\n    editUtil.setEditorOption('from', 'value', (pageParam && pageParam.from) ? new Date(pageParam.from) : util.beginOfYear());\\n} else if (name === 'to') {\\n    editUtil.setEditorOption('to', 'value', (pageParam && pageParam.to) ? new Date(pageParam.to) : util.endOfYear());\\n\\n    actions.loadData({\\n        from: editUtil.getEditorOption('from', 'value').toISOString(),\\n        to: editUtil.getEditorOption('to', 'value').toISOString()\\n    });\\n}\",paramEditorEvent:\"if (name === 'filterselector') {\\r\\n    if (event === 'click') {\\r\\n        switch (param) {\\r\\n            case 1: // Letztes Jahr\\r\\n                editUtil.setEditorOption('from', 'value', util.beginOfLastYear());\\r\\n                editUtil.setEditorOption('to', 'value', util.endOfLastYear());\\r\\n\\r\\n                actions.loadData({\\r\\n                    from: editUtil.getEditorOption('from', 'value').toISOString(),\\r\\n                    to: editUtil.getEditorOption('to', 'value').toISOString()\\r\\n                });\\r\\n                break;\\r\\n            case 2: // Aktuelles Jahr\\r\\n                editUtil.setEditorOption('from', 'value', util.beginOfYear());\\r\\n                editUtil.setEditorOption('to', 'value', util.endOfYear());\\r\\n\\r\\n                actions.loadData({\\r\\n                    from: editUtil.getEditorOption('from', 'value').toISOString(),\\r\\n                    to: editUtil.getEditorOption('to', 'value').toISOString()\\r\\n                });\\r\\n                break;\\r\\n            default: // Eingegebenen Zeitfilter anwenden\\r\\n                actions.loadData({\\r\\n                    from: editUtil.getEditorOption('from', 'value').toISOString(),\\r\\n                    to: editUtil.getEditorOption('to', 'value').toISOString()\\r\\n                });\\r\\n                break;\\r\\n        }\\r\\n    }\\r\\n}\",paramsInitialized:'if (hidden) {\\n    actions.loadData({\\n        from: (pageParam && pageParam.from) ? pageParam.from : util.beginOfYear().toISOString(),\\n        to: (pageParam && pageParam.to) ? pageParam.to : util.endOfYear().toISOString()\\n    });\\n}'}"
+  },
+  {
+    "Id": "f133d105-7259-4a25-914b-9796621e97c5",
+    "Identifier": "pickvaluePage",
+    "Name": "Auswahlwerte",
+    "Layout": "{\n    title: 'Auswahlwerte',\n    documentationEntity: 'pickvalue',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'pickvalue',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": null,
+    "CustomScripts": null
+  },
+  {
+    "Id": "d00d29fe-e546-4181-9c8e-9dd131e92764",
+    "Identifier": "subscriptionPage",
+    "Name": "Abonnements",
+    "Layout": "{\n    title: 'Abonnements',\n    documentationEntity: 'subscription',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'subscription',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": null
+  },
+  {
+    "Id": "b444e998-9239-43ed-ab6e-c4bbb2fd9b2c",
+    "Identifier": "jobPage",
+    "Name": "Hintergrundaufgaben",
+    "Layout": "{\n    title: 'Hintergrundaufgaben',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'job',\n                query: 'primary',\n                layout: 'primary',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": null,
+    "CustomScripts": null
+  },
+  {
+    "Id": "1ddb618f-1dd9-4946-904e-df7dcdeaa763",
+    "Identifier": "entityPage",
+    "Name": "Objektdefinitionen",
+    "Layout": "{\n    title: 'Objektdefinitionen',\n    documentationEntity: 'entity',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'entity',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": "{pageVisible:\"return rights.Claims.includes('meta.entity.view');\",pageEnabled:\"return rights.Claims.includes('meta.entity.view');\"}"
+  },
+  {
+    "Id": "05dbb80e-3360-433f-9861-e51c07c513af",
+    "Identifier": "documentPage",
+    "Name": "Belege",
+    "Layout": "{\n    title: 'Belege',\n    documentationEntity: 'document',\n    items: [{\n        type: 'entitygrid',\n        options: {\n            itemoptions: {\n                entity: 'document',\n            },\n        },\n    },\n    ],\n}",
+    "Lookups": "[]",
+    "Picklists": "[]",
+    "CustomScripts": null
+  }
+]

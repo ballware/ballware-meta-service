@@ -26,22 +26,40 @@ public class MetadataFileSeeder : IMetadataSeeder
 
     private FileStream ReadSeedFile(string filename)
     {
-        if (SeedPath == null || !File.Exists(Path.Combine(SeedPath, filename)))
+        if (string.IsNullOrEmpty(SeedPath))
         {
-            throw new ArgumentException($"SeedPath or file doesn't exist: {filename}");
+            throw new ArgumentException($"SeedPath not defined");
+        }
+        
+        var absolutePath = Path.IsPathRooted(SeedPath);
+
+        var seedFile = absolutePath ? Path.Combine(SeedPath, filename) : Path.Combine(AppContext.BaseDirectory, SeedPath, filename);
+        
+        if (!File.Exists(seedFile))
+        {
+            throw new ArgumentException($"SeedPath or file doesn't exist: {seedFile}");
         }
 
-        return new FileStream(Path.Combine(SeedPath, filename), FileMode.Open, FileAccess.Read, FileShare.Read);
+        return new FileStream(seedFile, FileMode.Open, FileAccess.Read, FileShare.Read);
     }
 
     private FileStream? ReadOptionalSeedFile(string filename)
     {
-        if (SeedPath == null || !File.Exists(Path.Combine(SeedPath, filename)))
+        if (string.IsNullOrEmpty(SeedPath))
+        {
+            throw new ArgumentException($"SeedPath not defined");
+        }
+        
+        var absolutePath = Path.IsPathRooted(SeedPath);
+
+        var seedFile = absolutePath ? Path.Combine(SeedPath, filename) : Path.Combine(AppContext.BaseDirectory, SeedPath, filename);
+        
+        if (!File.Exists(seedFile))
         {
             return null;
         }
 
-        return new FileStream(Path.Combine(SeedPath, filename), FileMode.Open, FileAccess.Read, FileShare.Read);
+        return new FileStream(seedFile, FileMode.Open, FileAccess.Read, FileShare.Read);
     }
 
     public MetadataFileSeeder(IServiceProvider services, string? seedPath)
@@ -49,7 +67,7 @@ public class MetadataFileSeeder : IMetadataSeeder
         Services = services;
         SeedPath = seedPath;
     }
-
+    
     public async Task<Guid?> GetAdminTenantIdAsync()
     {
         var fileStream = ReadSeedFile("admin-tenant.json");
@@ -62,19 +80,30 @@ public class MetadataFileSeeder : IMetadataSeeder
         return tenant?.Id;
     }
 
-    public async Task<Guid?> SeedAdminTenantAsync()
+    public async Task<Guid?> SeedAdminTenantAsync(Tenant? tenant = null)
     {
         await using var fileStream = ReadSeedFile("admin-tenant.json");
         using var textReader = new StreamReader(fileStream);
 
         var tenants = JsonSerializer.Deserialize<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
-        var tenant = tenants?.FirstOrDefault();
+        var tenantSeed = tenants?.FirstOrDefault();
 
-        if (tenant != null)
+        if (tenantSeed != null)
         {
-            await Services.GetRequiredService<ITenantableRepository<Tenant>>().SaveAsync(tenant.Id,null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
-
+            if (tenant == null)
+            {
+                tenant = tenantSeed;
+            }
+            
+            tenant.Navigation ??= tenantSeed.Navigation;
+            tenant.ReportSchemaDefinition ??= tenantSeed.ReportSchemaDefinition;
+            tenant.ServerScriptDefinitions ??= tenantSeed.ServerScriptDefinitions;
+            tenant.Templates ??= tenantSeed.Templates;
+            tenant.ProviderModelDefinition ??= tenantSeed.ProviderModelDefinition;
+            
             var tenantId = tenant.Id;
+            
+            await Services.GetRequiredService<ITenantableRepository<Tenant>>().SaveAsync(tenantId,null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
 
             await GenericSeedAsync<Document>(tenantId, "admin-document.json");
             await GenericSeedAsync<Documentation>(tenantId, "admin-documentation.json");
@@ -93,18 +122,22 @@ public class MetadataFileSeeder : IMetadataSeeder
         return tenant?.Id;
     }
 
-    public async Task SeedCustomerTenantAsync(Guid tenantId, string name)
+    public async Task SeedCustomerTenantAsync(Tenant tenant)
     {
         await using var fileStream = ReadSeedFile("customer-tenant.json");
         using var textReader = new StreamReader(fileStream);
 
+        var tenantId = tenant.Id;
         var tenants = JsonSerializer.Deserialize<IEnumerable<Tenant>>(await textReader.ReadToEndAsync());
-        var tenant = tenants?.FirstOrDefault();
+        var tenantSeed = tenants?.FirstOrDefault();
 
-        if (tenant != null)
+        if (tenantSeed != null)
         {
-            tenant.Id = tenantId;
-            tenant.Name = name;
+            tenant.Navigation ??= tenantSeed.Navigation;
+            tenant.ReportSchemaDefinition ??= tenantSeed.ReportSchemaDefinition;
+            tenant.ServerScriptDefinitions ??= tenantSeed.ServerScriptDefinitions;
+            tenant.Templates ??= tenantSeed.Templates;
+            tenant.ProviderModelDefinition ??= tenantSeed.ProviderModelDefinition;
 
             await Services.GetRequiredService<ITenantableRepository<Tenant>>().SaveAsync(tenantId, null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
         }

@@ -42,4 +42,26 @@
       <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 
+    <ItemGroup>
+        <SeedSourceFiles Include="../../seed/**/*.*"/>
+        <SeedSourceFiles Update="..\..\seed\admin-page.json">
+          <Link>seed\admin-page.json</Link>
+        </SeedSourceFiles>
+        <SeedSourceFiles Update="..\..\seed\customer-page.json">
+          <Link>seed\customer-page.json</Link>
+        </SeedSourceFiles>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Properties\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Properties\launchSettings.json" />
+    </ItemGroup>
+
+    <Target Name="CopySeed" AfterTargets="AfterBuild">
+        <Copy SourceFiles="@(SeedSourceFiles)" DestinationFolder="$(OutDir)seed" SkipUnchangedFiles="true" />
+    </Target>
+
 </Project>

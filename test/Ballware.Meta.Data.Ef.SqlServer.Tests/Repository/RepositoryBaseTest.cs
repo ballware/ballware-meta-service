@@ -1,8 +1,10 @@
+using System.Collections.Immutable;
 using System.Diagnostics;
 using Ballware.Meta.Caching;
 using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Ef.SqlServer;
 using Ballware.Meta.Data.Ef.Tests.Utils;
+using Ballware.Meta.Data.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -103,10 +105,17 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
         var dbContext = scope.ServiceProvider.GetRequiredService<MetaDbContext>();
 
         await dbContext.Database.MigrateAsync();
-        
+
+        var tenantRepository = scope.ServiceProvider.GetRequiredService<ITenantMetaRepository>();
         var seeder = scope.ServiceProvider.GetRequiredService<IMetadataSeeder>();
 
-        await seeder.SeedCustomerTenantAsync(TenantId, $"Customer_{TenantId.ToString()}");
+        var tenant = await tenantRepository.NewAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
+
+        tenant.Id = TenantId;
+        tenant.Provider = "mssql";
+        tenant.Name = $"Customer_{TenantId.ToString()}";
+        
+        await seeder.SeedCustomerTenantAsync(tenant);
     }
     
     [TearDown]
