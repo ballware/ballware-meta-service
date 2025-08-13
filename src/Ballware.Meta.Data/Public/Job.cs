@@ -1,4 +1,5 @@
 using Ballware.Meta.Data.Common;
+using Ballware.Shared.Data.Public;
 
 namespace Ballware.Meta.Data.Public;
 

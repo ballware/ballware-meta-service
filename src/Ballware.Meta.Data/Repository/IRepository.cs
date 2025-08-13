@@ -1,3 +1,5 @@
+using Ballware.Shared.Data.Repository;
+
 namespace Ballware.Meta.Data.Repository;
 
 public interface IRepository<TEditable> where TEditable : class

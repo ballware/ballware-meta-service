@@ -1,6 +1,7 @@
-using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Authorization;
+using Ballware.Shared.Data.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Quartz;
@@ -35,7 +36,7 @@ public class TenantableMetaImportJob<TEntity, TRepository>
                          
         var claims = Utils.DropNullMember(Utils.NormalizeJsonMember(JsonConvert.DeserializeObject<Dictionary<string, object?>>(context.MergedJobDataMap.GetString("claims") ?? "{}")
                                                                     ?? new Dictionary<string, object?>()));
-        context.MergedJobDataMap.TryGetString("filename", out var filename);
+        context.MergedJobDataMap.TryGetGuidValue("file", out var temporaryId);
         
         var tenant = await TenantRepository.ByIdAsync(tenantId);
         var repository = ServiceProvider.GetRequiredService<TRepository>();
@@ -47,9 +48,9 @@ public class TenantableMetaImportJob<TEntity, TRepository>
                 throw new ArgumentException($"Identifier undefined");
             }
 
-            if (filename == null)
+            if (temporaryId == Guid.Empty)
             {
-                throw new ArgumentException($"Filename undefined");
+                throw new ArgumentException($"File undefined");
             }
             
             if (tenant == null)
@@ -59,7 +60,7 @@ public class TenantableMetaImportJob<TEntity, TRepository>
             
             await JobRepository.UpdateJobAsync(tenantId, userId, jobId, JobStates.InProgress, string.Empty);
             
-            var file = await StorageAdapter.FileByNameForOwnerAsync(userId.ToString(), filename);
+            var file = await StorageAdapter.TemporaryFileByIdAsync(tenantId, temporaryId);
 
             await repository.ImportAsync(tenantId, userId, identifier, claims, file, async (item) =>
             {
@@ -68,7 +69,7 @@ public class TenantableMetaImportJob<TEntity, TRepository>
                 return tenantAuthorized;
             });
 
-            await StorageAdapter.RemoveFileForOwnerAsync(userId.ToString(), filename);
+            await StorageAdapter.RemoveTemporaryFileByIdBehalfOfUserAsync(tenantId, userId, temporaryId);
             await JobRepository.UpdateJobAsync(tenantId, userId, jobId, JobStates.Finished, string.Empty);
         }
         catch (Exception ex)

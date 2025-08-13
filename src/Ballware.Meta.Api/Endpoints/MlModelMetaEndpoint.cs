@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Ballware.Meta.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
@@ -106,14 +106,7 @@ public static class MlModelMetaEndpoint
     
     private static async Task<IResult> HandleMetadataByTenantAndIdAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, Guid tenantId, Guid id)
     {
-        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-        
-        if (tenant == null)
-        {
-            return Results.NotFound("Tenant not found");
-        }
-        
-        var model = await repository.MetadataByTenantAndIdAsync(tenant, id);
+        var model = await repository.MetadataByTenantAndIdAsync(tenantId, id);
         
         if (model == null)
         {
@@ -125,14 +118,7 @@ public static class MlModelMetaEndpoint
     
     private static async Task<IResult> HandleMetadataByTenantAndIdentifierAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, Guid tenantId, string identifier)
     {
-        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-        
-        if (tenant == null)
-        {
-            return Results.NotFound("Tenant not found");
-        }
-        
-        var model = await repository.MetadataByTenantAndIdentifierAsync(tenant, identifier);
+        var model = await repository.MetadataByTenantAndIdentifierAsync(tenantId, identifier);
         
         if (model == null)
         {
@@ -144,14 +130,7 @@ public static class MlModelMetaEndpoint
     
     private static async Task<IResult> HandleSaveTrainingStateBehalfOfUserAsync(ITenantMetaRepository tenantMetaRepository, IMlModelMetaRepository repository, Guid tenantId, Guid userId, MlModelTrainingState trainingState)
     {
-        var tenant = await tenantMetaRepository.ByIdAsync(tenantId);
-        
-        if (tenant == null)
-        {
-            return Results.NotFound("Tenant not found");
-        }
-        
-        await repository.SaveTrainingStateAsync(tenant, userId, trainingState);
+        await repository.SaveTrainingStateAsync(tenantId, userId, trainingState);
         
         return Results.Ok();
     }

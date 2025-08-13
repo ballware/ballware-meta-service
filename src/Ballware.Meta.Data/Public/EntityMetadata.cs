@@ -1,6 +1,8 @@
 ﻿using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using Ballware.Meta.Data.Utils;
+using Ballware.Shared.Authorization;
+using Ballware.Shared.Data.Public;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -127,7 +129,7 @@ public static class MetadataExtensions
     }
 }
 
-public class EntityMetadata : IEditable
+public class EntityMetadata : IEditable, IEntityAuthorizationMetadata
 {
     public Guid Id { get; set; }
 
@@ -185,4 +187,17 @@ public class EntityMetadata : IEditable
     public IEnumerable<EntityRight> Rights { get; set; } = Array.Empty<EntityRight>();
     public IEnumerable<Pickvalue> Pickvalues { get; set; } = Array.Empty<Pickvalue>();
     public IEnumerable<CharacteristicAssociation> CharacteristicAssociations { get; set; } = Array.Empty<CharacteristicAssociation>();
+
+    public string? RightsCheckScript
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(this.CustomScripts))
+            {
+                return this.CustomScripts.GetCustomScripts()?.ExtendedRightsCheck;
+            }
+
+            return null;
+        }
+    }
 }

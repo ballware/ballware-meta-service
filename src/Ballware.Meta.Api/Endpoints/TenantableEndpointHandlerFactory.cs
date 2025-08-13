@@ -4,6 +4,7 @@ using System.Text;
 using Ballware.Meta.Api.Bindings;
 using Ballware.Meta.Api.Public;
 using Ballware.Meta.Data.Repository;
+using Ballware.Shared.Data.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using MimeTypes;
@@ -55,7 +56,7 @@ public static class TenantableEndpointHandlerFactory
         where TEntity : class;
     
     public delegate Task<IResult> HandleDownloadExportDelegate(IExportMetaRepository exportMetaRepository, 
-        IMetaFileStorageAdapter storageAdapter, Guid id);
+        IMetaFileStorageAdapter storageAdapter, Guid tenantId, Guid id);
     
     public static HandleAllDelegate<TEntity> CreateAllHandler<TEntity>(string application, string entity) where TEntity : class 
     {
@@ -195,15 +196,17 @@ public static class TenantableEndpointHandlerFactory
                 {
                     foreach (var file in files)
                     {
+                        var temporaryId = Guid.NewGuid();
+                        
                         var jobData = new JobDataMap();
 
                         jobData["tenantId"] = tenantId.Value;
                         jobData["userId"] = currentUserId.Value;
                         jobData["identifier"] = identifier;
                         jobData["claims"] = JsonConvert.SerializeObject(claims.Value);
-                        jobData["filename"] = file.FileName;
+                        jobData["file"] = temporaryId;
 
-                        await storageAdapter.UploadFileForOwnerAsync(currentUserId.Value.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
+                        await storageAdapter.UploadTemporaryFileBehalfOfUserAsync(tenantId.Value, currentUserId.Value, temporaryId, file.FileName, file.ContentType, file.OpenReadStream());
 
                         var job = await jobMetaRepository.CreateJobAsync(tenantId.Value, currentUserId.Value, "meta",
                             "import", JsonConvert.SerializeObject(jobData));
@@ -273,18 +276,22 @@ public static class TenantableEndpointHandlerFactory
                     exportEntry.MediaType = export.MediaType;
                     exportEntry.ExpirationStamp = DateTime.Now.AddDays(1);
 
-                    await storageAdapter.UploadFileForOwnerAsync("export", $"{exportEntry.Id}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
+                    await storageAdapter.UploadTemporaryFileBehalfOfUserAsync(tenantId.Value, currentUserId.Value, exportEntry.Id, $"{exportEntry.Id}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
         
                     await exportMetaRepository.SaveAsync(tenantId.Value, currentUserId.Value, DefaultQuery, claims.Value, exportEntry);
 
-                    return Results.Content(exportEntry.Id.ToString());
+                    return Results.Ok(new ExportUrlResult()
+                    {
+                        TenantId = tenantId.Value,
+                        Id = exportEntry.Id 
+                    });
                 });
         };
     }
 
     public static HandleDownloadExportDelegate CreateDownloadExportHandler()
     {
-        return async (exportMetaRepository, storageAdapter, id) =>
+        return async (exportMetaRepository, storageAdapter, tenantId, id) =>
         {
             var export = await exportMetaRepository.ByIdAsync(id);
 
@@ -293,7 +300,7 @@ public static class TenantableEndpointHandlerFactory
                 return Results.NotFound("Export not found or expired.");
             }
 
-            var fileContent = await storageAdapter.FileByNameForOwnerAsync("export", $"{export.Id}{MimeTypeMap.GetExtension(export.MediaType)}");
+            var fileContent = await storageAdapter.TemporaryFileByIdAsync(tenantId, export.Id);
 
             if (fileContent == null)
             {

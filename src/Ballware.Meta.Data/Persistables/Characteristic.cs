@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Ballware.Meta.Data.Common;
+using Ballware.Shared.Data.Persistables;
 
 namespace Ballware.Meta.Data.Persistables;
 
@@ -15,7 +15,6 @@ public interface ICharacteristicData
     string? LookupDisplayMember { get; set; }
 }
 
-[Table("Characteristic")]
 public class Characteristic : ICharacteristicData, IEntity, IAuditable, ITenantable
 {
     [JsonIgnore]

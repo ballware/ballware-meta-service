@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using Ballware.Meta.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Meta.Data.Repository;
 using Microsoft.AspNetCore.Http;
 

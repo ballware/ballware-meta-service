@@ -1,8 +1,8 @@
-using Ballware.Meta.Authorization;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Jobs.Internal;
+using Ballware.Shared.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
@@ -19,8 +19,6 @@ public class FakeTenant
 public class MetaImportJobTest
 {
     private const string ExpectedFunctionIdentifier = "importjson";
-    private const string ExpectedFileName = "test-file.json";
-    
     private Mock<IRepository<FakeTenant>> RepositoryMock { get; set; }
     private Mock<IJobMetaRepository> JobMetaRepositoryMock { get; set; }
     private Mock<ITenantMetaRepository> TenantMetaRepositoryMock { get; set; }
@@ -71,6 +69,7 @@ public class MetaImportJobTest
         // Arrange
         var expectedTenantId = Guid.NewGuid();
         var expectedJobId = Guid.NewGuid();
+        var expectedTemporaryId = Guid.NewGuid();
         var expectedUserId = Guid.NewGuid();
         var expectedClaims = new Dictionary<string, object>();
         
@@ -86,7 +85,7 @@ public class MetaImportJobTest
             .ReturnsAsync(expectedTenant);
         
         JobsFileStorageAdapterMock
-            .Setup(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName))
+            .Setup(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId))
             .ReturnsAsync(expectedFileStream);
         
         RepositoryMock
@@ -120,7 +119,7 @@ public class MetaImportJobTest
             { "userId", expectedUserId },
             { "identifier", ExpectedFunctionIdentifier },
             { "claims", JsonConvert.SerializeObject(expectedClaims) },
-            { "filename", ExpectedFileName }
+            { "file", expectedTemporaryId }
         };
 
         JobExecutionContextMock
@@ -142,8 +141,8 @@ public class MetaImportJobTest
             r => r.UpdateJobAsync(expectedTenantId, expectedUserId, expectedJobId, JobStates.InProgress, string.Empty),
             Times.Once);
         
-        JobsFileStorageAdapterMock.Verify(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), Times.Once);
-        JobsFileStorageAdapterMock.Verify(s => s.RemoveFileForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), Times.Once);
+        JobsFileStorageAdapterMock.Verify(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId), Times.Once);
+        JobsFileStorageAdapterMock.Verify(s => s.RemoveTemporaryFileByIdBehalfOfUserAsync(expectedTenantId, expectedUserId, expectedTemporaryId), Times.Once);
         
         RepositoryMock.Verify(r => r.ImportAsync(
             expectedUserId,
@@ -159,6 +158,7 @@ public class MetaImportJobTest
         // Arrange
         var expectedTenantId = Guid.NewGuid();
         var expectedJobId = Guid.NewGuid();
+        var expectedTemporaryId = Guid.NewGuid();
         var expectedUserId = Guid.NewGuid();
         var expectedClaims = new Dictionary<string, object>();
         
@@ -173,7 +173,7 @@ public class MetaImportJobTest
             { "userId", expectedUserId },
             { "identifier", ExpectedFunctionIdentifier },
             { "claims", JsonConvert.SerializeObject(expectedClaims) },
-            { "filename", ExpectedFileName }
+            { "file", expectedTemporaryId }
         };
 
         JobExecutionContextMock
@@ -195,9 +195,9 @@ public class MetaImportJobTest
             r => r.UpdateJobAsync(expectedTenantId, expectedUserId, expectedJobId, JobStates.InProgress, string.Empty),
             Times.Never);
         
-        JobsFileStorageAdapterMock.Verify(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), 
+        JobsFileStorageAdapterMock.Verify(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId), 
             Times.Never);
-        JobsFileStorageAdapterMock.Verify(s => s.RemoveFileForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), 
+        JobsFileStorageAdapterMock.Verify(s => s.RemoveTemporaryFileByIdBehalfOfUserAsync(expectedTenantId, expectedUserId, expectedTemporaryId), 
             Times.Never);
         
         RepositoryMock.Verify(r => r.ImportAsync(
@@ -215,6 +215,7 @@ public class MetaImportJobTest
         // Arrange
         var expectedTenantId = Guid.NewGuid();
         var expectedJobId = Guid.NewGuid();
+        var expectedTemporaryId = Guid.NewGuid();
         var expectedUserId = Guid.NewGuid();
         var expectedClaims = new Dictionary<string, object>();
         
@@ -240,7 +241,7 @@ public class MetaImportJobTest
             { "jobId", expectedJobId },
             { "userId", expectedUserId },
             { "claims", JsonConvert.SerializeObject(expectedClaims) },
-            { "filename", ExpectedFileName }
+            { "file", expectedTemporaryId }
         };
 
         JobExecutionContextMock
@@ -272,9 +273,9 @@ public class MetaImportJobTest
             r => r.UpdateJobAsync(expectedTenantId, expectedUserId, expectedJobId, JobStates.InProgress, string.Empty),
             Times.Never);
         
-        JobsFileStorageAdapterMock.Verify(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), 
+        JobsFileStorageAdapterMock.Verify(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId), 
             Times.Never);
-        JobsFileStorageAdapterMock.Verify(s => s.RemoveFileForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), 
+        JobsFileStorageAdapterMock.Verify(s => s.RemoveTemporaryFileByIdBehalfOfUserAsync(expectedTenantId, expectedUserId, expectedTemporaryId), 
             Times.Never);
         
         RepositoryMock.Verify(r => r.ImportAsync(

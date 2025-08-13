@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Ballware.Shared.Data.Persistables;
 
 namespace Ballware.Meta.Data.Persistables;
 
-[Table("Tenant")]
 public class Tenant : IEntity, IAuditable
 {
     [JsonIgnore]
@@ -20,6 +20,8 @@ public class Tenant : IEntity, IAuditable
 
     public bool ManagedDatabase { get; set; }
 
+    [Required]
+    [MaxLength(20)]
     public string? Provider { get; set; }
 
     public string? Server { get; set; }

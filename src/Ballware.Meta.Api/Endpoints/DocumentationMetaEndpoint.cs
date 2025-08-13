@@ -1,6 +1,6 @@
 using System;
 using System.Security.Claims;
-using Ballware.Meta.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Microsoft.AspNetCore.Builder;
