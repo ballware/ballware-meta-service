@@ -20,6 +20,10 @@ jobs:
             8.0   
       - name: Install GitVersion
         run: dotnet tool install --global GitVersion.Tool
+      - name: Install swashbuckle CLI
+        run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 7.2.0
+      - name: Install nswag CLI
+        run: dotnet tool install --global Nswag.ConsoleCore        
       - name: Fetch GitVersion
         uses: gittools/actions/gitversion/execute@v0
         with:
@@ -32,6 +36,22 @@ jobs:
             --password ${{ secrets.GITHUB_TOKEN }} \
             --store-password-in-clear-text
           dotnet restore ballware-meta-service.sln
+      - name: Build solution
+        run: |
+          dotnet build ballware-meta-service.sln -p:Version=${{ env.GitVersion_SemVer }} --configuration Release   
+      - name: Generate Swagger specification
+        working-directory: src/Ballware.Meta.Service
+        env:
+          ASPNETCORE_ENVIRONMENT: Swagger
+        run: |
+          swagger tofile \
+            --output ../Ballware.Meta.Service.Client/swagger.json \
+            ./bin/Release/net8.0/Ballware.Meta.Service.dll \
+            service
+      - name: Generate service client code
+        working-directory: src/Ballware.Meta.Service.Client
+        run: |
+          nswag run nswag.json          
       - name: Pack NuGet packages
         run: |
           dotnet restore ballware-meta-service.sln
