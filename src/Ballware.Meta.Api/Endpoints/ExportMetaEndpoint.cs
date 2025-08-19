@@ -44,12 +44,12 @@ public static class ExportMetaEndpoint
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
-        app.MapGet(basePath + "/exportbyid/{id}", HandleFetchByIdAsync)
+        app.MapGet(basePath + "/exportbyidfortenant/{tenantId}/{id}", HandleFetchByIdForTenantAsync)
             .RequireAuthorization(authorizationScope)
             .Produces<Export>()
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
-            .WithName(apiOperationPrefix + "FetchById")
+            .WithName(apiOperationPrefix + "FetchForTenantById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
             .WithSummary("Fetch export for tenant by id");
@@ -67,9 +67,9 @@ public static class ExportMetaEndpoint
         return app;
     }
     
-    private static async Task<IResult> HandleFetchByIdAsync(IExportMetaRepository repository, Guid id)
+    private static async Task<IResult> HandleFetchByIdForTenantAsync(IExportMetaRepository repository, Guid tenantId, Guid id)
     {
-        var export = await repository.ByIdAsync(id);
+        var export = await repository.ByIdAsync(tenantId, id);
         
         return export != null ? Results.Ok(export) : Results.NotFound();
     }
