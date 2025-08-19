@@ -19,7 +19,9 @@ jobs:
           dotnet-version:
             8.0   
       - name: Install GitVersion
-        run: dotnet tool install --global GitVersion.Tool
+        uses: gittools/actions/gitversion/setup@v4.1.0
+        with:
+          versionSpec: '6.3.x'
       - name: Install swashbuckle CLI
         run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 7.2.0
       - name: Install nswag CLI
