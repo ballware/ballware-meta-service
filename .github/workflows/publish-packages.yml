@@ -26,8 +26,6 @@ jobs:
         run: dotnet tool install --global Nswag.ConsoleCore        
       - name: Fetch GitVersion
         uses: gittools/actions/gitversion/execute@v4.1.0
-        with:
-          useConfigFile: true
       - name: Restore dependencies
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
