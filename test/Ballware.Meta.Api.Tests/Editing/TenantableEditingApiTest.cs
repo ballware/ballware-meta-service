@@ -2185,7 +2185,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         var expectedFilePayload = Encoding.UTF8.GetBytes("{ \"key\": \"value\" }");
         
         ExportRepositoryMock
-            .Setup(r => r.ByIdAsync(expectedExportId))
+            .Setup(r => r.ByIdAsync(expectedTenantId, expectedExportId))
             .ReturnsAsync(new Data.Public.Export()
             {
                 Id = expectedExportId,
@@ -2217,7 +2217,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         });
 
         ExportRepositoryMock
-            .Verify(r => r.ByIdAsync(expectedExportId), 
+            .Verify(r => r.ByIdAsync(expectedTenantId, expectedExportId), 
                 Times.Once);
         
         StorageAdapterMock
@@ -2234,7 +2234,7 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         var fileNotFoundExportId = Guid.NewGuid();
         
         ExportRepositoryMock
-            .Setup(r => r.ByIdAsync(fileNotFoundExportId))
+            .Setup(r => r.ByIdAsync(expectedTenantId, fileNotFoundExportId))
             .ReturnsAsync(new Data.Public.Export()
             {
                 Id = fileNotFoundExportId,
@@ -2257,11 +2257,11 @@ public class TenantableEditingApiTest : ApiMappingBaseTest
         });
 
         ExportRepositoryMock
-            .Verify(r => r.ByIdAsync(exportNotFoundExportId), 
+            .Verify(r => r.ByIdAsync(expectedTenantId, exportNotFoundExportId), 
                 Times.Once);
         
         ExportRepositoryMock
-            .Verify(r => r.ByIdAsync(fileNotFoundExportId), 
+            .Verify(r => r.ByIdAsync(expectedTenantId, fileNotFoundExportId), 
                 Times.Once);
         
         StorageAdapterMock
