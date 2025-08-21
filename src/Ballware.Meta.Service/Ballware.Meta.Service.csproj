@@ -14,13 +14,13 @@
       <ProjectReference Include="..\Ballware.Meta.Data.Ef.SqlServer\Ballware.Meta.Data.Ef.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Data.Ef\Ballware.Meta.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Jobs\Ballware.Meta.Jobs.csproj" />
-      <ProjectReference Include="..\Ballware.Schema.Client\Ballware.Schema.Client.csproj" />
-      <ProjectReference Include="..\Ballware.Storage.Client\Ballware.Storage.Client.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="Ballware.Generic.Schema.Client" Version="1.2.0" />
       <PackageReference Include="ballware.shared.authorization.jint" Version="0.0.4" />
+      <PackageReference Include="ballware.storage.service.client" Version="9.3.0" />
       <PackageReference Include="Duende.AccessTokenManagement" Version="3.2.0" />
       <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" Version="3.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
