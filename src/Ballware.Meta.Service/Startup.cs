@@ -13,9 +13,9 @@ using Ballware.Meta.Jobs;
 using Ballware.Meta.Service.Adapter;
 using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
-using Ballware.Schema.Client;
+using Ballware.Generic.Schema.Client;
 using Ballware.Shared.Data.Repository;
-using Ballware.Storage.Client;
+using Ballware.Storage.Service.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -202,13 +202,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.Scope = schemaClientOptions.Scopes;
             });
         
-        Services.AddHttpClient<BallwareStorageClient>(client =>
+        Services.AddHttpClient<StorageServiceClient>(client =>
             {
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })
             .AddClientCredentialsTokenHandler("storage");
         
-        Services.AddHttpClient<BallwareSchemaClient>(client =>
+        Services.AddHttpClient<GenericSchemaClient>(client =>
             {
                 client.BaseAddress = new Uri(schemaClientOptions.ServiceUrl);
             })

@@ -1,14 +1,14 @@
 using Ballware.Meta.Api;
 using Ballware.Meta.Jobs;
-using Ballware.Storage.Client;
+using Ballware.Storage.Service.Client;
 
 namespace Ballware.Meta.Service.Adapter;
 
 public class StorageServiceFileStorageAdapter : IMetaFileStorageAdapter, IJobsFileStorageAdapter
 {
-    private BallwareStorageClient StorageClient { get; }
+    private StorageServiceClient StorageClient { get; }
     
-    public StorageServiceFileStorageAdapter(BallwareStorageClient storageClient)
+    public StorageServiceFileStorageAdapter(StorageServiceClient storageClient)
     {
         StorageClient = storageClient;
     }

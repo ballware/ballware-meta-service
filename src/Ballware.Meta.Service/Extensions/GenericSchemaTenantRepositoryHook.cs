@@ -1,6 +1,6 @@
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
-using Ballware.Schema.Client;
+using Ballware.Generic.Schema.Client;
 
 namespace Ballware.Meta.Service.Extensions;
 
@@ -9,9 +9,9 @@ public class GenericSchemaTenantRepositoryHook
 {
     private ILogger<GenericSchemaTenantRepositoryHook> Logger { get; }
     
-    private BallwareSchemaClient SchemaClient { get; }
+    private GenericSchemaClient SchemaClient { get; }
     
-    public GenericSchemaTenantRepositoryHook(ILogger<GenericSchemaTenantRepositoryHook> logger, BallwareSchemaClient schemaClient)
+    public GenericSchemaTenantRepositoryHook(ILogger<GenericSchemaTenantRepositoryHook> logger, GenericSchemaClient schemaClient)
     {
         Logger = logger;
         SchemaClient = schemaClient;
@@ -25,7 +25,7 @@ public class GenericSchemaTenantRepositoryHook
             SchemaClient.TenantCreateOrUpdateSchemaForTenant(value.Id, new TenantSchema()
             {
                 Provider = value.Provider,
-                UserId = userId,
+                UserId = userId.Value,
                 SerializedTenantModel = value.ProviderModelDefinition
             });    
         }

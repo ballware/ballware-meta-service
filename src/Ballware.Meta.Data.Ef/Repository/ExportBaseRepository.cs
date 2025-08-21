@@ -17,9 +17,9 @@ public class ExportBaseRepository : TenantableRepository<Public.Export, Persista
         MetaContext = dbContext;
     }
 
-    public async Task<Public.Export?> ByIdAsync(Guid id)
+    public async Task<Public.Export?> ByIdAsync(Guid tenantId, Guid id)
     {
-        var result = await MetaContext.Exports.SingleOrDefaultAsync(e => e.Uuid == id);
+        var result = await MetaContext.Exports.SingleOrDefaultAsync(e => e.TenantId == tenantId && e.Uuid == id);
 
         return result != null ? Mapper.Map<Public.Export>(result) : null;
     }

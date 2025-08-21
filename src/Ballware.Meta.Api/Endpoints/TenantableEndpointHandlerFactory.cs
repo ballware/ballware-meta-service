@@ -293,7 +293,7 @@ public static class TenantableEndpointHandlerFactory
     {
         return async (exportMetaRepository, storageAdapter, tenantId, id) =>
         {
-            var export = await exportMetaRepository.ByIdAsync(id);
+            var export = await exportMetaRepository.ByIdAsync(tenantId, id);
 
             if (export == null || export.ExpirationStamp <= DateTime.Now)
             {
