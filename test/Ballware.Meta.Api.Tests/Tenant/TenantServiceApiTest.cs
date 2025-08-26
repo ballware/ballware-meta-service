@@ -266,6 +266,10 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             .Setup(f => f.ConnectionString)
             .Returns(expectedMetaConnectionString);
         
+        metaDbConnectionFactory
+            .Setup(f => f.Provider)
+            .Returns("fake-provider");
+        
         documentMetaRepositoryMock
             .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
             .ReturnsAsync("fake document query");
