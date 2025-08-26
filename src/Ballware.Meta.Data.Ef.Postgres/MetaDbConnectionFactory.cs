@@ -6,28 +6,12 @@ namespace Ballware.Meta.Data.Ef.Postgres;
 
 public class MetaDbConnectionFactory : IMetaDbConnectionFactory
 {
+    public string Provider { get; }
     public string ConnectionString { get; }
 
     public MetaDbConnectionFactory(string connectionString)
     {
+        Provider = "postgres";
         ConnectionString = connectionString;
-    }
-
-    public IDbConnection OpenConnection()
-    {
-        var connection = new NpgsqlConnection(ConnectionString);
-
-        connection.Open();
-
-        return connection;
-    }
-
-    public async Task<IDbConnection> OpenConnectionAsync()
-    {
-        var connection = new NpgsqlConnection(ConnectionString);
-
-        await connection.OpenAsync();
-
-        return connection;
     }
 }

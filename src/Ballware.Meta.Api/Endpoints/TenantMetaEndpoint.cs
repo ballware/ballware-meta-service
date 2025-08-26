@@ -205,6 +205,7 @@ public static class TenantMetaEndpoint
         IProcessingStateMetaRepository processingStateMetaRepository,
         Guid tenantId)
     {
+        var metaConnectionProvider = metaDbConnectionFactory.Provider;
         var metaConnectionString = metaDbConnectionFactory.ConnectionString;
         
         var schemaDefinitions = new List<ReportDatasourceDefinition>();
@@ -212,6 +213,7 @@ public static class TenantMetaEndpoint
         var metaSchemaDefinition = new ReportDatasourceDefinition
         {
             Name = MetaDatasourceIdentifier,
+            Provider = metaConnectionProvider,
             ConnectionString = metaConnectionString,
             Tables = new[] {
                 new ReportDatasourceTable { Name = "Pickvalue", Query = await pickvalueMetaRepository.GenerateListQueryAsync(tenantId) },
@@ -224,6 +226,7 @@ public static class TenantMetaEndpoint
         var metaLookupsSchemaDefinition = new ReportDatasourceDefinition
         {
             Name = MetaLookupsDatasourceIdentifier,
+            Provider = metaConnectionProvider,
             ConnectionString = metaConnectionString,
             Tables = new []
                 {
@@ -251,24 +254,22 @@ public static class TenantMetaEndpoint
 
         var pickvalueTables = new List<ReportDatasourceTable>();
         
-        foreach (var pickvalueAvailability in pickvalueAvailabilities)
+        foreach (var pickvalueAvailability in pickvalueAvailabilities.Where(p => !string.IsNullOrEmpty(p.Entity) 
+                     && !string.IsNullOrEmpty(p.Field)))
         {
-            if (!string.IsNullOrEmpty(pickvalueAvailability.Entity) &&
-                !string.IsNullOrEmpty(pickvalueAvailability.Field))
+            var query = await pickvalueMetaRepository.GenerateAvailableQueryAsync(tenantId, pickvalueAvailability.Entity, pickvalueAvailability.Field);
+        
+            pickvalueTables.Add(new ReportDatasourceTable
             {
-                var query = await pickvalueMetaRepository.GenerateAvailableQueryAsync(tenantId, pickvalueAvailability.Entity, pickvalueAvailability.Field);
-            
-                pickvalueTables.Add(new ReportDatasourceTable
-                {
-                    Name = $"Pickvalue_{pickvalueAvailability.Entity}_{pickvalueAvailability.Field}",
-                    Query = query
-                });
-            }
+                Name = $"Pickvalue_{pickvalueAvailability.Entity}_{pickvalueAvailability.Field}",
+                Query = query
+            });
         }
         
         var pickvalueLookupsSchemaDefinition = new ReportDatasourceDefinition()
         {
             Name = PickvaluesDatasourceIdentifier,
+            Provider = metaConnectionProvider,
             ConnectionString = metaConnectionString,
             Tables = pickvalueTables
         };
@@ -293,6 +294,7 @@ public static class TenantMetaEndpoint
         var processingStatesSchemaDefinition = new ReportDatasourceDefinition
         {
             Name = ProcessingStatesDatasourceIdentifier,
+            Provider = metaConnectionProvider,
             ConnectionString = metaConnectionString,
             Tables = processingStateTables
         };
