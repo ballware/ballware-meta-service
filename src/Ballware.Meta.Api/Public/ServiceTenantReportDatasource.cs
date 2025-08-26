@@ -21,7 +21,8 @@ public class ServiceTenantReportDatasourceRelation
 
 public class ServiceTenantReportDatasourceDefinition
 {
-    public string? Name { get; set; }
-    public string? ConnectionString { get; set; }
-    public IEnumerable<ServiceTenantReportDatasourceTable>? Tables { get; set; }
+    public required string Name { get; set; }
+    public required string Provider { get; set; }
+    public required string ConnectionString { get; set; }
+    public IEnumerable<ServiceTenantReportDatasourceTable> Tables { get; set; } = [];
 }

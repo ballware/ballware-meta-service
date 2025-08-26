@@ -116,6 +116,7 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             new()
             {
                 Name = "Meta",
+                Provider = "fake-provider",
                 ConnectionString = expectedMetaConnectionString,
                 Tables =
                 [
@@ -134,6 +135,7 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             new()
             {
                 Name = "MetaLookups",
+                Provider = "fake-provider",
                 ConnectionString = expectedMetaConnectionString,
                 Tables =
                 [
@@ -212,6 +214,7 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             new()
             {
                 Name = "Pickvalues",
+                Provider = "fake-provider",
                 ConnectionString = expectedMetaConnectionString,
                 Tables =
                 [
@@ -225,6 +228,7 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             new()
             {
                 Name = "ProcessingStates",
+                Provider = "fake-provider",
                 ConnectionString = expectedMetaConnectionString,
                 Tables =
                 [
