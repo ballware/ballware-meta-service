@@ -194,13 +194,9 @@ public static class TenantMetaEndpoint
         ITenantMetaRepository tenantMetaRepository, 
         IEntityMetaRepository entityMetaRepository, 
         ILookupMetaRepository lookupMetaRepository,
-        IDocumentMetaRepository documentMetaRepository,
         IDocumentationMetaRepository documentationMetaRepository,
-        IMlModelMetaRepository mlModelMetaRepository,
-        INotificationMetaRepository notificationMetaRepository,
         IPageMetaRepository pageMetaRepository,
         IStatisticMetaRepository statisticMetaRepository,
-        ISubscriptionMetaRepository subscriptionMetaRepository,
         IPickvalueMetaRepository pickvalueMetaRepository,
         IProcessingStateMetaRepository processingStateMetaRepository,
         Guid tenantId)
@@ -230,15 +226,11 @@ public static class TenantMetaEndpoint
             ConnectionString = metaConnectionString,
             Tables = new []
                 {
-                    new ReportDatasourceTable { Name = "documentLookup", Query = await documentMetaRepository.GenerateListQueryAsync(tenantId) },
                     new ReportDatasourceTable { Name = "documentationLookup", Query = await documentationMetaRepository.GenerateListQueryAsync(tenantId) },
                     new ReportDatasourceTable { Name = "entityLookup", Query = await entityMetaRepository.GenerateListQueryAsync(tenantId) },
                     new ReportDatasourceTable { Name = "lookupLookup", Query = await lookupMetaRepository.GenerateListQueryAsync(tenantId) },
-                    new ReportDatasourceTable { Name = "mlmodelLookup", Query = await mlModelMetaRepository.GenerateListQueryAsync(tenantId) },
-                    new ReportDatasourceTable { Name = "notificationLookup", Query = await notificationMetaRepository.GenerateListQueryAsync(tenantId) },
                     new ReportDatasourceTable { Name = "pageLookup", Query = await pageMetaRepository.GenerateListQueryAsync(tenantId) },
                     new ReportDatasourceTable { Name = "statisticLookup", Query = await statisticMetaRepository.GenerateListQueryAsync(tenantId) },
-                    new ReportDatasourceTable { Name = "subscriptionLookup", Query = await subscriptionMetaRepository.GenerateListQueryAsync(tenantId) },
                     new ReportDatasourceTable { Name = "tenantLookup", Query = await tenantMetaRepository.GenerateListQueryAsync() },
                     
                     new ReportDatasourceTable { Name = "entityIdentifierLookup", Query = await entityMetaRepository.GenerateListQueryAsync(tenantId) },

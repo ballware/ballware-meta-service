@@ -29,14 +29,7 @@ class StorageMappingProfile : Profile
 
         CreateMap<Persistables.Documentation, Public.Documentation>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Document, Persistables.Document>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Document, Public.Document>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
+        
         CreateMap<Public.EntityMetadata, Persistables.EntityMetadata>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
@@ -63,27 +56,6 @@ class StorageMappingProfile : Profile
             .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
 
         CreateMap<Persistables.Lookup, Public.Lookup>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.MlModel, Persistables.MlModel>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.MlModel, Public.MlModel>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Notification, Persistables.Notification>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Notification, Public.Notification>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.NotificationTrigger, Persistables.NotificationTrigger>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.NotificationTrigger, Public.NotificationTrigger>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
 
         CreateMap<Public.Page, Persistables.Page>()
@@ -119,13 +91,6 @@ class StorageMappingProfile : Profile
             .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
 
         CreateMap<Persistables.Statistic, Public.Statistic>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Subscription, Persistables.Subscription>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Subscription, Public.Subscription>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
         
         CreateMap<Public.TenantDatabaseObject, Persistables.TenantDatabaseObject>()
