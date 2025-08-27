@@ -46,10 +46,6 @@ public class MetaModelBaseCustomizer : RelationalModelCustomizer
         modelBuilder.Entity<EntityMetadata>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
         modelBuilder.Entity<EntityMetadata>().HasIndex(d => d.TenantId);
 
-        modelBuilder.Entity<Document>().HasKey(d => d.Id);
-        modelBuilder.Entity<Document>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
-        modelBuilder.Entity<Document>().HasIndex(d => d.TenantId);
-
         modelBuilder.Entity<Lookup>().HasKey(d => d.Id);
         modelBuilder.Entity<Lookup>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
         modelBuilder.Entity<Lookup>().HasIndex(d => d.TenantId);
@@ -62,20 +58,6 @@ public class MetaModelBaseCustomizer : RelationalModelCustomizer
         modelBuilder.Entity<ProcessingState>().HasKey(d => d.Id);
         modelBuilder.Entity<ProcessingState>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
         modelBuilder.Entity<ProcessingState>().HasIndex(d => new { d.TenantId, d.Entity });
-
-        modelBuilder.Entity<Notification>().HasKey(d => d.Id);
-        modelBuilder.Entity<Notification>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
-        modelBuilder.Entity<Notification>().HasIndex(d => d.TenantId);
-        modelBuilder.Entity<Notification>().HasIndex(d => new { d.TenantId, d.Identifier }).IsUnique();
-
-        modelBuilder.Entity<NotificationTrigger>().HasKey(d => d.Id);
-        modelBuilder.Entity<NotificationTrigger>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
-        modelBuilder.Entity<NotificationTrigger>().HasIndex(d => d.TenantId);
-
-        modelBuilder.Entity<Subscription>().HasKey(d => d.Id);
-        modelBuilder.Entity<Subscription>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
-        modelBuilder.Entity<Subscription>().HasIndex(d => d.TenantId);
-        modelBuilder.Entity<Subscription>().HasIndex(d => d.Frequency);
 
         modelBuilder.Entity<EntityRight>().HasKey(d => d.Id);
         modelBuilder.Entity<EntityRight>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
@@ -110,11 +92,6 @@ public class MetaModelBaseCustomizer : RelationalModelCustomizer
         modelBuilder.Entity<Page>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
         modelBuilder.Entity<Page>().HasIndex(d => new { d.TenantId });
         modelBuilder.Entity<Page>().HasIndex(d => new { d.TenantId, d.Identifier }).IsUnique();
-
-        modelBuilder.Entity<MlModel>().HasKey(d => d.Id);
-        modelBuilder.Entity<MlModel>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
-        modelBuilder.Entity<MlModel>().HasIndex(d => new { d.TenantId });
-        modelBuilder.Entity<MlModel>().HasIndex(d => new { d.TenantId, d.Identifier }).IsUnique();
 
         modelBuilder.Entity<Job>().HasKey(d => d.Id);
         modelBuilder.Entity<Job>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
