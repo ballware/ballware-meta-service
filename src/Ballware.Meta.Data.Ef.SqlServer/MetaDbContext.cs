@@ -19,14 +19,10 @@ public class MetaDbContext : DbContext, IMetaDbContext
     public DbSet<Lookup> Lookups { get; set; }
     public DbSet<Pickvalue> Pickvalues { get; set; }
     public DbSet<ProcessingState> ProcessingStates { get; set; }
-    public DbSet<CharacteristicGroup> CharacteristicGroups { get; set; }
-    public DbSet<Characteristic> Characteristics { get; set; }
-    public DbSet<CharacteristicAssociation> CharacteristicAssociations { get; set; }
     public DbSet<Documentation> Documentations { get; set; }
     public DbSet<Statistic> Statistics { get; set; }
     public DbSet<Page> Pages { get; set; }
     public DbSet<Export> Exports { get; set; }
-    public DbSet<TenantDatabaseObject> TenantDatabaseObjects { get; set; }
     public DbSet<Job> Jobs { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

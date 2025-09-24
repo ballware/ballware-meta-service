@@ -18,15 +18,11 @@ public class SqlServerMetaModelCustomizer : MetaModelBaseCustomizer
         base.Customize(modelBuilder, context);
         
         modelBuilder.Entity<Tenant>().ToTable("Tenant");
-        modelBuilder.Entity<TenantDatabaseObject>().ToTable("TenantDatabaseObject");
         modelBuilder.Entity<EntityMetadata>().ToTable("Entity");
         modelBuilder.Entity<Lookup>().ToTable("Lookup");
         modelBuilder.Entity<Pickvalue>().ToTable("Pickvalue");
         modelBuilder.Entity<ProcessingState>().ToTable("ProcessingState");
         modelBuilder.Entity<EntityRight>().ToTable("EntityRight");
-        modelBuilder.Entity<CharacteristicGroup>().ToTable("CharacteristicGroup");
-        modelBuilder.Entity<Characteristic>().ToTable("Characteristic");
-        modelBuilder.Entity<CharacteristicAssociation>().ToTable("CharacteristicAssociation");
         modelBuilder.Entity<Documentation>().ToTable("Documentation");
         modelBuilder.Entity<Statistic>().ToTable("Statistic");
         modelBuilder.Entity<Page>().ToTable("Page");

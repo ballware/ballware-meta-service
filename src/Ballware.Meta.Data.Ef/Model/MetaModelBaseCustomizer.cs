@@ -12,7 +12,7 @@ public class MetaModelBaseCustomizer : RelationalModelCustomizer
     {
     }
     
-    public override void Customize(ModelBuilder modelBuilder, DbContext context)
+    private static void ApplyValueConverter(ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
@@ -33,14 +33,15 @@ public class MetaModelBaseCustomizer : RelationalModelCustomizer
                 }
             }
         }
+    }
+    
+    public override void Customize(ModelBuilder modelBuilder, DbContext context)
+    {
+        ApplyValueConverter(modelBuilder);
         
         modelBuilder.Entity<Tenant>().HasKey(d => d.Id);
         modelBuilder.Entity<Tenant>().HasIndex(d => d.Uuid).IsUnique();
         modelBuilder.Entity<Tenant>().HasIndex(d => d.Name).IsUnique();
-
-        modelBuilder.Entity<TenantDatabaseObject>().HasKey(d => d.Id);
-        modelBuilder.Entity<TenantDatabaseObject>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
-        modelBuilder.Entity<TenantDatabaseObject>().HasIndex(d => new { d.TenantId, d.Type, d.Name }).IsUnique();
 
         modelBuilder.Entity<EntityMetadata>().HasKey(d => d.Id);
         modelBuilder.Entity<EntityMetadata>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
@@ -62,21 +63,6 @@ public class MetaModelBaseCustomizer : RelationalModelCustomizer
         modelBuilder.Entity<EntityRight>().HasKey(d => d.Id);
         modelBuilder.Entity<EntityRight>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
         modelBuilder.Entity<EntityRight>().HasIndex(d => new { d.TenantId, d.Entity });
-
-        modelBuilder.Entity<CharacteristicGroup>().HasKey(d => d.Id);
-        modelBuilder.Entity<CharacteristicGroup>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
-        modelBuilder.Entity<CharacteristicGroup>().HasIndex(d => new { d.TenantId, d.Entity });
-        modelBuilder.Entity<CharacteristicGroup>().HasIndex(d => new { d.TenantId, d.Entity, d.Name }).IsUnique();
-
-        modelBuilder.Entity<Characteristic>().HasKey(d => d.Id);
-        modelBuilder.Entity<Characteristic>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
-        modelBuilder.Entity<Characteristic>().HasIndex(d => new { d.TenantId });
-        modelBuilder.Entity<Characteristic>().HasIndex(d => new { d.TenantId, d.Identifier }).IsUnique();
-
-        modelBuilder.Entity<CharacteristicAssociation>().HasKey(d => d.Id);
-        modelBuilder.Entity<CharacteristicAssociation>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();
-        modelBuilder.Entity<CharacteristicAssociation>().HasIndex(d => new { d.TenantId, d.Entity });
-        modelBuilder.Entity<CharacteristicAssociation>().HasIndex(d => new { d.TenantId, d.Entity, d.CharacteristicId }).IsUnique();
 
         modelBuilder.Entity<Documentation>().HasKey(d => d.Id);
         modelBuilder.Entity<Documentation>().HasIndex(d => new { d.TenantId, d.Uuid }).IsUnique();

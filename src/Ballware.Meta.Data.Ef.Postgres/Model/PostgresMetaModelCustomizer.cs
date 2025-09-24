@@ -17,15 +17,11 @@ public class PostgresMetaModelCustomizer : MetaModelBaseCustomizer
         base.Customize(modelBuilder, context);
         
         modelBuilder.Entity<Tenant>().ToTable("tenant");
-        modelBuilder.Entity<TenantDatabaseObject>().ToTable("tenant_database_object");
         modelBuilder.Entity<EntityMetadata>().ToTable("entity");
         modelBuilder.Entity<Lookup>().ToTable("lookup");
         modelBuilder.Entity<Pickvalue>().ToTable("pickvalue");
         modelBuilder.Entity<ProcessingState>().ToTable("processing_state");
         modelBuilder.Entity<EntityRight>().ToTable("entity_right");
-        modelBuilder.Entity<CharacteristicGroup>().ToTable("characteristic_group");
-        modelBuilder.Entity<Characteristic>().ToTable("characteristic");
-        modelBuilder.Entity<CharacteristicAssociation>().ToTable("characteristic_association");
         modelBuilder.Entity<Documentation>().ToTable("documentation");
         modelBuilder.Entity<Statistic>().ToTable("statistic");
         modelBuilder.Entity<Page>().ToTable("page");

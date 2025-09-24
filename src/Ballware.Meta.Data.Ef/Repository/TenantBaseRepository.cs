@@ -3,14 +3,13 @@ using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Ballware.Shared.Data.Repository;
-using Dapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Repository;
 
 public abstract class TenantBaseRepository : BaseRepository<Public.Tenant, Persistables.Tenant>, ITenantMetaRepository
 {
-    public TenantBaseRepository(IMapper mapper, IMetaDbContext dbContext,
+    protected TenantBaseRepository(IMapper mapper, IMetaDbContext dbContext,
         IRepositoryHook<Public.Tenant, Persistables.Tenant>? hook = null) : base(mapper, dbContext, hook)
     {
         
@@ -19,25 +18,8 @@ public abstract class TenantBaseRepository : BaseRepository<Public.Tenant, Persi
     public virtual async Task<Public.Tenant?> ByIdAsync(Guid id)
     {
         var result = await Context.Tenants.SingleOrDefaultAsync(t => t.Uuid == id);
-
-        IEnumerable<Public.TenantDatabaseObject>? databaseObjects = null;
         
-        if (result != null)
-        {
-            databaseObjects = DatabaseObjectsByTenant(result.Uuid);
-        }
-        
-        return result != null ? Mapper.Map<Public.Tenant>(result, opts =>
-        {
-            opts.Items["DatabaseObjects"] = databaseObjects ?? [];
-        }) : null;
-    }
-
-    private IEnumerable<Public.TenantDatabaseObject> DatabaseObjectsByTenant(Guid tenant)
-    {
-        var results = Context.TenantDatabaseObjects.Where(o => o.TenantId == tenant);
-        
-        return Mapper.Map<IEnumerable<Public.TenantDatabaseObject>>(results);
+        return result != null ? Mapper.Map<Public.Tenant>(result) : null;
     }
 
     public abstract Task<IEnumerable<TenantSelectListEntry>> AllowedTenantsAsync(IDictionary<string, object> claims);

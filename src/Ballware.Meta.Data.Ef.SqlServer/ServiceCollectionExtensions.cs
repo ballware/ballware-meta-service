@@ -77,9 +77,6 @@ public static class ServiceCollectionExtensions
         
         services.AddScoped<ITenantableRepository<EntityRight>, EntityRightBaseRepository>();
         services.AddScoped<IEntityRightMetaRepository, EntityRightBaseRepository>();
-        
-        services.AddScoped<ITenantableRepository<CharacteristicAssociation>, CharacteristicAssociationBaseRepository>();
-        services.AddScoped<ICharacteristicAssociationMetaRepository, CharacteristicAssociationBaseRepository>();
 
         services.AddScoped<ITenantableRepository<Statistic>, StatisticRepository>();
         services.AddScoped<IStatisticMetaRepository, StatisticRepository>();
