@@ -17,15 +17,16 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version:
-            8.0   
+            8.0
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v4.1.0
         with:
-          versionSpec: '6.3.x'
-      - name: Install swashbuckle CLI
-        run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 7.2.0
-      - name: Install nswag CLI
-        run: dotnet tool install --global Nswag.ConsoleCore        
+          versionSpec: '6.3.x'          
+      - name: Ensure tool manifest exists & install local tools
+        run: |
+          dotnet new tool-manifest || true
+          dotnet tool update Swashbuckle.AspNetCore.Cli --version 8.1.4
+          dotnet tool update Nswag.ConsoleCore
       - name: Fetch GitVersion
         uses: gittools/actions/gitversion/execute@v4.1.0
       - name: Restore dependencies
@@ -45,16 +46,15 @@ jobs:
         working-directory: src/Ballware.Meta.Service
         env:
           ASPNETCORE_ENVIRONMENT: Swagger
-          DOTNET_ROLL_FORWARD: Disable
         run: |
-          swagger tofile \
+          dotnet tool run swagger tofile \
             --output ../Ballware.Meta.Service.Client/swagger.json \
             ./bin/Release/net8.0/Ballware.Meta.Service.dll \
             service
       - name: Generate service client code
         working-directory: src/Ballware.Meta.Service.Client
         run: |
-          nswag run nswag.json          
+          dotnet tool run nswag run nswag.json          
       - name: Pack NuGet packages
         run: |
           dotnet restore ballware-meta-service.sln
