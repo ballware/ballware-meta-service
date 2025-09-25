@@ -3,6 +3,7 @@ using System;
 using Ballware.Meta.Data.Ef.Postgres;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Ballware.Meta.Data.Ef.Postgres.Migrations
 {
     [DbContext(typeof(MetaDbContext))]
-    partial class MetaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250924164245_RemoveObsoleteDataProviderTables")]
+    partial class RemoveObsoleteDataProviderTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

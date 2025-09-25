@@ -12,13 +12,9 @@ public interface IMetaDbContext : IDbContext
     DbSet<Lookup> Lookups { get; }
     DbSet<Pickvalue> Pickvalues { get; }
     DbSet<ProcessingState> ProcessingStates { get; }
-    DbSet<CharacteristicGroup> CharacteristicGroups { get; }
-    DbSet<Characteristic> Characteristics { get; }
-    DbSet<CharacteristicAssociation> CharacteristicAssociations { get; }
     DbSet<Documentation> Documentations { get; }
     DbSet<Statistic> Statistics { get; }
     DbSet<Page> Pages { get; }
     DbSet<Export> Exports { get; }
-    DbSet<TenantDatabaseObject> TenantDatabaseObjects { get; }
     DbSet<Job> Jobs { get; }
 }

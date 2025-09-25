@@ -1,7 +1,6 @@
 using Ballware.Meta.Data.Caching;
 using Ballware.Shared.Data.Repository;
 using Ballware.Meta.Data.Ef.Configuration;
-using Ballware.Meta.Data.Ef.Model;
 using Ballware.Meta.Data.Ef.Postgres.Internal;
 using Ballware.Meta.Data.Ef.Postgres.Repository;
 using Ballware.Meta.Data.Ef.Repository;
@@ -81,9 +80,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantableRepository<EntityRight>, EntityRightBaseRepository>();
         services.AddScoped<IEntityRightMetaRepository, EntityRightBaseRepository>();
         
-        services.AddScoped<ITenantableRepository<CharacteristicAssociation>, CharacteristicAssociationBaseRepository>();
-        services.AddScoped<ICharacteristicAssociationMetaRepository, CharacteristicAssociationBaseRepository>();
-
         services.AddScoped<ITenantableRepository<Statistic>, StatisticRepository>();
         services.AddScoped<IStatisticMetaRepository, StatisticRepository>();
 

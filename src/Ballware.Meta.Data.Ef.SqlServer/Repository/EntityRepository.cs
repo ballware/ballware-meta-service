@@ -15,10 +15,9 @@ public class EntityRepository : EntityBaseRepository
         IProcessingStateMetaRepository processingStateMetaRepository,
         IPickvalueMetaRepository pickvalueMetaRepository,
         IEntityRightMetaRepository entityRightMetaRepository,
-        ICharacteristicAssociationMetaRepository characteristicAssociationMetaRepository,
         IMetaDbContext dbContext,
         ITenantableRepositoryHook<Public.EntityMetadata, Persistables.EntityMetadata>? hook = null)
-        : base(mapper, processingStateMetaRepository, pickvalueMetaRepository, entityRightMetaRepository, characteristicAssociationMetaRepository, dbContext, hook)
+        : base(mapper, processingStateMetaRepository, pickvalueMetaRepository, entityRightMetaRepository, dbContext, hook)
     {
     }
     
