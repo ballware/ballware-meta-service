@@ -6,18 +6,15 @@ on:
       - develop
 
 jobs:
-  publish:
+  build_and_pack:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:8.0        
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version:
-            8.0
+          fetch-depth: 0      
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v4.1.0
         with:
@@ -71,9 +68,13 @@ jobs:
           git config user.email "github-actions@github.com"
           git tag v${{ env.GitVersion_SemVer }}
           git push origin refs/tags/v${{ env.GitVersion_SemVer }} refs/heads/main
+  docker_publish:          
+    needs: build_and_pack
+    runs-on: ubuntu-latest
+    steps:
       - name: Set environment variables for Docker tags
         run: |
-          echo "DOCKER_TAG=${{ env.GitVersion_SemVer }}" >> $GITHUB_ENV
+          echo "DOCKER_TAG=${{ needs.build_and_pack.outputs.GitVersion_SemVer }}" >> $GITHUB_ENV
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             echo "DOCKER_TAG2=stable" >> $GITHUB_ENV
           else
