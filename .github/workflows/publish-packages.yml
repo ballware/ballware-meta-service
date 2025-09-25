@@ -44,8 +44,8 @@ jobs:
       - name: Generate Swagger specification
         working-directory: src/Ballware.Meta.Service
         env:
-          COREHOST_TRACE: 1
           ASPNETCORE_ENVIRONMENT: Swagger
+          DOTNET_ROLL_FORWARD: Disable
         run: |
           swagger tofile \
             --output ../Ballware.Meta.Service.Client/swagger.json \
