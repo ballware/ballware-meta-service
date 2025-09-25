@@ -80,6 +80,10 @@ jobs:
     needs: build_and_pack
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set environment variables for Docker tags
         run: |
           echo "DOCKER_TAG=${{ needs.build_and_pack.outputs.semver }}" >> $GITHUB_ENV
