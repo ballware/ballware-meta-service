@@ -9,7 +9,9 @@ jobs:
   build_and_pack:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/dotnet/sdk:8.0        
+      image: mcr.microsoft.com/dotnet/sdk:8.0
+    outputs:
+      semver: ${{ steps.gitversion.outputs.SemVer }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -80,7 +82,7 @@ jobs:
     steps:
       - name: Set environment variables for Docker tags
         run: |
-          echo "DOCKER_TAG=${{ needs.build_and_pack.outputs.GitVersion_SemVer }}" >> $GITHUB_ENV
+          echo "DOCKER_TAG=${{ needs.build_and_pack.outputs.semver }}" >> $GITHUB_ENV
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             echo "DOCKER_TAG2=stable" >> $GITHUB_ENV
           else
