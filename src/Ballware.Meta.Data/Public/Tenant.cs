@@ -46,6 +46,8 @@ public class Tenant : IEditable, ITenantAuthorizationMetadata
     public string? Password { get; set; }
     public string? ReportSchemaDefinition { get; set; }
     public string? ProviderModelDefinition { get; set; }
+    
+    public bool Seed { get; set; }
 }
 
 public static class TenantExtensions

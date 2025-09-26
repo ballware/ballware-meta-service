@@ -12,6 +12,8 @@ namespace Ballware.Meta.Data.Ef.Postgres.Tests.Repository;
 
 public class PageMetaRepositoryTest : RepositoryBaseTest
 {
+    private const int MetaPageCount = 17;
+    
     [Test]
     public async Task Save_and_remove_value_succeeds()
     {
@@ -110,10 +112,10 @@ public class PageMetaRepositoryTest : RepositoryBaseTest
         
         Assert.Multiple(() =>
         {
-            Assert.That(actualTenantItemsCount, Is.EqualTo(10));
-            Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10));
-            Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10));
-            Assert.That(actualSelectListItems.Count(), Is.EqualTo(10));
+            Assert.That(actualTenantItemsCount, Is.EqualTo(10 + MetaPageCount));
+            Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10 + MetaPageCount));
+            Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10 + MetaPageCount));
+            Assert.That(actualSelectListItems.Count(), Is.EqualTo(10 + MetaPageCount));
             Assert.That(actualSelectByIdItem, Is.Not.Null);
             Assert.That(actualSelectByIdItem?.Id, Is.EqualTo(fakeValueIds[0]));
         });
@@ -154,9 +156,9 @@ public class PageMetaRepositoryTest : RepositoryBaseTest
         
         Assert.Multiple(() =>
         {
-            Assert.That(actualTenantItemsCount, Is.EqualTo(10));
-            Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10));
-            Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10));
+            Assert.That(actualTenantItemsCount, Is.EqualTo(10 + MetaPageCount));
+            Assert.That(actualTenantAllItems.Count(), Is.EqualTo(10 + MetaPageCount));
+            Assert.That(actualTenantQueryItems.Count(), Is.EqualTo(10 + MetaPageCount));
         });
     }
 
@@ -227,7 +229,7 @@ public class PageMetaRepositoryTest : RepositoryBaseTest
         
         Assert.Multiple(() =>
         {
-            Assert.That(result.Count(), Is.EqualTo(0));
+            Assert.That(result.Count(), Is.EqualTo(17));
         });
     }
 }
