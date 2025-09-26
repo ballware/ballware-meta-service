@@ -1,6 +1,5 @@
+using Ballware.Generic.Schema.Client;
 using Ballware.Meta.Data.Persistables;
-using Ballware.Meta.Data.Repository;
-using Ballware.Schema.Client;
 using Ballware.Shared.Data.Repository;
 
 namespace Ballware.Meta.Service.Extensions;
@@ -10,9 +9,9 @@ public class GenericSchemaEntityRepositoryHook
 {
     private ILogger<GenericSchemaEntityRepositoryHook> Logger { get; }
     
-    private BallwareSchemaClient SchemaClient { get; }
+    private GenericSchemaClient SchemaClient { get; }
     
-    public GenericSchemaEntityRepositoryHook(ILogger<GenericSchemaEntityRepositoryHook> logger, BallwareSchemaClient schemaClient)
+    public GenericSchemaEntityRepositoryHook(ILogger<GenericSchemaEntityRepositoryHook> logger, GenericSchemaClient schemaClient)
     {
         Logger = logger;
         SchemaClient = schemaClient;
@@ -29,7 +28,7 @@ public class GenericSchemaEntityRepositoryHook
         {
             SchemaClient.TenantCreateOrUpdateEntitySchemaForTenant(persistable.TenantId, new EntitySchema()
             {
-                UserId = userId,
+                UserId = userId.Value,
                 SerializedEntityModel = value.ProviderModelDefinition
             });
         }

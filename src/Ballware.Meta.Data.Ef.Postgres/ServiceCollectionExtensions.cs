@@ -1,7 +1,6 @@
 using Ballware.Meta.Data.Caching;
 using Ballware.Shared.Data.Repository;
 using Ballware.Meta.Data.Ef.Configuration;
-using Ballware.Meta.Data.Ef.Model;
 using Ballware.Meta.Data.Ef.Postgres.Internal;
 using Ballware.Meta.Data.Ef.Postgres.Repository;
 using Ballware.Meta.Data.Ef.Repository;
@@ -36,10 +35,7 @@ public static class ServiceCollectionExtensions
         
         services.AddScoped<ITenantableRepository<Documentation>, DocumentationRepository>();
         services.AddScoped<IDocumentationMetaRepository, DocumentationRepository>();
-
-        services.AddScoped<ITenantableRepository<Document>, DocumentRepository>();
-        services.AddScoped<IDocumentMetaRepository, DocumentRepository>();
-
+        
         services.AddScoped<EntityRepository>();
         
         if (options.EnableCaching)
@@ -71,15 +67,6 @@ public static class ServiceCollectionExtensions
             services.AddScoped<ITenantableRepository<Lookup>, LookupRepository>();
             services.AddScoped<ILookupMetaRepository, LookupRepository>();
         }
-        
-        services.AddScoped<ITenantableRepository<MlModel>, MlModelRepository>();
-        services.AddScoped<IMlModelMetaRepository, MlModelRepository>();
-
-        services.AddScoped<ITenantableRepository<Notification>, NotificationRepository>();
-        services.AddScoped<INotificationMetaRepository, NotificationRepository>();
-
-        services.AddScoped<ITenantableRepository<NotificationTrigger>, NotificationTriggerBaseRepository>();
-        services.AddScoped<INotificationTriggerMetaRepository, NotificationTriggerBaseRepository>();
 
         services.AddScoped<ITenantableRepository<Page>, PageRepository>();
         services.AddScoped<IPageMetaRepository, PageRepository>();
@@ -93,14 +80,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantableRepository<EntityRight>, EntityRightBaseRepository>();
         services.AddScoped<IEntityRightMetaRepository, EntityRightBaseRepository>();
         
-        services.AddScoped<ITenantableRepository<CharacteristicAssociation>, CharacteristicAssociationBaseRepository>();
-        services.AddScoped<ICharacteristicAssociationMetaRepository, CharacteristicAssociationBaseRepository>();
-
         services.AddScoped<ITenantableRepository<Statistic>, StatisticRepository>();
         services.AddScoped<IStatisticMetaRepository, StatisticRepository>();
-
-        services.AddScoped<ITenantableRepository<Subscription>, SubscriptionRepository>();
-        services.AddScoped<ISubscriptionMetaRepository, SubscriptionRepository>();
 
         services.AddScoped<TenantRepository>();
         

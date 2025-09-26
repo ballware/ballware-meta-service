@@ -186,7 +186,6 @@ public class EntityMetadata : IEditable, IEntityAuthorizationMetadata
     public IEnumerable<ProcessingState> States { get; set; } = Array.Empty<ProcessingState>();
     public IEnumerable<EntityRight> Rights { get; set; } = Array.Empty<EntityRight>();
     public IEnumerable<Pickvalue> Pickvalues { get; set; } = Array.Empty<Pickvalue>();
-    public IEnumerable<CharacteristicAssociation> CharacteristicAssociations { get; set; } = Array.Empty<CharacteristicAssociation>();
 
     public string? RightsCheckScript
     {

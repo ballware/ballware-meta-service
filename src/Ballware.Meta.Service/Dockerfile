@@ -18,8 +18,6 @@ COPY ./Ballware.Meta.Data.Ef.SqlServer ./Ballware.Meta.Data.Ef.SqlServer
 COPY ./Ballware.Meta.Data.Ef.Postgres ./Ballware.Meta.Data.Ef.Postgres
 COPY ./Ballware.Meta.Jobs ./Ballware.Meta.Jobs
 COPY ./Ballware.Meta.Service ./Ballware.Meta.Service
-COPY ./Ballware.Schema.Client ./Ballware.Schema.Client
-COPY ./Ballware.Storage.Client ./Ballware.Storage.Client
 
 WORKDIR "/src/Ballware.Meta.Service"
 RUN dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" --name github --username frankball --password "$GITHUB_PAT" --store-password-in-clear-text

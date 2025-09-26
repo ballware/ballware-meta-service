@@ -13,9 +13,9 @@ using Ballware.Meta.Jobs;
 using Ballware.Meta.Service.Adapter;
 using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
-using Ballware.Schema.Client;
+using Ballware.Generic.Schema.Client;
 using Ballware.Shared.Data.Repository;
-using Ballware.Storage.Client;
+using Ballware.Storage.Service.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -202,13 +202,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.Scope = schemaClientOptions.Scopes;
             });
         
-        Services.AddHttpClient<BallwareStorageClient>(client =>
+        Services.AddHttpClient<StorageServiceClient>(client =>
             {
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })
             .AddClientCredentialsTokenHandler("storage");
         
-        Services.AddHttpClient<BallwareSchemaClient>(client =>
+        Services.AddHttpClient<GenericSchemaClient>(client =>
             {
                 client.BaseAddress = new Uri(schemaClientOptions.ServiceUrl);
             })
@@ -340,10 +340,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.MapTenantServiceApi("/meta/tenant");
         app.MapTenantableEditingApi<Data.Public.Tenant>("/meta/tenant", "meta", "tenant", "Tenant", "Tenant");
         
-        app.MapSubscriptionMetaApi("/meta/subscription");
-        app.MapSubscriptionServiceApi("/meta/subscription");
-        app.MapTenantableEditingApi<Subscription>("/meta/subscription", "meta", "subscription", "Subscription", "Subscription");
-        
         app.MapStatisticMetaApi("/meta/statistic");
         app.MapStatisticServiceApi("/meta/statistic");
         app.MapTenantableEditingApi<Statistic>("/meta/statistic", "meta", "statistic", "Statistic", "Statistic");
@@ -366,18 +362,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.MapExportServiceApi("/meta/export");
         app.MapTenantableEditingApi<Export>("/meta/export", "meta", "export", "Export", "Export");
         
-        app.MapNotificationMetaApi("/meta/notification");
-        app.MapNotificationServiceApi("/meta/notification");
-        app.MapTenantableEditingApi<Notification>("/meta/notification", "meta", "notification", "Notification", "Notification");
-        
-        app.MapNotificationTriggerMetaApi("/meta/notificationtrigger");
-        app.MapNotificationTriggerServiceApi("/meta/notificationtrigger");
-        app.MapTenantableEditingApi<NotificationTrigger>("/meta/notificationtrigger", "meta", "notificationtrigger", "NotificationTrigger", "NotificationTrigger");
-        
-        app.MapMlModelMetaApi("/meta/mlmodel");
-        app.MapMlModelServiceApi("/meta/mlmodel");
-        app.MapTenantableEditingApi<MlModel>("/meta/mlmodel", "meta", "mlmodel", "MlModel", "MlModel");
-        
         app.MapDocumentationMetaApi("/meta/documentation");
         app.MapDocumentationServiceApi("/meta/documentation");
         app.MapTenantableEditingApi<Documentation>("/meta/documentation", "meta", "documentation", "Documentation", "Documentation");
@@ -389,10 +373,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.MapLookupMetaApi("/meta/lookup");
         app.MapLookupServiceApi("/meta/lookup");
         app.MapTenantableEditingApi<Lookup>("/meta/lookup", "meta", "lookup", "Lookup", "Lookup");
-        
-        app.MapDocumentMetaApi("/meta/document");
-        app.MapDocumentServiceApi("/meta/document");
-        app.MapTenantableEditingApi<Document>("/meta/document", "meta", "document", "Document", "Document");
         
         app.MapEntityMetaApi("/meta/entity");
         app.MapEntityServiceApi("/meta/entity");

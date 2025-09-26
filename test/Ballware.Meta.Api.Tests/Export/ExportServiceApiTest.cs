@@ -21,6 +21,7 @@ public class ExportServiceApiTest : ApiMappingBaseTest
     public async Task HandleFetchById_succeeds()
     {
         // Arrange
+        var expectedTenantId = Guid.NewGuid();
         var expectedEntry = new Data.Public.Export()
         {
             Id = Guid.NewGuid(),
@@ -41,7 +42,7 @@ public class ExportServiceApiTest : ApiMappingBaseTest
         var repositoryMock = new Mock<IExportMetaRepository>();
 
         repositoryMock
-            .Setup(r => r.ByIdAsync(expectedEntry.Id))
+            .Setup(r => r.ByIdAsync(expectedTenantId, expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
 
         // Act
@@ -57,7 +58,7 @@ public class ExportServiceApiTest : ApiMappingBaseTest
             });
         });
         
-        var response = await client.GetAsync($"export/exportbyid/{expectedEntry.Id}");
+        var response = await client.GetAsync($"export/exportbyidfortenant/{expectedTenantId}/{expectedEntry.Id}");
         
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
@@ -65,7 +66,7 @@ public class ExportServiceApiTest : ApiMappingBaseTest
         
         Assert.That(DeepComparer.AreEqual(expectedEntry, result, TestContext.WriteLine), Is.True);
         
-        var notFoundResponse = await client.GetAsync($"export/exportbyidfortenant/{Guid.NewGuid()}");
+        var notFoundResponse = await client.GetAsync($"export/exportbyidfortenant/{expectedTenantId}/{Guid.NewGuid()}");
         
         Assert.That(notFoundResponse.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
     }

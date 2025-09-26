@@ -6,28 +6,12 @@ namespace Ballware.Meta.Data.Ef.SqlServer;
 
 public class MetaDbConnectionFactory : IMetaDbConnectionFactory
 {
+    public string Provider { get; }
     public string ConnectionString { get; }
 
     public MetaDbConnectionFactory(string connectionString)
     {
+        Provider = "mssql";
         ConnectionString = connectionString;
-    }
-
-    public IDbConnection OpenConnection()
-    {
-        var connection = new SqlConnection(ConnectionString);
-
-        connection.Open();
-
-        return connection;
-    }
-
-    public async Task<IDbConnection> OpenConnectionAsync()
-    {
-        var connection = new SqlConnection(ConnectionString);
-
-        await connection.OpenAsync();
-
-        return connection;
     }
 }

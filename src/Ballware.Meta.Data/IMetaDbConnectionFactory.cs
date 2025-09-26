@@ -4,8 +4,6 @@ namespace Ballware.Meta.Data;
 
 public interface IMetaDbConnectionFactory
 {
+    string Provider { get; }
     string ConnectionString { get; }
-
-    IDbConnection OpenConnection();
-    Task<IDbConnection> OpenConnectionAsync();
 }

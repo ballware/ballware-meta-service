@@ -18,13 +18,11 @@ public abstract class EntityBaseRepository : TenantableRepository<Public.EntityM
     private IProcessingStateMetaRepository ProcessingStateMetaRepository { get; }
     private IPickvalueMetaRepository PickvalueMetaRepository { get; }
     private IEntityRightMetaRepository EntityRightMetaRepository { get; }
-    private ICharacteristicAssociationMetaRepository CharacteristicAssociationMetaRepository { get; }
 
-    public EntityBaseRepository(IMapper mapper, 
+    protected EntityBaseRepository(IMapper mapper, 
         IProcessingStateMetaRepository processingStateMetaRepository,
         IPickvalueMetaRepository pickvalueMetaRepository,
         IEntityRightMetaRepository entityRightMetaRepository,
-        ICharacteristicAssociationMetaRepository characteristicAssociationMetaRepository,
         IMetaDbContext dbContext,
         ITenantableRepositoryHook<Public.EntityMetadata, Persistables.EntityMetadata>? hook = null)
         : base(mapper, dbContext, hook)
@@ -33,7 +31,6 @@ public abstract class EntityBaseRepository : TenantableRepository<Public.EntityM
         ProcessingStateMetaRepository = processingStateMetaRepository;
         PickvalueMetaRepository = pickvalueMetaRepository;
         EntityRightMetaRepository = entityRightMetaRepository;
-        CharacteristicAssociationMetaRepository = characteristicAssociationMetaRepository;
     }
 
     protected override IQueryable<Persistables.EntityMetadata> ListQuery(IQueryable<Persistables.EntityMetadata> query, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
@@ -60,11 +57,6 @@ public abstract class EntityBaseRepository : TenantableRepository<Public.EntityM
             });
             
             result.Rights = await EntityRightMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
-            {
-                { ChildQueryEntityParamIdentifier, result.Entity }
-            });
-            
-            result.CharacteristicAssociations = await CharacteristicAssociationMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
                 { ChildQueryEntityParamIdentifier, result.Entity }
             });
@@ -105,15 +97,6 @@ public abstract class EntityBaseRepository : TenantableRepository<Public.EntityM
                     return child;
                 }),
                 EntityRightMetaRepository);
-            
-            await MergeChildCollectionsAsync(tenantId, userId, claims, value.Entity, 
-                value.CharacteristicAssociations.Select(child =>
-                {
-                    child.Entity = value.Entity;
-
-                    return child;
-                }),
-                CharacteristicAssociationMetaRepository);
         }
         
         await base.AfterSaveAsync(tenantId, userId, identifier, claims, value, persistable, insert);
@@ -161,19 +144,6 @@ public abstract class EntityBaseRepository : TenantableRepository<Public.EntityM
                 await EntityRightMetaRepository.RemoveAsync(tenantId, userId, claims, new Dictionary<string, object>
                 {
                     { "Id", entityright.Id }
-                });
-            } 
-            
-            var characteristics = await CharacteristicAssociationMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
-            {
-                { ChildQueryEntityParamIdentifier, persistable.Entity }
-            });
-                
-            foreach (var characteristic in characteristics)
-            {
-                await CharacteristicAssociationMetaRepository.RemoveAsync(tenantId, userId, claims, new Dictionary<string, object>
-                {
-                    { "Id", characteristic.Id }
                 });
             }
         }

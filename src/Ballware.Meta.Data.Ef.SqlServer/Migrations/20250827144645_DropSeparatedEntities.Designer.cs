@@ -4,6 +4,7 @@ using Ballware.Meta.Data.Ef.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 {
     [DbContext(typeof(MetaDbContext))]
-    partial class MetaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250827144645_DropSeparatedEntities")]
+    partial class DropSeparatedEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,192 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Ballware.Meta.Data.Persistables.Characteristic", b =>
+                {
+                    b.Property<long?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+
+                    b.Property<DateTime?>("CreateStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Identifier")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("LastChangeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LastChangerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LookupDisplayMember")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("LookupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LookupValueMember")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("Multi")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("Uuid")
+                        .HasColumnType("uniqueidentifier")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Identifier")
+                        .IsUnique()
+                        .HasFilter("[Identifier] IS NOT NULL");
+
+                    b.HasIndex("TenantId", "Uuid")
+                        .IsUnique();
+
+                    b.ToTable("Characteristic", (string)null);
+                });
+
+            modelBuilder.Entity("Ballware.Meta.Data.Persistables.CharacteristicAssociation", b =>
+                {
+                    b.Property<long?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+
+                    b.Property<bool?>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("CharacteristicGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CharacteristicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreateStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Entity")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Identifier")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastChangeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LastChangerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Length")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("Readonly")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("Required")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("Sorting")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("Uuid")
+                        .HasColumnType("uniqueidentifier")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Entity");
+
+                    b.HasIndex("TenantId", "Uuid")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "Entity", "CharacteristicId")
+                        .IsUnique()
+                        .HasFilter("[Entity] IS NOT NULL AND [CharacteristicId] IS NOT NULL");
+
+                    b.ToTable("CharacteristicAssociation", (string)null);
+                });
+
+            modelBuilder.Entity("Ballware.Meta.Data.Persistables.CharacteristicGroup", b =>
+                {
+                    b.Property<long?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+
+                    b.Property<DateTime?>("CreateStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Entity")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("LastChangeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LastChangerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RegisterName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Sorting")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("Uuid")
+                        .HasColumnType("uniqueidentifier")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Entity");
+
+                    b.HasIndex("TenantId", "Uuid")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "Entity", "Name")
+                        .IsUnique()
+                        .HasFilter("[Entity] IS NOT NULL AND [Name] IS NOT NULL");
+
+                    b.ToTable("CharacteristicGroup", (string)null);
+                });
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Documentation", b =>
                 {
@@ -743,6 +932,54 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
                         .IsUnique();
 
                     b.ToTable("Tenant", (string)null);
+                });
+
+            modelBuilder.Entity("Ballware.Meta.Data.Persistables.TenantDatabaseObject", b =>
+                {
+                    b.Property<long?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+
+                    b.Property<DateTime?>("CreateStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastChangeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LastChangerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Sql")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("Uuid")
+                        .HasColumnType("uniqueidentifier")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Uuid")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "Type", "Name")
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
+
+                    b.ToTable("TenantDatabaseObject", (string)null);
                 });
 #pragma warning restore 612, 618
         }
