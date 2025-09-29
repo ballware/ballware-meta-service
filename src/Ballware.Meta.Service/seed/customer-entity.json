@@ -147,7 +147,7 @@
     "Application": "meta",
     "Entity": "document",
     "DisplayName": "Beleg",
-    "BaseUrl": "{meta}document",
+    "BaseUrl": "{document}document",
     "ItemMappingScript": "",
     "ItemReverseMappingScript": "",
     "ListQuery": "[{__KEY__:'ad3e1339-6aa0-a1e3-ff0c-1fead96434c8',identifier:'primary',query:'SELECT Uuid as Id, DisplayName, Entity, State\\nFROM Document\\nWHERE TenantId = @tenantId\\nORDER BY Entity, DisplayName'},{__KEY__:'7b5da2bc-9f35-469b-7cc5-cbbfcb637b55',identifier:'exportjson',query:'SELECT \\n  Uuid as Id, \\n  DisplayName, \\n  Entity, \\n  State, \\n  convert(nvarchar(max), ReportBinary, 2) as ReportBinary, \\n  ReportParameter \\nFROM Document WHERE TenantId=@tenantId and Uuid in (@id)'}]",
@@ -328,8 +328,7 @@
         "Text": "Benachrichtigung",
         "Sorting": 5
       }
-    ],
-    "CharacteristicAssociations": []
+    ]
   },
   {
     "Id": "b1eb6088-f857-4e65-a213-346222c45b10",
@@ -901,9 +900,9 @@
     "Application": "meta",
     "Entity": "notification",
     "DisplayName": "Benachrichtigung",
-    "BaseUrl": "{meta}notification",
-    "ItemMappingScript": "if (item.Params) {\n    item.EditableParameter = util.parse(item.Params).map(function(param) {\n        if (param.multi) {\n            if (param.value) {\n                param.value = param.value.split(',');\n            }\n        }\n\n        return param;\n    });\n}\n\nreturn item;",
-    "ItemReverseMappingScript": "if (item.EditableParameter) {\n    item.Params = JSON.stringify(item.EditableParameter.map(function(param) {\n\n        var mappedParam = Object.assign({}, param);\n\n        if (param.multi) {\n            if (param.value) {\n                mappedParam.value = param.value.join(',');\n            }\n        }\n\n        return mappedParam;\n    }));\n\n    item.EditableParameter = null;\n}\n\nreturn item;",
+    "BaseUrl": "{document}notification",
+    "ItemMappingScript": "if (item.DocumentParams) {\n    item.EditableParameter = util.parse(item.DocumentParams).map(function(param) {\n        if (param.multi) {\n            if (param.value) {\n                param.value = param.value.split(',');\n            }\n        }\n\n        return param;\n    });\n}\n\nreturn item;",
+    "ItemReverseMappingScript": "if (item.EditableParameter) {\n    item.DocumentParams = JSON.stringify(item.EditableParameter.map(function(param) {\n\n        var mappedParam = Object.assign({}, param);\n\n        if (param.multi) {\n            if (param.value) {\n                mappedParam.value = param.value.join(',');\n            }\n        }\n\n        return mappedParam;\n    }));\n\n    item.EditableParameter = null;\n}\n\nreturn item;",
     "ListQuery": "[{__KEY__:'80222729-c528-39ed-7ec9-495c9c9a88e6',identifier:'primary',query:'SELECT Uuid as Id, DocumentId, Identifier, Name, Params, State\\nFROM notification\\nWHERE TenantId = @tenantId\\nORDER BY Identifier'},{__KEY__:'e31be3d9-5e8d-c48e-ddae-b3b315c7e618',identifier:'exportjson',query:'SELECT Uuid as Id, DocumentId, Identifier, Name, Params, State FROM notification WHERE TenantId=@tenantId and Uuid in (@id)'}]",
     "ByIdQuery": "[{identifier:'primary',query:'SELECT Uuid as Id, DocumentId, Identifier, Name, Params, State FROM notification WHERE TenantId=@tenantId and Uuid = @id'}]",
     "NewQuery": "[{ identifier: 'primary', query: \"SELECT Id=NEWID(), DocumentId=null, Identifier=null, Name=null, Params=null, State=0\" }]",
@@ -1070,57 +1069,8 @@
         "Value": 5,
         "Text": "Test",
         "Sorting": 2
-      },
-      {
-        "Id": "28d0550b-9921-4504-8383-3ff6a8d599e9",
-        "Entity": "notification",
-        "Field": "state",
-        "Value": 10,
-        "Text": "Wehrleitung",
-        "Sorting": 3
-      },
-      {
-        "Id": "2409680f-115a-413e-a6b7-436063f37b17",
-        "Entity": "notification",
-        "Field": "state",
-        "Value": 11,
-        "Text": "Zugführer 1",
-        "Sorting": 4
-      },
-      {
-        "Id": "3501222a-35d6-47df-a1bb-4b02855c49c6",
-        "Entity": "notification",
-        "Field": "state",
-        "Value": 12,
-        "Text": "Zugführer 2",
-        "Sorting": 5
-      },
-      {
-        "Id": "ebdc23bc-c9a6-405d-9938-ea042e4857b0",
-        "Entity": "notification",
-        "Field": "state",
-        "Value": 13,
-        "Text": "Zugführer 3",
-        "Sorting": 6
-      },
-      {
-        "Id": "9c555b2c-a6fa-45b8-be01-699928b160c1",
-        "Entity": "notification",
-        "Field": "state",
-        "Value": 14,
-        "Text": "GF Pr. Oldendorf",
-        "Sorting": 7
-      },
-      {
-        "Id": "492ab550-3488-49d1-aa93-2c537eeef4a7",
-        "Entity": "notification",
-        "Field": "state",
-        "Value": 15,
-        "Text": "GF Harlinghausen",
-        "Sorting": 8
       }
-    ],
-    "CharacteristicAssociations": []
+    ]
   },
   {
     "Id": "827621d9-0fcc-42d5-b83b-0897164d9aaf",
@@ -1434,7 +1384,7 @@
     "Application": "meta",
     "Entity": "subscription",
     "DisplayName": "Abonnement",
-    "BaseUrl": "{meta}subscription",
+    "BaseUrl": "{document}subscription",
     "ItemMappingScript": null,
     "ItemReverseMappingScript": null,
     "ListQuery": "[{__KEY__:'1e3eb6e2-3375-5fa7-32de-984e22502c21',identifier:'primary',query:'SELECT Uuid as Id, Active, Attachment, AttachmentFileName, Body, Frequency, LastError, LastSendStamp, Mail, NotificationId, UserId \\nFROM subscription\\nWHERE TenantId = @tenantId\\nORDER BY Mail'},{__KEY__:'c772ca27-aa41-2b56-43ed-cd8e33559a7e',identifier:'exportjson',query:'SELECT Uuid as Id, Active, Attachment, AttachmentFileName, Body, Frequency, LastError, LastSendStamp, Mail, NotificationId, UserId FROM subscription WHERE TenantId=@tenantId and Uuid in (@id)'}]",
@@ -1454,7 +1404,7 @@
     "CustomScripts": "{prepareCustomFunction:\"if (identifier === 'sendmail') {\\n    util.triggerSubscriptions(selection.map(s => s.Id), function() {\\n      messageCallback('Nachricht erfolgreich ausgelöst')\\n    }, function(err) {\\n      messageCallback('Fehler beim auslösen der Nachricht: ' + err);\\n    });    \\n}\",extendedRightsCheck:\"if (right === 'sendmail') {\\n    return userinfo.right.includes('meta.subscription.edit');\\n}\\n\\nreturn result;\"}",
     "GridLayout": "[{identifier:'primary',editLayout:'primary',title:'Abonnements',allowMultiselect:true,columns:[{type:'lookup',dataMember:'UserId',caption:'Benutzer',lookup:'userLookup'},{type:'text',dataMember:'Mail',caption:'Mail'},{type:'lookup',dataMember:'NotificationId',caption:'Benachrichtigung',lookup:'notificationLookup'},{type:'lookup',dataMember:'Frequency',caption:'Intervall',lookup:'frequencyLookup'},{type:'bool',dataMember:'Active',caption:'Aktiv'}],summaries:[{dataMember:'UserId',summaryType:'count',groupSummary:true,totalSummary:true}]}]",
     "EditLayout": "[{identifier:'primary',colCount:1,colCountByScreen:{sm:1,lg:1},fullscreen:false,items:[{type:'lookup',options:{dataMember:'UserId',caption:'Benutzer',required:true,lookup:'userLookup',valueExpr:'id',displayExpr:'name'}},{type:'mail',options:{dataMember:'Mail',caption:'Mail-Adresse',required:true}},{type:'lookup',options:{dataMember:'NotificationId',caption:'Benachrichtigung',required:true,lookup:'notificationLookup'}},{type:'pickvalue',options:{dataMember:'Frequency',caption:'Intervall',required:true,lookup:'frequencyLookup'}},{type:'bool',options:{dataMember:'Active',caption:'Aktiv'}},{type:'bool',options:{dataMember:'Attachement',caption:'Als Anhang senden'}},{type:'text',options:{dataMember:'AttachementFileName',caption:'Dateiname für Anhang'}},{type:'textarea',options:{dataMember:'Body',caption:'Mail-Inhalt'}}]}]",
-    "CustomFunctions": "[{__KEY__:'707a4844-c822-7a9b-3ed1-8635d6dabeda',id:'sendmail',type:'edit',text:'Mail versenden',icon:'glyphicon glyphicon-envelope'},{__KEY__:'523a4514-d8c0-4d2e-cd2f-47c8a2cc4bcb',options:{format:'json'},id:'exportjson',type:'export',text:'Exportieren',icon:'bi bi-download',multi:true},{__KEY__:'2c7bdb6d-2a97-2626-66ef-a152a509b887',options:{format:'json'},id:'importjson',type:'import',text:'Importieren',icon:'bi bi-upload'}]",
+    "CustomFunctions": "[{__KEY__:'707a4844-c822-7a9b-3ed1-8635d6dabeda',id:'sendmail',type:'edit',text:'Mail versenden',icon:'glyphicon glyphicon-envelope',options:{}},{__KEY__:'523a4514-d8c0-4d2e-cd2f-47c8a2cc4bcb',options:{format:'json'},id:'exportjson',type:'export',text:'Exportieren',icon:'bi bi-download',multi:true},{__KEY__:'2c7bdb6d-2a97-2626-66ef-a152a509b887',options:{format:'json'},id:'importjson',type:'import',text:'Importieren',icon:'bi bi-upload'}]",
     "StateColumn": null,
     "StateReasonColumn": null,
     "Templates": "[]",
@@ -1523,8 +1473,7 @@
         "Text": "Wöchentlich",
         "Sorting": 2
       }
-    ],
-    "CharacteristicAssociations": []
+    ]
   },
   {
     "Id": "288eef7d-cb10-4787-85d3-a67c7ae6bd2f",

@@ -99,19 +99,19 @@ public class MetadataFileSeeder : IMetadataSeeder
             
             await Services.GetRequiredService<ITenantableRepository<Tenant>>().SaveAsync(tenantId,null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
 
-            await GenericSeedAsync<Documentation>(tenantId, "admin-documentation.json");
-            await GenericSeedAsync<EntityMetadata>(tenantId, "admin-entity.json");
-            await GenericSeedAsync<Export>(tenantId, "admin-export.json");
-            await GenericSeedAsync<Job>(tenantId, "admin-job.json");
-            await GenericSeedAsync<Lookup>(tenantId, "admin-lookup.json");
-            await GenericSeedAsync<Page>(tenantId, "admin-page.json");
-            await GenericSeedAsync<Statistic>(tenantId, "admin-statistic.json");
+            await GenericSeedAsync<Documentation>(tenantId, null,"admin-documentation.json");
+            await GenericSeedAsync<EntityMetadata>(tenantId, null, "admin-entity.json");
+            await GenericSeedAsync<Export>(tenantId, null, "admin-export.json");
+            await GenericSeedAsync<Job>(tenantId, null, "admin-job.json");
+            await GenericSeedAsync<Lookup>(tenantId, null, "admin-lookup.json");
+            await GenericSeedAsync<Page>(tenantId, null, "admin-page.json");
+            await GenericSeedAsync<Statistic>(tenantId, null, "admin-statistic.json");
         }
 
         return tenant?.Id;
     }
 
-    public async Task SeedCustomerTenantAsync(Tenant tenant)
+    public async Task SeedCustomerTenantAsync(Tenant tenant, Guid userId)
     {
         await using var fileStream = ReadSeedFile("customer-tenant.json");
         using var textReader = new StreamReader(fileStream);
@@ -128,19 +128,19 @@ public class MetadataFileSeeder : IMetadataSeeder
             tenant.Templates ??= tenantSeed.Templates;
             tenant.ProviderModelDefinition ??= tenantSeed.ProviderModelDefinition;
 
-            await Services.GetRequiredService<ITenantableRepository<Tenant>>().SaveAsync(tenantId, null, "seed", ImmutableDictionary<string, object>.Empty, tenant);
+            await Services.GetRequiredService<ITenantableRepository<Tenant>>().SaveAsync(tenantId, userId, "seed", ImmutableDictionary<string, object>.Empty, tenant);
         }
 
-        await GenericSeedAsync<Documentation>(tenantId, "customer-documentation.json");
-        await GenericSeedAsync<EntityMetadata>(tenantId, "customer-entity.json");
-        await GenericSeedAsync<Export>(tenantId, "customer-export.json");
-        await GenericSeedAsync<Job>(tenantId, "customer-job.json");
-        await GenericSeedAsync<Lookup>(tenantId, "customer-lookup.json");
-        await GenericSeedAsync<Page>(tenantId, "customer-page.json");
-        await GenericSeedAsync<Statistic>(tenantId, "customer-statistic.json");
+        await GenericSeedAsync<Documentation>(tenantId, userId, "customer-documentation.json");
+        await GenericSeedAsync<EntityMetadata>(tenantId, userId, "customer-entity.json");
+        await GenericSeedAsync<Export>(tenantId, userId, "customer-export.json");
+        await GenericSeedAsync<Job>(tenantId, userId, "customer-job.json");
+        await GenericSeedAsync<Lookup>(tenantId, userId, "customer-lookup.json");
+        await GenericSeedAsync<Page>(tenantId, userId, "customer-page.json");
+        await GenericSeedAsync<Statistic>(tenantId, userId, "customer-statistic.json");
     }
 
-    private async Task GenericSeedAsync<TEntity>(Guid tenantId, string filename) where TEntity : class
+    private async Task GenericSeedAsync<TEntity>(Guid tenantId, Guid? userId, string filename) where TEntity : class
     {
         await using var fileStream = ReadOptionalSeedFile(filename);
 
@@ -160,7 +160,7 @@ public class MetadataFileSeeder : IMetadataSeeder
 
         foreach (var item in items)
         {
-            await Services.GetRequiredService<ITenantableRepository<TEntity>>().SaveAsync(tenantId, null, "importjson", ImmutableDictionary<string, object>.Empty, item);
+            await Services.GetRequiredService<ITenantableRepository<TEntity>>().SaveAsync(tenantId, userId, "importjson", ImmutableDictionary<string, object>.Empty, item);
         }
     }
 }

@@ -8,7 +8,7 @@ public sealed class StorageOptions
     public required string Provider { get; set; }
     
     public bool AutoMigrations { get; set; } = false;
-    public string? SeedPath { get; set; }
+    public string? SeedPath { get; set; } = "seed";
     public bool AutoSeedAdminTenant { get; set; } = false;
     public bool EnableCaching { get; set; } = false;
 }

@@ -41,6 +41,7 @@
         <SeedSourceFiles Update="..\..\seed\customer-tenant.json">
           <Link>seed\customer-tenant.json</Link>
         </SeedSourceFiles>
+        <SeedSourceFiles Remove="..\..\seed\**" />
     </ItemGroup>
     
     <Target Name="CopySeed" AfterTargets="AfterBuild">

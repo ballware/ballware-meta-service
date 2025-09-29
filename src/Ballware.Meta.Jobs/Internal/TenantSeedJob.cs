@@ -41,7 +41,7 @@ class TenantSeedJob : IJob
             }
             else if (tenant != null)
             {
-                await Seeder.SeedCustomerTenantAsync(tenant);
+                await Seeder.SeedCustomerTenantAsync(tenant, userId);
             }
 
             await JobMetaRepository.UpdateJobAsync(tenantId, userId, jobId, JobStates.Finished, string.Empty);

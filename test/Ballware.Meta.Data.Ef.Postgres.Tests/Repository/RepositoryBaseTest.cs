@@ -45,6 +45,7 @@ public sealed class NUnitLoggerProvider : ILoggerProvider
 public class RepositoryBaseTest : DatabaseBackedBaseTest
 {
     protected Guid TenantId { get; private set; }
+    protected Guid UserId { get; private set; }
 
     protected WebApplication Application { get; private set; }
     
@@ -98,6 +99,7 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
         Application = PreparedBuilder.Build();
         
         TenantId = Guid.NewGuid();
+        UserId = Guid.NewGuid();
 
         using var scope = Application.Services.CreateScope();
         
@@ -114,7 +116,7 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
         tenant.Provider = "postgres";
         tenant.Name = $"Customer_{TenantId.ToString()}";
         
-        await seeder.SeedCustomerTenantAsync(tenant);
+        await seeder.SeedCustomerTenantAsync(tenant, UserId);
     }
     
     [TearDown]

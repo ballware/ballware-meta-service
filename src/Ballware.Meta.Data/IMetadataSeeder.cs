@@ -7,5 +7,5 @@ public interface IMetadataSeeder
     Task<Guid?> GetAdminTenantIdAsync();
 
     Task<Guid?> SeedAdminTenantAsync(Tenant? tenant = null);
-    Task SeedCustomerTenantAsync(Tenant tenant);
+    Task SeedCustomerTenantAsync(Tenant tenant, Guid userId);
 }
