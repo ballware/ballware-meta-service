@@ -101,9 +101,9 @@ public class AdminTenantSeedTest : DatabaseBackedBaseTest
         {
             Assert.That(actualTenantId, Is.EqualTo(expectedAdminTenantId));
             Assert.That(context.Tenants.FirstOrDefault(t => t.Uuid == expectedAdminTenantId), Is.Not.Null);
-            Assert.That(context.Entities.Count(e => e.TenantId == actualTenantId), Is.EqualTo(15));
+            Assert.That(context.Entities.Count(e => e.TenantId == actualTenantId), Is.EqualTo(16));
             Assert.That(context.EntityRights.Count(er => er.TenantId == actualTenantId && er.Entity == "entity"), Is.EqualTo(6));
-            Assert.That(context.ProcessingStates.Count(er => er.TenantId == actualTenantId && er.Entity == "document"), Is.EqualTo(5));
+            Assert.That(context.ProcessingStates.Count(er => er.TenantId == actualTenantId && er.Entity == "document"), Is.EqualTo(4));
             Assert.That(context.Pickvalues.Count(er => er.TenantId == actualTenantId && er.Entity == "subscription" && er.Field == "frequency"), Is.EqualTo(2));
         });
 

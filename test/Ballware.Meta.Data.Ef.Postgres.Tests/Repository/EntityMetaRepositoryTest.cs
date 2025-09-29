@@ -11,7 +11,7 @@ namespace Ballware.Meta.Data.Ef.Postgres.Tests.Repository;
 
 public class EntityMetaRepositoryTest : RepositoryBaseTest
 {
-    private const int MetaEntityCount = 15;
+    private const int MetaEntityCount = 16;
     
     [Test]
     public async Task Save_and_remove_value_succeeds()
@@ -211,8 +211,8 @@ public class EntityMetaRepositoryTest : RepositoryBaseTest
         
         Assert.Multiple(() =>
         {
-            Assert.That(entityList.Count(), Is.EqualTo(15));
-            Assert.That(entityRightsList.Count(), Is.EqualTo(80));
+            Assert.That(entityList.Count(), Is.EqualTo(16));
+            Assert.That(entityRightsList.Count(), Is.EqualTo(87));
         });
     }
 }
