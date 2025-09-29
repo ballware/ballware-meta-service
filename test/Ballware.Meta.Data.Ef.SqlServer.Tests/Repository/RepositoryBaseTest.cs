@@ -83,8 +83,6 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
             Assert.That(connectionString, Is.Not.Null);
         });
 
-        storageOptions.SeedPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "seed");
-
         PreparedBuilder.Services.AddLogging(config =>
         {
             config.AddProvider(new NUnitLoggerProvider());
