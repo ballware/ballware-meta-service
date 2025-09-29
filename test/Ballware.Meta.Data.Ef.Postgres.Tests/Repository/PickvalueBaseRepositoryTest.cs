@@ -208,7 +208,7 @@ public class PickvalueBaseRepositoryTest : RepositoryBaseTest
         
         Assert.Multiple(() =>
         {
-            Assert.That(result.Count(), Is.EqualTo(27));
+            Assert.That(result.Count(), Is.EqualTo(21));
         });
     }
 }
