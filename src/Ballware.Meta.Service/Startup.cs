@@ -206,6 +206,12 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })
+#if DEBUG            
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            })
+#endif                  
             .AddClientCredentialsTokenHandler("storage");
         
         Services.AddHttpClient<GenericSchemaClient>(client =>
