@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
         {
             string importJobName = "import";
             
-            q.AddJob<MetaImportJob<Tenant, IRepository<Tenant>>>(new JobKey(importJobName, "tenant"), configurator => configurator.StoreDurably());
+            q.AddJob<TenantableMetaImportJob<Tenant, ITenantableRepository<Tenant>>>(new JobKey(importJobName, "tenant"), configurator => configurator.StoreDurably());
                 
             q.AddJob<TenantableMetaImportJob<Documentation, ITenantableRepository<Documentation>>>(new JobKey(importJobName, "documentation"), configurator => configurator.StoreDurably());
             q.AddJob<TenantableMetaImportJob<EntityMetadata, ITenantableRepository<EntityMetadata>>>(new JobKey(importJobName, "entity"), configurator => configurator.StoreDurably());
