@@ -108,10 +108,10 @@ public abstract class EntityBaseRepository : TenantableRepository<Public.EntityM
         
         if (persistable.Entity != null)
         {
-            var processingStates = await ProcessingStateMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
+            var processingStates = (await ProcessingStateMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
                 { ChildQueryEntityParamIdentifier, persistable.Entity }
-            });
+            })).ToList();
 
             foreach (var processingState in processingStates)
             {
@@ -121,10 +121,10 @@ public abstract class EntityBaseRepository : TenantableRepository<Public.EntityM
                 });
             }
              
-            var pickvalues = await PickvalueMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
+            var pickvalues = (await PickvalueMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
                 { ChildQueryEntityParamIdentifier, persistable.Entity }
-            });
+            })).ToList();
                 
             foreach (var pickvalue in pickvalues)
             {
@@ -134,10 +134,10 @@ public abstract class EntityBaseRepository : TenantableRepository<Public.EntityM
                 });
             }    
             
-            var entityrights = await EntityRightMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
+            var entityrights = (await EntityRightMetaRepository.QueryAsync(tenantId, ChildQueryIdentifier, claims, new Dictionary<string, object>
             {
                 { ChildQueryEntityParamIdentifier, persistable.Entity }
-            });
+            })).ToList();
                 
             foreach (var entityright in entityrights)
             {
