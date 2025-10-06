@@ -30,7 +30,8 @@ public abstract class PickvalueBaseRepository : TenantableRepository<Public.Pick
                 throw new ArgumentException("Entity parameter is required");
             }
 
-            query = query.Where(er => er.Entity == entity.ToString())
+            var entityStr = entity.ToString()!.ToLower();
+            query = query.Where(er => er.Entity!.ToLower() == entityStr)
                 .OrderBy(er => er.Field)
                 .ThenBy(er => er.Value);
         }
@@ -47,7 +48,9 @@ public abstract class PickvalueBaseRepository : TenantableRepository<Public.Pick
                 throw new ArgumentException("Field parameter is required");
             }
 
-            query = query.Where(er => er.Entity == entity.ToString() && er.Field == field.ToString())
+            var entityStr = entity.ToString()!.ToLower();
+            var fieldStr = field.ToString()!.ToLower();
+            query = query.Where(er => er.Entity!.ToLower() == entityStr && er.Field!.ToLower() == fieldStr)
                 .OrderBy(er => er.Value);
         }
         
@@ -56,8 +59,10 @@ public abstract class PickvalueBaseRepository : TenantableRepository<Public.Pick
 
     public async Task<IEnumerable<PickvalueSelectEntry>> SelectListForEntityFieldAsync(Guid tenantId, string entity, string field)
     {
+        var entityLower = entity.ToLower();
+        var fieldLower = field.ToLower();
         return await Task.Run(() => MetaContext.Pickvalues
-            .Where(p => p.TenantId == tenantId && p.Entity == entity && p.Field == field)
+            .Where(p => p.TenantId == tenantId && p.Entity!.ToLower() == entityLower && p.Field!.ToLower() == fieldLower)
             .OrderBy(p => p.Sorting)
             .Select(p => new PickvalueSelectEntry { Id = p.Uuid, Name = p.Text, Value = p.Value })
         );
@@ -65,8 +70,10 @@ public abstract class PickvalueBaseRepository : TenantableRepository<Public.Pick
 
     public async Task<PickvalueSelectEntry?> SelectByValueAsync(Guid tenantId, string entity, string field, int value)
     {
+        var entityLower = entity.ToLower();
+        var fieldLower = field.ToLower();
         return await Task.Run(() => MetaContext.Pickvalues.SingleOrDefault(p =>
-                p.TenantId == tenantId && p.Entity == entity && p.Field == field && p.Value == value)
+                p.TenantId == tenantId && p.Entity!.ToLower() == entityLower && p.Field!.ToLower() == fieldLower && p.Value == value)
             .As(p => p != null ? new PickvalueSelectEntry { Id = p.Uuid, Name = p.Text, Value = p.Value } : null));
 
     }
