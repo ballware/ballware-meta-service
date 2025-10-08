@@ -95,7 +95,7 @@ public class ProcessingStateMetaRepositoryTest : RepositoryBaseTest
         
         Assert.Multiple(() =>
         {
-            Assert.That(result.Count(), Is.EqualTo(13));
+            Assert.That(result.Count(), Is.EqualTo(12));
         });
     }
 }

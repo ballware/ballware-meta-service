@@ -30,4 +30,32 @@
       <ProjectReference Include="..\Ballware.Meta.Data\Ballware.Meta.Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="seed\**\*">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <DestinationSubDirectory>seed\%(RecursiveDir)</DestinationSubDirectory>
+        </Content>
+    </ItemGroup>
+
+    <Target Name="AddTransitiveSeedContent" AfterTargets="ResolveReferences">
+        <ItemGroup>
+            <_TransitiveSeed Include="@(Content)"
+                             Condition="'%(Content.CopyToOutputDirectory)' != ''" />
+            <ReferenceCopyLocalPaths Include="@(_TransitiveSeed->'%(FullPath)')">
+                <DestinationSubDirectory>%(Content.DestinationSubDirectory)</DestinationSubDirectory>
+            </ReferenceCopyLocalPaths>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="AddTransitiveSeedContentToPublish" AfterTargets="ComputeFilesToPublish">
+        <ItemGroup>
+            <ResolvedFileToPublish Include="@(_TransitiveSeed->'%(FullPath)')"
+                                   RelativePath="%(Content.DestinationSubDirectory)%(Filename)%(Extension)"
+                                   CopyToPublishDirectory="PreserveNewest"
+                                   ExcludeFromSingleFile="true" />
+        </ItemGroup>
+    </Target>
+    
 </Project>

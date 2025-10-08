@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
 using System.Diagnostics;
 using Ballware.Meta.Caching;
 using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Ef.Postgres.Tests.Utils;
+using Ballware.Meta.Data.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -43,6 +45,7 @@ public sealed class NUnitLoggerProvider : ILoggerProvider
 public class RepositoryBaseTest : DatabaseBackedBaseTest
 {
     protected Guid TenantId { get; private set; }
+    protected Guid UserId { get; private set; }
 
     protected WebApplication Application { get; private set; }
     
@@ -79,8 +82,6 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
             Assert.That(connectionString, Is.Not.Null);
         });
 
-        storageOptions.SeedPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "seed");
-
         PreparedBuilder.Services.AddLogging(config =>
         {
             config.AddProvider(new NUnitLoggerProvider());
@@ -96,6 +97,7 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
         Application = PreparedBuilder.Build();
         
         TenantId = Guid.NewGuid();
+        UserId = Guid.NewGuid();
 
         using var scope = Application.Services.CreateScope();
         
@@ -103,9 +105,16 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
 
         await dbContext.Database.MigrateAsync();
         
+        var tenantRepository = scope.ServiceProvider.GetRequiredService<ITenantMetaRepository>();
         var seeder = scope.ServiceProvider.GetRequiredService<IMetadataSeeder>();
 
-        await seeder.SeedCustomerTenantAsync(TenantId, $"Customer_{TenantId.ToString()}");
+        var tenant = await tenantRepository.NewAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
+
+        tenant.Id = TenantId;
+        tenant.Provider = "postgres";
+        tenant.Name = $"Customer_{TenantId.ToString()}";
+        
+        await seeder.SeedCustomerTenantAsync(tenant, UserId);
     }
     
     [TearDown]

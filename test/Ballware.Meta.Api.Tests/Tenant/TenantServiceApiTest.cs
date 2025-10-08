@@ -47,13 +47,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
         var lookupMetaRepositoryMock = new Mock<ILookupMetaRepository>();
-        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
         var documentationMetaRepositoryMock = new Mock<IDocumentationMetaRepository>();
-        var mlModelMetaRepositoryMock = new Mock<IMlModelMetaRepository>();
-        var notificationMetaRepository = new Mock<INotificationMetaRepository>();
         var pageMetaRepository = new Mock<IPageMetaRepository>();
         var statisticMetaRepository = new Mock<IStatisticMetaRepository>();
-        var subscriptionMetaRepository = new Mock<ISubscriptionMetaRepository>();
         var pickvalueMetaRepository = new Mock<IPickvalueMetaRepository>();
         var processingStateMetaRepository = new Mock<IProcessingStateMetaRepository>();
         var repositoryMock = new Mock<ITenantMetaRepository>();
@@ -69,13 +65,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             services.AddSingleton<IMetaDbConnectionFactory>(metaDbConnectionFactory.Object);
             services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
             services.AddSingleton<ILookupMetaRepository>(lookupMetaRepositoryMock.Object);
-            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
             services.AddSingleton<IDocumentationMetaRepository>(documentationMetaRepositoryMock.Object);
-            services.AddSingleton<IMlModelMetaRepository>(mlModelMetaRepositoryMock.Object);
-            services.AddSingleton<INotificationMetaRepository>(notificationMetaRepository.Object);
             services.AddSingleton<IPageMetaRepository>(pageMetaRepository.Object);
             services.AddSingleton<IStatisticMetaRepository>(statisticMetaRepository.Object);
-            services.AddSingleton<ISubscriptionMetaRepository>(subscriptionMetaRepository.Object);
             services.AddSingleton<IPickvalueMetaRepository>(pickvalueMetaRepository.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(processingStateMetaRepository.Object);
             services.AddSingleton<ITenantMetaRepository>(repositoryMock.Object);
@@ -116,6 +108,7 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             new()
             {
                 Name = "Meta",
+                Provider = "fake-provider",
                 ConnectionString = expectedMetaConnectionString,
                 Tables =
                 [
@@ -134,14 +127,10 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             new()
             {
                 Name = "MetaLookups",
+                Provider = "fake-provider",
                 ConnectionString = expectedMetaConnectionString,
                 Tables =
                 [
-                    new ()
-                    {
-                        Name = "documentLookup",
-                        Query = "fake document query"
-                    },
                     new ()
                     {
                         Name = "documentationLookup",
@@ -159,16 +148,6 @@ public class TenantServiceApiTest : ApiMappingBaseTest
                     },
                     new ()
                     {
-                        Name = "mlmodelLookup",
-                        Query = "fake mlmodel query"
-                    },
-                    new ()
-                    {
-                        Name = "notificationLookup",
-                        Query = "fake notification query"
-                    },
-                    new ()
-                    {
                         Name = "pageLookup",
                         Query = "fake page query"
                     },
@@ -176,11 +155,6 @@ public class TenantServiceApiTest : ApiMappingBaseTest
                     {
                         Name = "statisticLookup",
                         Query = "fake statistic query"
-                    },
-                    new ()
-                    {
-                        Name = "subscriptionLookup",
-                        Query = "fake subscription query"
                     },
                     new ()
                     {
@@ -212,6 +186,7 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             new()
             {
                 Name = "Pickvalues",
+                Provider = "fake-provider",
                 ConnectionString = expectedMetaConnectionString,
                 Tables =
                 [
@@ -225,6 +200,7 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             new()
             {
                 Name = "ProcessingStates",
+                Provider = "fake-provider",
                 ConnectionString = expectedMetaConnectionString,
                 Tables =
                 [
@@ -247,13 +223,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
         var lookupMetaRepositoryMock = new Mock<ILookupMetaRepository>();
-        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
         var documentationMetaRepositoryMock = new Mock<IDocumentationMetaRepository>();
-        var mlModelMetaRepositoryMock = new Mock<IMlModelMetaRepository>();
-        var notificationMetaRepositoryMock = new Mock<INotificationMetaRepository>();
         var pageMetaRepositoryMock = new Mock<IPageMetaRepository>();
         var statisticMetaRepositoryMock = new Mock<IStatisticMetaRepository>();
-        var subscriptionMetaRepositoryMock = new Mock<ISubscriptionMetaRepository>();
         var pickvalueMetaRepositoryMock = new Mock<IPickvalueMetaRepository>();
         var processingStateMetaRepositoryMock = new Mock<IProcessingStateMetaRepository>();
         var repositoryMock = new Mock<ITenantMetaRepository>();
@@ -262,9 +234,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             .Setup(f => f.ConnectionString)
             .Returns(expectedMetaConnectionString);
         
-        documentMetaRepositoryMock
-            .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
-            .ReturnsAsync("fake document query");
+        metaDbConnectionFactory
+            .Setup(f => f.Provider)
+            .Returns("fake-provider");
         
         documentationMetaRepositoryMock
             .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
@@ -278,14 +250,6 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
             .ReturnsAsync("fake lookup query");
         
-        mlModelMetaRepositoryMock
-            .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
-            .ReturnsAsync("fake mlmodel query");
-        
-        notificationMetaRepositoryMock
-            .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
-            .ReturnsAsync("fake notification query");
-        
         pageMetaRepositoryMock
             .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
             .ReturnsAsync("fake page query");
@@ -293,10 +257,6 @@ public class TenantServiceApiTest : ApiMappingBaseTest
         statisticMetaRepositoryMock
             .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
             .ReturnsAsync("fake statistic query");
-        
-        subscriptionMetaRepositoryMock
-            .Setup(r => r.GenerateListQueryAsync(expectedTenantId))
-            .ReturnsAsync("fake subscription query");
         
         repositoryMock
             .Setup(r => r.GenerateListQueryAsync())
@@ -344,13 +304,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             services.AddSingleton<IMetaDbConnectionFactory>(metaDbConnectionFactory.Object);
             services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
             services.AddSingleton<ILookupMetaRepository>(lookupMetaRepositoryMock.Object);
-            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
             services.AddSingleton<IDocumentationMetaRepository>(documentationMetaRepositoryMock.Object);
-            services.AddSingleton<IMlModelMetaRepository>(mlModelMetaRepositoryMock.Object);
-            services.AddSingleton<INotificationMetaRepository>(notificationMetaRepositoryMock.Object);
             services.AddSingleton<IPageMetaRepository>(pageMetaRepositoryMock.Object);
             services.AddSingleton<IStatisticMetaRepository>(statisticMetaRepositoryMock.Object);
-            services.AddSingleton<ISubscriptionMetaRepository>(subscriptionMetaRepositoryMock.Object);
             services.AddSingleton<IPickvalueMetaRepository>(pickvalueMetaRepositoryMock.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(processingStateMetaRepositoryMock.Object);
             services.AddSingleton<ITenantMetaRepository>(repositoryMock.Object);
@@ -413,13 +369,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
         var lookupMetaRepositoryMock = new Mock<ILookupMetaRepository>();
-        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
         var documentationMetaRepositoryMock = new Mock<IDocumentationMetaRepository>();
-        var mlModelMetaRepositoryMock = new Mock<IMlModelMetaRepository>();
-        var notificationMetaRepository = new Mock<INotificationMetaRepository>();
         var pageMetaRepository = new Mock<IPageMetaRepository>();
         var statisticMetaRepository = new Mock<IStatisticMetaRepository>();
-        var subscriptionMetaRepository = new Mock<ISubscriptionMetaRepository>();
         var pickvalueMetaRepository = new Mock<IPickvalueMetaRepository>();
         var processingStateMetaRepository = new Mock<IProcessingStateMetaRepository>();
         var repositoryMock = new Mock<ITenantMetaRepository>();
@@ -435,13 +387,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             services.AddSingleton<IMetaDbConnectionFactory>(metaDbConnectionFactory.Object);
             services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
             services.AddSingleton<ILookupMetaRepository>(lookupMetaRepositoryMock.Object);
-            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
             services.AddSingleton<IDocumentationMetaRepository>(documentationMetaRepositoryMock.Object);
-            services.AddSingleton<IMlModelMetaRepository>(mlModelMetaRepositoryMock.Object);
-            services.AddSingleton<INotificationMetaRepository>(notificationMetaRepository.Object);
             services.AddSingleton<IPageMetaRepository>(pageMetaRepository.Object);
             services.AddSingleton<IStatisticMetaRepository>(statisticMetaRepository.Object);
-            services.AddSingleton<ISubscriptionMetaRepository>(subscriptionMetaRepository.Object);
             services.AddSingleton<IPickvalueMetaRepository>(pickvalueMetaRepository.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(processingStateMetaRepository.Object);
             services.AddSingleton<ITenantMetaRepository>(repositoryMock.Object);
@@ -514,13 +462,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
         var lookupMetaRepositoryMock = new Mock<ILookupMetaRepository>();
-        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
         var documentationMetaRepositoryMock = new Mock<IDocumentationMetaRepository>();
-        var mlModelMetaRepositoryMock = new Mock<IMlModelMetaRepository>();
-        var notificationMetaRepositoryMock = new Mock<INotificationMetaRepository>();
         var pageMetaRepositoryMock = new Mock<IPageMetaRepository>();
         var statisticMetaRepositoryMock = new Mock<IStatisticMetaRepository>();
-        var subscriptionMetaRepositoryMock = new Mock<ISubscriptionMetaRepository>();
         var pickvalueMetaRepositoryMock = new Mock<IPickvalueMetaRepository>();
         var processingStateMetaRepositoryMock = new Mock<IProcessingStateMetaRepository>();
         var repositoryMock = new Mock<ITenantMetaRepository>();
@@ -540,13 +484,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             services.AddSingleton<IMetaDbConnectionFactory>(metaDbConnectionFactory.Object);
             services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
             services.AddSingleton<ILookupMetaRepository>(lookupMetaRepositoryMock.Object);
-            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
             services.AddSingleton<IDocumentationMetaRepository>(documentationMetaRepositoryMock.Object);
-            services.AddSingleton<IMlModelMetaRepository>(mlModelMetaRepositoryMock.Object);
-            services.AddSingleton<INotificationMetaRepository>(notificationMetaRepositoryMock.Object);
             services.AddSingleton<IPageMetaRepository>(pageMetaRepositoryMock.Object);
             services.AddSingleton<IStatisticMetaRepository>(statisticMetaRepositoryMock.Object);
-            services.AddSingleton<ISubscriptionMetaRepository>(subscriptionMetaRepositoryMock.Object);
             services.AddSingleton<IPickvalueMetaRepository>(pickvalueMetaRepositoryMock.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(processingStateMetaRepositoryMock.Object);
             services.AddSingleton<ITenantMetaRepository>(repositoryMock.Object);
@@ -613,13 +553,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
         var lookupMetaRepositoryMock = new Mock<ILookupMetaRepository>();
-        var documentMetaRepositoryMock = new Mock<IDocumentMetaRepository>();
         var documentationMetaRepositoryMock = new Mock<IDocumentationMetaRepository>();
-        var mlModelMetaRepositoryMock = new Mock<IMlModelMetaRepository>();
-        var notificationMetaRepositoryMock = new Mock<INotificationMetaRepository>();
         var pageMetaRepositoryMock = new Mock<IPageMetaRepository>();
         var statisticMetaRepositoryMock = new Mock<IStatisticMetaRepository>();
-        var subscriptionMetaRepositoryMock = new Mock<ISubscriptionMetaRepository>();
         var pickvalueMetaRepositoryMock = new Mock<IPickvalueMetaRepository>();
         var processingStateMetaRepositoryMock = new Mock<IProcessingStateMetaRepository>();
         var repositoryMock = new Mock<ITenantMetaRepository>();
@@ -631,13 +567,9 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             services.AddSingleton<IMetaDbConnectionFactory>(metaDbConnectionFactory.Object);
             services.AddSingleton<IEntityMetaRepository>(entityMetaRepositoryMock.Object);
             services.AddSingleton<ILookupMetaRepository>(lookupMetaRepositoryMock.Object);
-            services.AddSingleton<IDocumentMetaRepository>(documentMetaRepositoryMock.Object);
             services.AddSingleton<IDocumentationMetaRepository>(documentationMetaRepositoryMock.Object);
-            services.AddSingleton<IMlModelMetaRepository>(mlModelMetaRepositoryMock.Object);
-            services.AddSingleton<INotificationMetaRepository>(notificationMetaRepositoryMock.Object);
             services.AddSingleton<IPageMetaRepository>(pageMetaRepositoryMock.Object);
             services.AddSingleton<IStatisticMetaRepository>(statisticMetaRepositoryMock.Object);
-            services.AddSingleton<ISubscriptionMetaRepository>(subscriptionMetaRepositoryMock.Object);
             services.AddSingleton<IPickvalueMetaRepository>(pickvalueMetaRepositoryMock.Object);
             services.AddSingleton<IProcessingStateMetaRepository>(processingStateMetaRepositoryMock.Object);
             services.AddSingleton<ITenantMetaRepository>(repositoryMock.Object);

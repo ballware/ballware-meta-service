@@ -15,9 +15,10 @@ public class ReportDatasourceTable
 
 public class ReportDatasourceDefinition
 {
-    public string? Name { get; set; }
-    public string? ConnectionString { get; set; }
-    public IEnumerable<ReportDatasourceTable>? Tables { get; set; }
+    public required string Provider { get; set; }
+    public required string Name { get; set; }
+    public required string ConnectionString { get; set; }
+    public IEnumerable<ReportDatasourceTable> Tables { get; set; } = [];
 }
 
 public class Tenant : IEditable, ITenantAuthorizationMetadata
@@ -45,7 +46,8 @@ public class Tenant : IEditable, ITenantAuthorizationMetadata
     public string? Password { get; set; }
     public string? ReportSchemaDefinition { get; set; }
     public string? ProviderModelDefinition { get; set; }
-    public IEnumerable<TenantDatabaseObject>? DatabaseObjects { get; set; }
+    
+    public bool Seed { get; set; }
 }
 
 public static class TenantExtensions

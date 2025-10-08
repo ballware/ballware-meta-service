@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ballware.Meta.Data.Ef.Configuration;
+using Ballware.Meta.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Postgres.Internal;
@@ -29,9 +30,20 @@ class InitializationWorker : IHostedService
         
         if (options.AutoSeedAdminTenant)
         {
+            var repository = scope.ServiceProvider.GetRequiredService<ITenantMetaRepository>();
             var seeder = scope.ServiceProvider.GetRequiredService<IMetadataSeeder>();
 
-            await seeder.SeedAdminTenantAsync();
+            var adminTenantId = await seeder.GetAdminTenantIdAsync();
+
+            if (adminTenantId != null)
+            {
+                var existingTenant = await repository.ByIdAsync(adminTenantId.Value);
+
+                if (existingTenant == null)
+                {
+                    await seeder.SeedAdminTenantAsync();
+                }
+            }
         }
     }
 

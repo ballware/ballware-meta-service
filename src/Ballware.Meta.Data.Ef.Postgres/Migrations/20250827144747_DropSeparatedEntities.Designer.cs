@@ -3,6 +3,7 @@ using System;
 using Ballware.Meta.Data.Ef.Postgres;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Ballware.Meta.Data.Ef.Postgres.Migrations
 {
     [DbContext(typeof(MetaDbContext))]
-    partial class MetaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250827144747_DropSeparatedEntities")]
+    partial class DropSeparatedEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,243 @@ namespace Ballware.Meta.Data.Ef.Postgres.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Ballware.Meta.Data.Persistables.Characteristic", b =>
+                {
+                    b.Property<long?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long?>("Id"));
+
+                    b.Property<DateTime?>("CreateStamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_stamp");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("creator_id");
+
+                    b.Property<string>("Identifier")
+                        .HasColumnType("text")
+                        .HasColumnName("identifier");
+
+                    b.Property<DateTime?>("LastChangeStamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_change_stamp");
+
+                    b.Property<Guid?>("LastChangerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_changer_id");
+
+                    b.Property<string>("LookupDisplayMember")
+                        .HasColumnType("text")
+                        .HasColumnName("lookup_display_member");
+
+                    b.Property<Guid?>("LookupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lookup_id");
+
+                    b.Property<string>("LookupValueMember")
+                        .HasColumnType("text")
+                        .HasColumnName("lookup_value_member");
+
+                    b.Property<bool?>("Multi")
+                        .HasColumnType("boolean")
+                        .HasColumnName("multi");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<Guid>("Uuid")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uuid")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_characteristic");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_characteristic_tenant_id");
+
+                    b.HasIndex("TenantId", "Identifier")
+                        .IsUnique()
+                        .HasDatabaseName("ix_characteristic_tenant_id_identifier");
+
+                    b.HasIndex("TenantId", "Uuid")
+                        .IsUnique()
+                        .HasDatabaseName("ix_characteristic_tenant_id_uuid");
+
+                    b.ToTable("characteristic", (string)null);
+                });
+
+            modelBuilder.Entity("Ballware.Meta.Data.Persistables.CharacteristicAssociation", b =>
+                {
+                    b.Property<long?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long?>("Id"));
+
+                    b.Property<bool?>("Active")
+                        .HasColumnType("boolean")
+                        .HasColumnName("active");
+
+                    b.Property<Guid?>("CharacteristicGroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("characteristic_group_id");
+
+                    b.Property<Guid?>("CharacteristicId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("characteristic_id");
+
+                    b.Property<DateTime?>("CreateStamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_stamp");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("creator_id");
+
+                    b.Property<string>("Entity")
+                        .HasColumnType("text")
+                        .HasColumnName("entity");
+
+                    b.Property<string>("Identifier")
+                        .HasColumnType("text")
+                        .HasColumnName("identifier");
+
+                    b.Property<DateTime?>("LastChangeStamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_change_stamp");
+
+                    b.Property<Guid?>("LastChangerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_changer_id");
+
+                    b.Property<int?>("Length")
+                        .HasColumnType("integer")
+                        .HasColumnName("length");
+
+                    b.Property<bool?>("Readonly")
+                        .HasColumnType("boolean")
+                        .HasColumnName("readonly");
+
+                    b.Property<bool?>("Required")
+                        .HasColumnType("boolean")
+                        .HasColumnName("required");
+
+                    b.Property<int?>("Sorting")
+                        .HasColumnType("integer")
+                        .HasColumnName("sorting");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<Guid>("Uuid")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uuid")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_characteristic_association");
+
+                    b.HasIndex("TenantId", "Entity")
+                        .HasDatabaseName("ix_characteristic_association_tenant_id_entity");
+
+                    b.HasIndex("TenantId", "Uuid")
+                        .IsUnique()
+                        .HasDatabaseName("ix_characteristic_association_tenant_id_uuid");
+
+                    b.HasIndex("TenantId", "Entity", "CharacteristicId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_characteristic_association_tenant_id_entity_characteristic_");
+
+                    b.ToTable("characteristic_association", (string)null);
+                });
+
+            modelBuilder.Entity("Ballware.Meta.Data.Persistables.CharacteristicGroup", b =>
+                {
+                    b.Property<long?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long?>("Id"));
+
+                    b.Property<DateTime?>("CreateStamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_stamp");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("creator_id");
+
+                    b.Property<string>("Entity")
+                        .HasColumnType("text")
+                        .HasColumnName("entity");
+
+                    b.Property<DateTime?>("LastChangeStamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_change_stamp");
+
+                    b.Property<Guid?>("LastChangerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_changer_id");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("RegisterName")
+                        .HasColumnType("text")
+                        .HasColumnName("register_name");
+
+                    b.Property<int?>("Sorting")
+                        .HasColumnType("integer")
+                        .HasColumnName("sorting");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("Uuid")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uuid")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_characteristic_group");
+
+                    b.HasIndex("TenantId", "Entity")
+                        .HasDatabaseName("ix_characteristic_group_tenant_id_entity");
+
+                    b.HasIndex("TenantId", "Uuid")
+                        .IsUnique()
+                        .HasDatabaseName("ix_characteristic_group_tenant_id_uuid");
+
+                    b.HasIndex("TenantId", "Entity", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_characteristic_group_tenant_id_entity_name");
+
+                    b.ToTable("characteristic_group", (string)null);
+                });
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Documentation", b =>
                 {
@@ -952,6 +1192,66 @@ namespace Ballware.Meta.Data.Ef.Postgres.Migrations
                         .HasDatabaseName("ix_tenant_uuid");
 
                     b.ToTable("tenant", (string)null);
+                });
+
+            modelBuilder.Entity("Ballware.Meta.Data.Persistables.TenantDatabaseObject", b =>
+                {
+                    b.Property<long?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long?>("Id"));
+
+                    b.Property<DateTime?>("CreateStamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_stamp");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("creator_id");
+
+                    b.Property<DateTime?>("LastChangeStamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_change_stamp");
+
+                    b.Property<Guid?>("LastChangerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_changer_id");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Sql")
+                        .HasColumnType("text")
+                        .HasColumnName("sql");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<Guid>("Uuid")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uuid")
+                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tenant_database_object");
+
+                    b.HasIndex("TenantId", "Uuid")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_database_object_tenant_id_uuid");
+
+                    b.HasIndex("TenantId", "Type", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_database_object_tenant_id_type_name");
+
+                    b.ToTable("tenant_database_object", (string)null);
                 });
 #pragma warning restore 612, 618
         }
