@@ -26,6 +26,6 @@ public class PickvalueRepository : PickvalueBaseRepository
 
     public override Task<string> GenerateAvailableQueryAsync(Guid tenantId, string entity, string field)
     {
-        return Task.FromResult($"select Uuid as Id, Value, Text as Name from Pickvalue where TenantId='{tenantId}' and Entity='{entity}' and Field='{field}' order by Sorting");
+        return Task.FromResult($"select Uuid as Id, Value, Text as Name from Pickvalue where TenantId='{tenantId}' and LOWER(Entity)=LOWER('{entity}') and LOWER(Field)=LOWER('{field}') order by Sorting");
     }
 }

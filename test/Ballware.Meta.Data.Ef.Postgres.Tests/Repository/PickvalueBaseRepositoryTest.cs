@@ -211,4 +211,102 @@ public class PickvalueBaseRepositoryTest : RepositoryBaseTest
             Assert.That(result.Count(), Is.EqualTo(21));
         });
     }
+    
+    [Test]
+    public async Task GetPickvalue_WithCaseSensitiveField_succeeds()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        
+        using var scope = Application.Services.CreateScope();
+
+        var repository = scope.ServiceProvider.GetRequiredService<IPickvalueMetaRepository>();
+        
+        // Create pickvalue with lowercase field name
+        var pickvalue = await repository.NewAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
+        pickvalue.Entity = "testentity";
+        pickvalue.Field = "category"; // lowercase field
+        pickvalue.Value = 1;
+        pickvalue.Text = "Test Category";
+        pickvalue.Sorting = 1;
+        
+        await repository.SaveAsync(TenantId, userId, "primary", ImmutableDictionary<string, object>.Empty, pickvalue);
+        
+        // Act - Query with uppercase field name
+        var resultWithUpperCase = await repository.SelectListForEntityFieldAsync(TenantId, "testentity", "Category");
+        var resultWithLowerCase = await repository.SelectListForEntityFieldAsync(TenantId, "testentity", "category");
+        var resultWithMixedCase = await repository.SelectListForEntityFieldAsync(TenantId, "testentity", "CaTeGoRy");
+        
+        var selectByValueUpper = await repository.SelectByValueAsync(TenantId, "testentity", "Category", 1);
+        var selectByValueLower = await repository.SelectByValueAsync(TenantId, "testentity", "category", 1);
+        var selectByValueMixed = await repository.SelectByValueAsync(TenantId, "testentity", "CaTeGoRy", 1);
+        
+        // Assert - All case variations should return the same result
+        Assert.Multiple(() =>
+        {
+            Assert.That(resultWithUpperCase.Count(), Is.EqualTo(1), "Upper case field should find entry");
+            Assert.That(resultWithLowerCase.Count(), Is.EqualTo(1), "Lower case field should find entry");
+            Assert.That(resultWithMixedCase.Count(), Is.EqualTo(1), "Mixed case field should find entry");
+            
+            Assert.That(selectByValueUpper, Is.Not.Null, "Upper case field should find entry by value");
+            Assert.That(selectByValueLower, Is.Not.Null, "Lower case field should find entry by value");
+            Assert.That(selectByValueMixed, Is.Not.Null, "Mixed case field should find entry by value");
+            
+            Assert.That(selectByValueUpper!.Value, Is.EqualTo(1));
+            Assert.That(selectByValueLower!.Value, Is.EqualTo(1));
+            Assert.That(selectByValueMixed!.Value, Is.EqualTo(1));
+        });
+    }
+    
+    [Test]
+    public async Task QueryPickvalue_WithCaseSensitiveEntityAndField_succeeds()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        
+        using var scope = Application.Services.CreateScope();
+
+        var repository = scope.ServiceProvider.GetRequiredService<IPickvalueMetaRepository>();
+        
+        // Create pickvalue with lowercase entity and field names
+        var pickvalue = await repository.NewAsync(TenantId, "primary", ImmutableDictionary<string, object>.Empty);
+        pickvalue.Entity = "myentity"; // lowercase entity
+        pickvalue.Field = "myfield"; // lowercase field
+        pickvalue.Value = 1;
+        pickvalue.Text = "Test Value";
+        pickvalue.Sorting = 1;
+        
+        await repository.SaveAsync(TenantId, userId, "primary", ImmutableDictionary<string, object>.Empty, pickvalue);
+        
+        // Act - Query with different case variations
+        var resultLowerCase = (await repository.QueryAsync(TenantId, "entityandfield", ImmutableDictionary<string, object>.Empty, new Dictionary<string, object>()
+        {
+            { "entity", "myentity" },
+            { "field", "myfield" }
+        })).ToList();
+        
+        var resultUpperCase = (await repository.QueryAsync(TenantId, "entityandfield", ImmutableDictionary<string, object>.Empty, new Dictionary<string, object>()
+        {
+            { "entity", "MyEntity" },
+            { "field", "MyField" }
+        })).ToList();
+        
+        var resultMixedCase = (await repository.QueryAsync(TenantId, "entityandfield", ImmutableDictionary<string, object>.Empty, new Dictionary<string, object>()
+        {
+            { "entity", "MYENTITY" },
+            { "field", "MYFIELD" }
+        })).ToList();
+        
+        // Assert - All case variations should return the same result
+        Assert.Multiple(() =>
+        {
+            Assert.That(resultLowerCase.Count, Is.EqualTo(1), "Lower case entity/field should find entry");
+            Assert.That(resultUpperCase.Count, Is.EqualTo(1), "Upper case entity/field should find entry");
+            Assert.That(resultMixedCase.Count, Is.EqualTo(1), "Mixed case entity/field should find entry");
+            
+            Assert.That(resultLowerCase[0].Value, Is.EqualTo(1));
+            Assert.That(resultUpperCase[0].Value, Is.EqualTo(1));
+            Assert.That(resultMixedCase[0].Value, Is.EqualTo(1));
+        });
+    }
 }
