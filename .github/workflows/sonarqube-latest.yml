@@ -2,7 +2,7 @@ name: Analyse SonarQube Latest
 
 on:
   push:
-    branches: ['main', 'develop', 'feature/*', 'bugfix/*']  
+    branches: ['main', 'develop', 'feature/*', 'bugfix/*', 'ballware/copilot/*']  
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,11 +21,9 @@ jobs:
         with: 
           dotnet-version: 
             8.0
-      - name: Download and extract dotCover CLI
-        run: |
-          curl -L -o dotcover.tar.gz "https://download.jetbrains.com/resharper/dotUltimate.2025.1.2/JetBrains.dotCover.CommandLineTools.2025.1.2.tar.gz"
-          mkdir dotcover
-          tar -xzf dotcover.tar.gz -C dotcover
+          
+      - name: Install dotCover CLI
+        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools
           
       - name: Install SonarQube
         run: dotnet tool install --global dotnet-sonarscanner
@@ -43,7 +41,7 @@ jobs:
         run: |
           dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" \
             --name github \
-            --username frankball \
+            --username ${{ github.actor }} \
             --password ${{ secrets.GITHUB_TOKEN }} \
             --store-password-in-clear-text
           dotnet restore ballware-meta-service.sln         
@@ -58,7 +56,7 @@ jobs:
           i=0
           find ./test -name '*.Tests.csproj' | while read project; do
             echo "Running coverage for: $project"
-            dotnet dotcover/dotCover.dll cover \
+            dotnet dotcover cover \
               --targetExecutable="/usr/bin/dotnet" \
               --targetArguments="test $project --configuration Release --logger trx" \
               --output="coverage/project_$i.dcvr" \
@@ -69,13 +67,13 @@ jobs:
       - name: Merge coverage snapshots
         run: |
           snapshots=$(find coverage -name '*.dcvr' | paste -sd ';' -)
-          dotnet dotcover/dotCover.dll merge \
+          dotnet dotcover merge \
             --source="$snapshots" \
             --output="coverage.dcvr"
           
       - name: Generate HTML report for SonarCloud
         run: |
-          dotnet dotcover/dotCover.dll report \
+          dotnet dotcover report \
             --source="coverage.dcvr" \
             --output="coverage.html" \
             --reportType=HTML           
