@@ -21,6 +21,7 @@ public class AuthorizationOptions
     public required string RightClaim { get; set; } = "right";
 
     public bool RequireHttpsMetadata { get; set; } = true;
+    public bool ValidateIssuerServerCertificate { get; set; } = true;
     public string RequiredMetaScope { get; set; } = "metaApi";
     public string RequiredServiceScope { get; set; } = "serviceApi";
 }

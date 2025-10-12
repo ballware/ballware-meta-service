@@ -140,6 +140,14 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 ValidIssuer = authorizationOptions.Authority
             };
+
+            if (!authorizationOptions.ValidateIssuerServerCertificate)
+            {
+                options.BackchannelHttpHandler = new HttpClientHandler()
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };    
+            }
         });
 
         Services.AddAuthorizationBuilder()
