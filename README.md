@@ -1,5 +1,14 @@
 # Ballware Meta Service
 
+[![Build & Publish (main)](https://github.com/ballware/ballware-meta-service/actions/workflows/publish-packages.yml/badge.svg?branch=main)](https://github.com/ballware/ballware-meta-service/actions/workflows/publish-packages.yml)
+[![CI Tests (main)](https://github.com/ballware/ballware-meta-service/actions/workflows/sonarqube-latest.yml/badge.svg?branch=main)](https://github.com/ballware/ballware-meta-service/actions/workflows/sonarqube-latest.yml)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-meta-service&metric=coverage)](https://sonarcloud.io/summary/overall?id=ballware_ballware-meta-service)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-meta-service&metric=bugs)](https://sonarcloud.io/summary/overall?id=ballware_ballware-meta-service)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-meta-service&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=ballware_ballware-meta-service)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-meta-service&metric=security_rating)](https://sonarcloud.io/summary/overall?id=ballware_ballware-meta-service)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-meta-service&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=ballware_ballware-meta-service)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-meta-service&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=ballware_ballware-meta-service)
+
 This repository contains the Ballware Meta Service – the component that stores and serves metadata used by the Ballware platform. It exposes a set of HTTP APIs to manage tenant-aware metadata such as entities, pages, lookups, pick values, exports, documentation, jobs, and statistics.
 
 For a complete, multi-service installation (Keycloak, Storage, Schema, etc.), please use the umbrella repository: https://github.com/ballware/ballware-docker-compose. This README focuses solely on the specifics of the Meta Service.
