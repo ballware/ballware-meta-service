@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Ballware.Shared.Data.Ef.Repository;
@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Repository;
 
-public abstract class DocumentationBaseRepository : TenantableRepository<Public.Documentation, Persistables.Documentation>, IDocumentationMetaRepository
+public abstract class DocumentationBaseRepository : TenantableBaseRepository<Public.Documentation, Persistables.Documentation>, IDocumentationMetaRepository
 {
     private IMetaDbContext MetaContext { get; }
 

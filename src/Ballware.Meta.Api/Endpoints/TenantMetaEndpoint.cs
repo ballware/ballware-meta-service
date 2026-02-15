@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Api.Public;
 using Ballware.Shared.Authorization;
 using Ballware.Meta.Data;

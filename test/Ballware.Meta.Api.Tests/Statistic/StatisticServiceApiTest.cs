@@ -1,10 +1,11 @@
 using System.Net;
 using System.Text.Json;
-using AutoMapper;
 using Ballware.Meta.Api.Endpoints;
 using Ballware.Meta.Api.Mappings;
 using Ballware.Meta.Api.Tests.Utils;
 using Ballware.Meta.Data.Repository;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -25,12 +26,13 @@ public class StatisticServiceApiTest : ApiMappingBaseTest
             Name = "Statistic One",
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new ServiceApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var repositoryMock = new Mock<IStatisticMetaRepository>();
 

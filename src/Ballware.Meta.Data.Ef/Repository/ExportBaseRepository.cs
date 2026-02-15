@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Data.Repository;
 using Ballware.Shared.Data.Ef.Repository;
 using Ballware.Shared.Data.Repository;
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Repository;
 
-public class ExportBaseRepository : TenantableRepository<Public.Export, Persistables.Export>, IExportMetaRepository
+public class ExportBaseRepository : TenantableBaseRepository<Public.Export, Persistables.Export>, IExportMetaRepository
 {
     private IMetaDbContext MetaContext { get; }
 

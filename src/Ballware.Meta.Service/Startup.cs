@@ -3,27 +3,31 @@ using Ballware.Meta.Api.Endpoints;
 using Ballware.Shared.Authorization;
 using Ballware.Shared.Authorization.Jint;
 using Ballware.Meta.Caching;
-using Ballware.Meta.Data.Ef;
 using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Ef.Postgres;
 using Ballware.Meta.Data.Ef.SqlServer;
 using Ballware.Meta.Data.Public;
-using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Jobs;
 using Ballware.Meta.Service.Adapter;
 using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
 using Ballware.Generic.Schema.Client;
+using Ballware.Meta.Data.Ef;
+using Ballware.Shared.Api.Endpoints;
 using Ballware.Shared.Data.Repository;
 using Ballware.Storage.Service.Client;
+using Duende.AccessTokenManagement;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Quartz;
 using Serilog;
+using Scope = Duende.AccessTokenManagement.Scope;
 
 namespace Ballware.Meta.Service;
 
@@ -183,23 +187,23 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddClientCredentialsTokenManagement()
             .AddClient("storage", client =>
             {
-                client.TokenEndpoint = storageClientOptions.TokenEndpoint;
+                client.TokenEndpoint = new Uri(storageClientOptions.TokenEndpoint);
 
-                client.ClientId = storageClientOptions.ClientId;
-                client.ClientSecret = storageClientOptions.ClientSecret;
+                client.ClientId = ClientId.Parse(storageClientOptions.ClientId);
+                client.ClientSecret = ClientSecret.Parse(storageClientOptions.ClientSecret);
 
-                client.Scope = storageClientOptions.Scopes;
+                client.Scope = Scope.Parse(storageClientOptions.Scopes);
             });
         
         Services.AddClientCredentialsTokenManagement()
             .AddClient("schema", client =>
             {
-                client.TokenEndpoint = schemaClientOptions.TokenEndpoint;
+                client.TokenEndpoint = new Uri(schemaClientOptions.TokenEndpoint);
 
-                client.ClientId = schemaClientOptions.ClientId;
-                client.ClientSecret = schemaClientOptions.ClientSecret;
+                client.ClientId = ClientId.Parse(schemaClientOptions.ClientId);
+                client.ClientSecret = ClientSecret.Parse(schemaClientOptions.ClientSecret);
 
-                client.Scope = schemaClientOptions.Scopes;
+                client.Scope = Scope.Parse(schemaClientOptions.Scopes);
             });
         
         Services.AddHttpClient<StorageServiceClient>(client =>
@@ -212,7 +216,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
 #endif                  
-            .AddClientCredentialsTokenHandler("storage");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("storage"));
         
         Services.AddHttpClient<GenericSchemaClient>(client =>
             {
@@ -224,13 +228,14 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
 #endif            
-            .AddClientCredentialsTokenHandler("schema");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("schema"));
         
-        Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareStorageMappings();
-            config.AddBallwareMetaApiMappings();
-        });
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareStorageMappings()
+            .AddBallwareMetaApiMappings();
+        
+        Services.AddSingleton(mapsterConfig);
+        Services.AddScoped<IMapper, ServiceMapper>();
         
         Services.AddScoped<IMetaFileStorageAdapter, StorageServiceFileStorageAdapter>();
         Services.AddScoped<IJobsFileStorageAdapter, StorageServiceFileStorageAdapter>();
@@ -269,13 +274,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     return typeName;
                 });
                 
-                c.SwaggerDoc("meta", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("meta", new OpenApiInfo
                 {
                     Title = "ballware Meta API",
                     Version = "v1"
                 });
 
-                c.SwaggerDoc("service", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("service", new OpenApiInfo
                 {
                     Title = "ballware Service API",
                     Version = "v1"
@@ -285,17 +290,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
                 c.AddSecurityDefinition("oidc", new OpenApiSecurityScheme
                 {
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.OpenIdConnect,
+                    Type = SecuritySchemeType.OpenIdConnect,
                     OpenIdConnectUrl = new Uri(authorizationOptions.Authority + "/.well-known/openid-configuration")
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement((document) => new OpenApiSecurityRequirement
                 {
                     {
-                        new OpenApiSecurityScheme {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oidc" }
-                        },
-                        swaggerOptions.RequiredScopes.Split(" ")
+                        new OpenApiSecuritySchemeReference("oidc", document),
+                        swaggerOptions.RequiredScopes.Split(" ").ToList()
                     }
                 });
             });
