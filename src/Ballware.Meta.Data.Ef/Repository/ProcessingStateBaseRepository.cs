@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Data.Ef.Internal;
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Ballware.Meta.Data.Ef.Repository;
 
-public abstract class ProcessingStateBaseRepository : TenantableRepository<Public.ProcessingState, Persistables.ProcessingState>, IProcessingStateMetaRepository
+public abstract class ProcessingStateBaseRepository : TenantableBaseRepository<Public.ProcessingState, Persistables.ProcessingState>, IProcessingStateMetaRepository
 {
     private IMetaDbContext MetaContext { get; }
 

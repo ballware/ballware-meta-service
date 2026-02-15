@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Ballware.Shared.Data.Ef.Repository;
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Repository;
 
-public abstract class EntityBaseRepository : TenantableRepository<Public.EntityMetadata, Persistables.EntityMetadata>, IEntityMetaRepository
+public abstract class EntityBaseRepository : TenantableBaseRepository<Public.EntityMetadata, Persistables.EntityMetadata>, IEntityMetaRepository
 {
     private string ChildQueryIdentifier { get; } = "entity";
     private string ChildQueryEntityParamIdentifier { get; } = "entity";

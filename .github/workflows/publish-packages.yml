@@ -9,7 +9,7 @@ jobs:
   build_and_pack:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/dotnet/sdk:8.0
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     outputs:
       semver: ${{ steps.gitversion.outputs.SemVer }}
     steps:
