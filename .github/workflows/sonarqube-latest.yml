@@ -23,7 +23,7 @@ jobs:
             10.0
           
       - name: Install dotCover CLI
-        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools --version 2025.1.7
+        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools --version 2025.3.0.1
           
       - name: Install SonarQube
         run: dotnet tool install --global dotnet-sonarscanner
