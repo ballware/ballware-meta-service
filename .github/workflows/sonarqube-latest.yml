@@ -54,7 +54,7 @@ jobs:
           export TestSettings__DatabasePassword='${{ secrets.TEST_META_PASSWORD }}'
           dotCover cover \
             --TargetExecutable="/usr/bin/dotnet" \
-            --TargetArguments="test ./ballware-meta-service.sln --no-build --configuration Release --logger trx" \
+            --TargetArguments="test ./ballware-meta-service.sln --no-build --configuration Release --logger trx -p:ParallelizeTestCollections=false -p:ParallelizeAssembly=false" \
             --Output="coverage.dcvr" \
             --ReturnTargetExitCode        
           
