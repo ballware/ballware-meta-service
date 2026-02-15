@@ -54,7 +54,7 @@ jobs:
         run: |
           dotnet tool run swagger tofile \
             --output ../Ballware.Meta.Service.Client/swagger.json \
-            ./bin/Release/net8.0/Ballware.Meta.Service.dll \
+            ./bin/Release/net10.0/Ballware.Meta.Service.dll \
             service
       - name: Generate service client code
         working-directory: src/Ballware.Meta.Service.Client
