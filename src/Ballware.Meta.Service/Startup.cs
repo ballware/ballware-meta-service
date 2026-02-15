@@ -13,6 +13,8 @@ using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
 using Ballware.Generic.Schema.Client;
 using Ballware.Meta.Data.Ef;
+using Ballware.Meta.Service.Mappings;
+using Ballware.Shared.Api;
 using Ballware.Shared.Api.Endpoints;
 using Ballware.Shared.Data.Repository;
 using Ballware.Storage.Service.Client;
@@ -234,10 +236,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .AddBallwareStorageMappings()
             .AddBallwareMetaApiMappings();
         
+        new SharedMetadataProfile().Register(mapsterConfig);
+        
         Services.AddSingleton(mapsterConfig);
         Services.AddScoped<IMapper, ServiceMapper>();
         
-        Services.AddScoped<IMetaFileStorageAdapter, StorageServiceFileStorageAdapter>();
+        Services.AddScoped<IAuthorizationMetadataProvider, AuthorizationMetadataProvider>();
+        Services.AddScoped<IJobMetadataProvider, JobMetadataProvider>();
+        Services.AddScoped<IExportMetadataProvider, ExportMetadataProvider>();
+        Services.AddScoped<IFileStorageProvider, StorageServiceFileStorageAdapter>();
         Services.AddScoped<IJobsFileStorageAdapter, StorageServiceFileStorageAdapter>();
         Services.AddScoped<IRepositoryHook<Ballware.Meta.Data.Public.Tenant, Ballware.Meta.Data.Persistables.Tenant>, GenericSchemaTenantRepositoryHook>();
         Services.AddScoped<ITenantableRepositoryHook<Ballware.Meta.Data.Public.EntityMetadata, Ballware.Meta.Data.Persistables.EntityMetadata>, GenericSchemaEntityRepositoryHook>();
@@ -253,7 +260,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareSharedJintRightsChecker();
-        Services.AddBallwareMetaApiDependencies();
+        Services.AddBallwareSharedApiDependencies();
         Services.AddBallwareMetaBackgroundJobs();
 
         Services.AddEndpointsApiExplorer();
