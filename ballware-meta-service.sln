@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Data.Caching"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Service.Client", "src\Ballware.Meta.Service.Client\Ballware.Meta.Service.Client.csproj", "{B71F5575-9F67-4230-A5FC-87F7CA065774}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Mcp", "src\Ballware.Meta.Mcp\Ballware.Meta.Mcp.csproj", "{366A7B54-7CAD-45BE-B557-ACD81BDD550C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,5 +98,9 @@ Global
 		{B71F5575-9F67-4230-A5FC-87F7CA065774}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B71F5575-9F67-4230-A5FC-87F7CA065774}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B71F5575-9F67-4230-A5FC-87F7CA065774}.Release|Any CPU.Build.0 = Release|Any CPU
+		{366A7B54-7CAD-45BE-B557-ACD81BDD550C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{366A7B54-7CAD-45BE-B557-ACD81BDD550C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{366A7B54-7CAD-45BE-B557-ACD81BDD550C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{366A7B54-7CAD-45BE-B557-ACD81BDD550C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

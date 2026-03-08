@@ -10,6 +10,8 @@ public class AuthorizationOptions
 
     [Required]
     public required string Audience { get; set; }
+    
+    public string? Issuer { get; set; }
 
     [Required]
     public required string TenantClaim { get; set; } = "tenant";

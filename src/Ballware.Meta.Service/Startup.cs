@@ -13,10 +13,14 @@ using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
 using Ballware.Generic.Schema.Client;
 using Ballware.Meta.Data.Ef;
+using Ballware.Meta.Mcp.Endpoints;
 using Ballware.Meta.Service.Mappings;
 using Ballware.Shared.Api;
 using Ballware.Shared.Api.Endpoints;
 using Ballware.Shared.Data.Repository;
+using Ballware.Shared.Mcp;
+using Ballware.Shared.Mcp.Endpoints;
+using Ballware.Shared.Mcp.Endpoints.Configuration;
 using Ballware.Storage.Service.Client;
 using Duende.AccessTokenManagement;
 using Mapster;
@@ -27,6 +31,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi;
+using ModelContextProtocol.AspNetCore.Authentication;
 using Quartz;
 using Serilog;
 using Scope = Duende.AccessTokenManagement.Scope;
@@ -56,6 +61,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         AuthorizationOptions? authorizationOptions =
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
+        McpEndpointOptions? mcpOptions = Configuration.GetSection("Mcp").Get<McpEndpointOptions>();
         CacheOptions? cacheOptions = Configuration.GetSection("Cache").Get<CacheOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         
@@ -70,6 +76,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddOptionsWithValidateOnStart<StorageOptions>()
             .Bind(Configuration.GetSection("Storage"))
+            .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<McpEndpointOptions>()
+            .Bind(Configuration.GetSection("Mcp"))
             .ValidateDataAnnotations();
         
         Services.AddOptionsWithValidateOnStart<Ballware.Meta.Caching.Configuration.CacheOptions>()
@@ -97,6 +107,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
 
+        if (mcpOptions == null)
+        {
+            mcpOptions = new McpEndpointOptions()
+            {
+                RequiredMcpScope = authorizationOptions.RequiredMetaScope,
+                ResourceUri = string.Empty
+            };
+        }
+        
         if (cacheOptions == null)
         {
             cacheOptions = new CacheOptions();
@@ -131,11 +150,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         }
 
         Services.AddBallwareDistributedCaching();
-        
+
         Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = McpAuthenticationDefaults.AuthenticationScheme;
         }).AddJwtBearer(options =>
         {
             options.MapInboundClaims = false;
@@ -144,7 +163,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             options.RequireHttpsMetadata = authorizationOptions.RequireHttpsMetadata;
             options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
             {
-                ValidIssuer = authorizationOptions.Authority
+                ValidIssuer = authorizationOptions.Issuer ?? authorizationOptions.Authority
             };
         });
 
@@ -263,6 +282,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddBallwareSharedApiDependencies();
         Services.AddBallwareMetaBackgroundJobs();
 
+        Services.AddBallwareMcpTools((serviceProvider, registry) =>
+        {
+            registry.RegisterBallwareTenantTools();
+        });
+        
+        Services.AddBallwareMcpEndpoint(mcpOptions);
+        
         Services.AddEndpointsApiExplorer();
         
         if (swaggerOptions != null)
@@ -393,12 +419,19 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.MapEntityMetaApi("/meta/entity");
         app.MapEntityServiceApi("/meta/entity");
         app.MapTenantableEditingApi<EntityMetadata>("/meta/entity", "meta", "entity", "Entity", "Entity");
-        
-        app.MapSwagger();
 
-        var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
+        app.MapSwagger();
+        
+        var authorizationOptions = app.Services.GetRequiredService<IOptions<AuthorizationOptions>>().Value;
+        var mcpOptions = app.Services.GetService<IOptions<McpEndpointOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;
 
+        if (mcpOptions != null)
+        {
+            app.UseBallwareMcpOAuthProtectedResource(mcpOptions, authorizationOptions.Issuer ?? authorizationOptions.Authority);
+            app.MapBallwareUserMcpEndpoint("/meta/mcp", mcpOptions);    
+        }
+        
         if (swaggerOptions != null && authorizationOptions != null)
         {
             app.UseSwagger();
