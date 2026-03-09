@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ballware.Shared.Mcp" Version="1.2.0-alpha.7" />
+      <PackageReference Include="Ballware.Shared.Mcp" Version="1.2.0-alpha.9" />
       <PackageReference Include="Mapster" Version="7.4.0" />
       <PackageReference Include="NJsonSchema" Version="11.5.2" />
     </ItemGroup>

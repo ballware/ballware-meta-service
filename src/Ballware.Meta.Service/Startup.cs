@@ -13,6 +13,7 @@ using Ballware.Meta.Service.Configuration;
 using Ballware.Meta.Service.Extensions;
 using Ballware.Generic.Schema.Client;
 using Ballware.Meta.Data.Ef;
+using Ballware.Meta.Mcp;
 using Ballware.Meta.Mcp.Endpoints;
 using Ballware.Meta.Service.Mappings;
 using Ballware.Shared.Api;
@@ -253,7 +254,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         
         var mapsterConfig = new TypeAdapterConfig()
             .AddBallwareStorageMappings()
-            .AddBallwareMetaApiMappings();
+            .AddBallwareMetaApiMappings()
+            .AddBallwareMetaMcpMappings();
         
         new SharedMetadataProfile().Register(mapsterConfig);
         
@@ -285,6 +287,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddBallwareMcpTools((serviceProvider, registry) =>
         {
             registry.RegisterBallwareTenantTools();
+            registry.RegisterBallwarePageTools();
         });
         
         Services.AddBallwareMcpEndpoint(mcpOptions);

@@ -13,15 +13,15 @@
     </ItemGroup>
     
     <ItemGroup>
-      <PackageReference Include="Ballware.Shared.Data.Ef" Version="1.1.0" />
+      <PackageReference Include="Ballware.Shared.Data.Ef" Version="1.2.0-alpha.9" />
       <PackageReference Include="Dapper" Version="2.1.66" />
       <PackageReference Include="Mapster" Version="7.4.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.2" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.3" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
 

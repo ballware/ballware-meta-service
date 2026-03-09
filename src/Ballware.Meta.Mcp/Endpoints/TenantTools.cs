@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Mcp.Public;
@@ -8,40 +7,32 @@ using Ballware.Shared.Authorization;
 using Ballware.Shared.Mcp;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using NJsonSchema;
-using NJsonSchema.Generation;
 
 namespace Ballware.Meta.Mcp.Endpoints;
 
-public static class ToolRegistryExtensions
+public static class TenantToolRegistryExtensions
 {
-    private static readonly JsonSchemaGeneratorSettings SchemaSettings = new SystemTextJsonSchemaGeneratorSettings
-    {
-        SerializerOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        }
-    };
-    
     public static IToolRegistry RegisterBallwareTenantTools(this IToolRegistry registry)
     {
         registry.RegisterTool(new Tool()
         {
             Name = "ballware.meta.tenant.current.summary",
             Description = "Returns summarized metadata for current tenant of authenticated user",
-            OutputSchema = JsonSchema.FromType<TenantSummary>(SchemaSettings).ToJson(),
+            OutputSchema = JsonSchema.FromType<TenantSummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
-            ExecuteAsync = TenantTools.HandleTenantCurrentSummaryAsync
+            ExecuteAsync = TenantTools.HandleTenantCurrentSummaryAsync,
+            IsAuthorizedAsync = SharedRightsEndpointFactory.CreateStaticEntityRightAuthorizationHandler("meta", "tenant", "view")
         });
         
         registry.RegisterTool(new Tool()
         {
             Name = "ballware.meta.tenant.current.navigation",
             Description = "Returns user navigation for current tenant of authenticated user",
-            OutputSchema = JsonSchema.FromType<NavigationLayout>(SchemaSettings).ToJson(),
+            OutputSchema = JsonSchema.FromType<NavigationLayout>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
-            ExecuteAsync = TenantTools.HandleTenantCurrentNavigationAsync
+            ExecuteAsync = TenantTools.HandleTenantCurrentNavigationAsync,
+            IsAuthorizedAsync = SharedRightsEndpointFactory.CreateStaticEntityRightAuthorizationHandler("meta", "tenant", "view")
         });
 
         return registry;
@@ -50,8 +41,13 @@ public static class ToolRegistryExtensions
 
 public class TenantTools
 { 
-    public static async Task<ToolResult> HandleTenantCurrentSummaryAsync(IServiceProvider serviceProvider, ClaimsPrincipal principal, IDictionary<string, object?> arguments)
+    public static async Task<ToolResult> HandleTenantCurrentSummaryAsync(IServiceProvider serviceProvider, ClaimsPrincipal? principal, IDictionary<string, object?> arguments)
     {
+        if (principal == null) 
+        {
+            return ToolResult.FromText("User is not authenticated");
+        }
+        
         var principalUtils = serviceProvider.GetRequiredService<IPrincipalUtils>();
         var tenantRepository = serviceProvider.GetRequiredService<ITenantMetaRepository>();
         var mapper = serviceProvider.GetRequiredService<IMapper>();
@@ -67,7 +63,10 @@ public class TenantTools
 
         var result = mapper.Map<TenantSummary>(tenantData);
         
-        var structuredContent = JsonNode.Parse(JsonConvert.SerializeObject(result));
+        var structuredContent = JsonSerializer.SerializeToNode(result, new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        });
 
         if (structuredContent == null)
         {
@@ -77,8 +76,13 @@ public class TenantTools
         return ToolResult.FromStructuredContent(structuredContent);
     }
     
-    public static async Task<ToolResult> HandleTenantCurrentNavigationAsync(IServiceProvider serviceProvider, ClaimsPrincipal principal, IDictionary<string, object?> arguments)
+    public static async Task<ToolResult> HandleTenantCurrentNavigationAsync(IServiceProvider serviceProvider, ClaimsPrincipal? principal, IDictionary<string, object?> arguments)
     {
+        if (principal == null) 
+        {
+            return ToolResult.FromText("User is not authenticated");
+        }
+        
         var principalUtils = serviceProvider.GetRequiredService<IPrincipalUtils>();
         var tenantRepository = serviceProvider.GetRequiredService<ITenantMetaRepository>();
         var tenantRightsChecker = serviceProvider.GetRequiredService<ITenantRightsChecker>();
@@ -98,7 +102,10 @@ public class TenantTools
 
         result.Layout.Items = await FilterNavigationItemsAsync(result.Layout.Items, tenantData, tenantRightsChecker, claims);
         
-        var structuredContent = JsonNode.Parse(JsonConvert.SerializeObject(result));
+        var structuredContent = JsonSerializer.SerializeToNode(result, new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        });
 
         if (structuredContent == null)
         {

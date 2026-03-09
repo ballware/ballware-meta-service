@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ballware.Shared.Authorization" Version="1.1.0" />
+      <PackageReference Include="Ballware.Shared.Authorization" Version="1.2.0-alpha.9" />
       <PackageReference Include="Mapster" Version="7.4.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
       <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.2" />
