@@ -16,5 +16,6 @@ public class MetaMcpProfile : IRegister
             .Map(dest => dest.Layout, src => JsonConvert.DeserializeObject<NavigationLayout>(src.Navigation ?? "{}"));
         
         config.NewConfig<PageSelectListEntry, PageSummary>();
+        config.NewConfig<EntitySelectListEntry, EntitySummary>();
     }
 }

@@ -5,6 +5,7 @@ using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Mcp.Public;
 using Ballware.Shared.Authorization;
 using Ballware.Shared.Mcp;
+using Ballware.Shared.Mcp.Authorization;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using NJsonSchema;
@@ -22,7 +23,7 @@ public static class TenantToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<TenantSummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = TenantTools.HandleTenantCurrentSummaryAsync,
-            IsAuthorizedAsync = SharedRightsEndpointFactory.CreateStaticEntityRightAuthorizationHandler("meta", "tenant", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "tenant", "view")
         });
         
         registry.RegisterTool(new Tool()
@@ -32,7 +33,7 @@ public static class TenantToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<NavigationLayout>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = TenantTools.HandleTenantCurrentNavigationAsync,
-            IsAuthorizedAsync = SharedRightsEndpointFactory.CreateStaticEntityRightAuthorizationHandler("meta", "tenant", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "tenant", "view")
         });
 
         return registry;

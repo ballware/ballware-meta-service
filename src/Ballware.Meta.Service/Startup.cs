@@ -288,6 +288,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             registry.RegisterBallwareTenantTools();
             registry.RegisterBallwarePageTools();
+            registry.RegisterBallwareEntityTools();
         });
         
         Services.AddBallwareMcpEndpoint(mcpOptions);

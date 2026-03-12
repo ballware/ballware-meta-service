@@ -4,6 +4,7 @@ using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Mcp.Public;
 using Ballware.Shared.Authorization;
 using Ballware.Shared.Mcp;
+using Ballware.Shared.Mcp.Authorization;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using NJsonSchema;
@@ -21,7 +22,7 @@ public static class PageToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<PageList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = PageTools.HandlePageListAsync,
-            IsAuthorizedAsync = SharedRightsEndpointFactory.CreateStaticEntityRightAuthorizationHandler("meta", "page", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "page", "view")
         });
         
         registry.RegisterTool(new Tool()
@@ -39,7 +40,7 @@ public static class PageToolRegistryExtensions
                 }
             ],
             ExecuteAsync = PageTools.HandlePageByIdentifierAsync,
-            IsAuthorizedAsync = SharedRightsEndpointFactory.CreateStaticEntityRightAuthorizationHandler("meta", "page", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "page", "view")
         });
         
         return registry;
