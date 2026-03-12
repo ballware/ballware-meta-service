@@ -64,17 +64,10 @@ public class TenantTools
 
         var result = mapper.Map<TenantSummary>(tenantData);
         
-        var structuredContent = JsonSerializer.SerializeToNode(result, new JsonSerializerOptions()
+        return ToolResult.FromStructuredContent(JsonSerializer.SerializeToElement(result, new JsonSerializerOptions()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        });
-
-        if (structuredContent == null)
-        {
-            return ToolResult.FromText($"Error serializing summary for {tenantId}");
-        }
-        
-        return ToolResult.FromStructuredContent(structuredContent);
+        }));
     }
     
     public static async Task<ToolResult> HandleTenantCurrentNavigationAsync(IServiceProvider serviceProvider, ClaimsPrincipal? principal, IDictionary<string, object?> arguments)
@@ -103,17 +96,10 @@ public class TenantTools
 
         result.Layout.Items = await FilterNavigationItemsAsync(result.Layout.Items, tenantData, tenantRightsChecker, claims);
         
-        var structuredContent = JsonSerializer.SerializeToNode(result, new JsonSerializerOptions()
+        return ToolResult.FromStructuredContent(JsonSerializer.SerializeToElement(result, new JsonSerializerOptions()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        });
-
-        if (structuredContent == null)
-        {
-            return ToolResult.FromText($"Error serializing navigation for {tenantId}");
-        }
-        
-        return ToolResult.FromStructuredContent(structuredContent);
+        }));
     }
 
     private static async Task<List<NavigationLayoutItem>> FilterNavigationItemsAsync(

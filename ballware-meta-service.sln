@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Service.Clien
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Mcp", "src\Ballware.Meta.Mcp\Ballware.Meta.Mcp.csproj", "{366A7B54-7CAD-45BE-B557-ACD81BDD550C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Mcp.Tests", "test\Ballware.Meta.Mcp.Tests\Ballware.Meta.Mcp.Tests.csproj", "{907A0995-6023-490D-9BDD-8AF5709B2D10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,5 +104,9 @@ Global
 		{366A7B54-7CAD-45BE-B557-ACD81BDD550C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{366A7B54-7CAD-45BE-B557-ACD81BDD550C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{366A7B54-7CAD-45BE-B557-ACD81BDD550C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{907A0995-6023-490D-9BDD-8AF5709B2D10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{907A0995-6023-490D-9BDD-8AF5709B2D10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{907A0995-6023-490D-9BDD-8AF5709B2D10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{907A0995-6023-490D-9BDD-8AF5709B2D10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

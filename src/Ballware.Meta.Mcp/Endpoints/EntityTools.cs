@@ -66,20 +66,13 @@ public class EntityTools
 
         var result = mapper.Map<EntitySummary[]>(entities);
         
-        var structuredContent = JsonSerializer.SerializeToNode(new EntityList()
+        return ToolResult.FromStructuredContent(JsonSerializer.SerializeToElement(new EntityList()
         {
             Entities = result.ToList()
         }, new JsonSerializerOptions()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        });
-
-        if (structuredContent == null)
-        {
-            return ToolResult.FromText($"Error serializing entity list for {tenantId}");
-        }
-        
-        return ToolResult.FromStructuredContent(structuredContent);
+        }));
     }
     
     public static async Task<ToolResult> HandleEntityByIdentifierAsync(IServiceProvider serviceProvider, ClaimsPrincipal? principal, IDictionary<string, object?> arguments)
@@ -109,16 +102,9 @@ public class EntityTools
 
         var result = mapper.Map<EntitySummary>(entity);
         
-        var structuredContent = JsonSerializer.SerializeToNode(result, new JsonSerializerOptions()
+        return ToolResult.FromStructuredContent(JsonSerializer.SerializeToElement(result, new JsonSerializerOptions()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        });
-
-        if (structuredContent == null)
-        {
-            return ToolResult.FromText($"Error serializing entity summary for identifier {entityIdentifier}");
-        }
-        
-        return ToolResult.FromStructuredContent(structuredContent);
+        }));
     }
 }

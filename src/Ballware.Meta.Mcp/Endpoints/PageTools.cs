@@ -66,20 +66,13 @@ public class PageTools
 
         var result = mapper.Map<PageSummary[]>(pages);
         
-        var structuredContent = JsonSerializer.SerializeToNode(new PageList()
+        return ToolResult.FromStructuredContent(JsonSerializer.SerializeToElement(new PageList()
         {
             Pages = result.ToList()
         }, new JsonSerializerOptions()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        });
-
-        if (structuredContent == null)
-        {
-            return ToolResult.FromText($"Error serializing page list for {tenantId}");
-        }
-        
-        return ToolResult.FromStructuredContent(structuredContent);
+        }));
     }
     
     public static async Task<ToolResult> HandlePageByIdentifierAsync(IServiceProvider serviceProvider, ClaimsPrincipal? principal, IDictionary<string, object?> arguments)
@@ -109,16 +102,9 @@ public class PageTools
 
         var result = mapper.Map<PageSummary>(page);
         
-        var structuredContent = JsonSerializer.SerializeToNode(result, new JsonSerializerOptions()
+        return ToolResult.FromStructuredContent(JsonSerializer.SerializeToElement(result, new JsonSerializerOptions()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        });
-
-        if (structuredContent == null)
-        {
-            return ToolResult.FromText($"Error serializing page summary for identifier {pageIdentifier}");
-        }
-        
-        return ToolResult.FromStructuredContent(structuredContent);
+        }));
     }
 }
