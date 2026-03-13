@@ -30,14 +30,14 @@ public abstract class PageBaseRepository : TenantableBaseRepository<Public.Page,
         return await Task.FromResult(MetaContext.Pages.Where(r => r.TenantId == tenantId)
             .OrderBy(r => r.Identifier)
             .Select(r => new PageSelectListEntry
-                { Id = r.Uuid, Name = r.Name }));
+                { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name }));
     }
     
     public virtual async Task<PageSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
     {
         return await MetaContext.Pages.Where(r => r.TenantId == tenantId && r.Uuid == id)
             .Select(r => new PageSelectListEntry
-                { Id = r.Uuid, Name = r.Name })
+                { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name })
             .FirstOrDefaultAsync();
     }
 

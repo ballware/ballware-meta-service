@@ -18,6 +18,7 @@ COPY ./Ballware.Meta.Data.Ef ./Ballware.Meta.Data.Ef
 COPY ./Ballware.Meta.Data.Ef.SqlServer ./Ballware.Meta.Data.Ef.SqlServer
 COPY ./Ballware.Meta.Data.Ef.Postgres ./Ballware.Meta.Data.Ef.Postgres
 COPY ./Ballware.Meta.Jobs ./Ballware.Meta.Jobs
+COPY ./Ballware.Meta.Mcp ./Ballware.Meta.Mcp
 COPY ./Ballware.Meta.Service ./Ballware.Meta.Service
 
 WORKDIR "/src/Ballware.Meta.Service"
