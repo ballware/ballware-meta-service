@@ -20,5 +20,8 @@ public class MetaMcpProfile : IRegister
         config.NewConfig<LookupSelectListEntry, LookupSummary>();
         config.NewConfig<PickvalueAvailability, PickvalueAvailabilitySummary>();
         config.NewConfig<PickvalueSelectEntry, PickvalueSelectEntrySummary>();
+        config.NewConfig<StatisticSelectListEntry, StatisticSummary>();
+        config.NewConfig<Data.Public.Statistic, StatisticMetadata>();
+        config.NewConfig<ProcessingStateSelectListEntry, ProcessingStateSummary>();
     }
 }
