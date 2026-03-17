@@ -128,7 +128,7 @@ public static class EntityMetaEndpoint
         return Results.Ok(mapper.Map<ServiceEntity>(entry));
     }
     
-    internal static async Task<IResult> HandleServiceSelectListAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user, Guid tenantId)
+    internal static async Task<IResult> HandleServiceSelectListAsync(IEntityMetaRepository repository, ClaimsPrincipal user, Guid tenantId)
     {
         return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
