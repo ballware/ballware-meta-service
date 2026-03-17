@@ -34,6 +34,9 @@ public class ServiceEntityQueryEntry
     [JsonPropertyName("query")]
     public required string Query { get; set; }
     
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+    
     [JsonPropertyName("ai_enabled")]
     public bool? AiEnabled { get; set; }
     
