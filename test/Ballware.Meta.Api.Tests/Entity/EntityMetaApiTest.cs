@@ -109,12 +109,14 @@ public class EntityMetaApiTest : ApiMappingBaseTest
             new()
             {
                 Id = Guid.NewGuid(),
+                Application = "test", 
                 Entity = "entity1",
                 Name = "Name1"
             },
             new()
             {
                 Id = Guid.NewGuid(),
+                Application = "test", 
                 Entity = "entity2",
                 Name = "Name2"
             }
@@ -179,6 +181,7 @@ public class EntityMetaApiTest : ApiMappingBaseTest
         var expectedEntry = new EntitySelectListEntry()
         {
             Id = Guid.NewGuid(),
+            Application = "test", 
             Entity = "entity1",
             Name = "Name1"
         };
@@ -253,6 +256,7 @@ public class EntityMetaApiTest : ApiMappingBaseTest
         var expectedEntry = new EntitySelectListEntry()
         {
             Id = Guid.NewGuid(),
+            Application = "test", 
             Entity = "entity1",
             Name = "Name1"
         };

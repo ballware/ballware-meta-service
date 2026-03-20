@@ -49,8 +49,8 @@ public class EntityEndpointTests
         var tenantId = Guid.NewGuid();
         var entityData = new List<EntitySelectListEntry>
         {
-            new() { Id = Guid.NewGuid(), Entity = "entity1", Name = "Entity 1" },
-            new() { Id = Guid.NewGuid(), Entity = "entity2", Name = "Entity 2" }
+            new() { Id = Guid.NewGuid(), Application = "test", Entity = "entity1", Name = "Entity 1" },
+            new() { Id = Guid.NewGuid(), Application = "test", Entity = "entity2", Name = "Entity 2" }
         };
         var entitySummaries = new[]
         {
@@ -118,7 +118,7 @@ public class EntityEndpointTests
         var principal = new ClaimsPrincipal();
         var tenantId = Guid.NewGuid();
         var identifier = "entity1";
-        var entityData = new EntitySelectListEntry { Id = Guid.NewGuid(), Entity = identifier, Name = "Entity 1" };
+        var entityData = new EntitySelectListEntry { Id = Guid.NewGuid(), Application = "test", Entity = identifier, Name = "Entity 1" };
         var entitySummary = new EntitySummary { Id = entityData.Id, Entity = identifier, Name = "Entity 1" };
 
         _principalUtilsMock.Setup(pu => pu.GetUserTenandId(principal)).Returns(tenantId);

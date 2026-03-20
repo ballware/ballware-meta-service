@@ -199,14 +199,14 @@ public abstract class EntityBaseRepository : TenantableBaseRepository<Public.Ent
         return await Task.FromResult(MetaContext.Entities.Where(r => r.TenantId == tenantId)
             .OrderBy(r => r.Entity)
             .Select(r => new EntitySelectListEntry
-                { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName }));
+                { Id = r.Uuid, Application = r.Application, Entity = r.Entity, Name = r.DisplayName }));
     }
     
     public virtual async Task<EntitySelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
     {
         return await MetaContext.Entities.Where(r => r.TenantId == tenantId && r.Uuid == id)
             .Select(r => new EntitySelectListEntry
-                { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName })
+                { Id = r.Uuid, Application = r.Application, Entity = r.Entity, Name = r.DisplayName })
             .FirstOrDefaultAsync();
     }
     
@@ -214,7 +214,7 @@ public abstract class EntityBaseRepository : TenantableBaseRepository<Public.Ent
     {
         return await MetaContext.Entities.Where(r => r.TenantId == tenantId && r.Entity == identifier)
             .Select(r => new EntitySelectListEntry
-                { Id = r.Uuid, Entity = r.Entity, Name = r.DisplayName })
+                { Id = r.Uuid, Application = r.Application, Entity = r.Entity, Name = r.DisplayName })
             .FirstOrDefaultAsync();
     }
 
