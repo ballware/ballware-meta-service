@@ -15,7 +15,7 @@ public static class ProcessingStateToolRegistryExtensions
 {
     public static IToolRegistry RegisterBallwareProcessingStateTools(this IToolRegistry registry)
     {
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.processingstate.list",
             Description = "Returns list of all processing states for current tenant",
@@ -25,7 +25,7 @@ public static class ProcessingStateToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "processingstate", "view")
         });
 
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.processingstate.by.id",
             Description = "Returns processing state by given id for current tenant",
@@ -44,7 +44,7 @@ public static class ProcessingStateToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "processingstate", "view")
         });
 
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.processingstate.listforentity",
             Description = "Returns all processing states for a given entity for current tenant",
@@ -63,7 +63,7 @@ public static class ProcessingStateToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "processingstate", "view")
         });
 
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.processingstate.bystateforentity",
             Description = "Returns a single processing state by numeric state code for a given entity for current tenant",
@@ -89,7 +89,7 @@ public static class ProcessingStateToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "processingstate", "view")
         });
 
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.processingstate.successorsforentityandstate",
             Description = "Returns all possible successor processing states for a given entity and current state for current tenant",

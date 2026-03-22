@@ -16,7 +16,7 @@ public static class TenantToolRegistryExtensions
 {
     public static IToolRegistry RegisterBallwareTenantTools(this IToolRegistry registry)
     {
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.tenant.current.summary",
             Description = "Returns summarized metadata for current tenant of authenticated user",
@@ -26,7 +26,7 @@ public static class TenantToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "tenant", "view")
         });
         
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.tenant.current.navigation",
             Description = "Returns user navigation for current tenant of authenticated user",

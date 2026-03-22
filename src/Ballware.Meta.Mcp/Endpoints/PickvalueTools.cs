@@ -15,7 +15,7 @@ public static class PickvalueToolRegistryExtensions
 {
     public static IToolRegistry RegisterBallwarePickvalueTools(this IToolRegistry registry)
     {
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.pickvalue.availability",
             Description = "Returns list of available entity/field combinations with pickvalues for current tenant",
@@ -25,7 +25,7 @@ public static class PickvalueToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "pickvalue", "view")
         });
 
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.pickvalue.selectlistforentityandfield",
             Description = "Returns list of pickvalue entries for a given entity and field for current tenant",
@@ -51,7 +51,7 @@ public static class PickvalueToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "pickvalue", "view")
         });
 
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.pickvalue.selectbyvalueforentityandfield",
             Description = "Returns a single pickvalue entry by numeric value for a given entity and field for current tenant",

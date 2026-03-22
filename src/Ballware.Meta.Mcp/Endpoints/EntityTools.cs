@@ -15,7 +15,7 @@ public static class EntityToolRegistryExtensions
 {
     public static IToolRegistry RegisterBallwareEntityTools(this IToolRegistry registry)
     {
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.entity.list",
             Description = "Returns list of available entities for current tenant",
@@ -25,7 +25,7 @@ public static class EntityToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "entity", "view")
         });
         
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.entity.by.identifier",
             Description = "Returns entity metadata by given identifier for entity",

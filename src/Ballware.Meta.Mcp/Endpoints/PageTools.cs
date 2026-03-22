@@ -15,7 +15,7 @@ public static class PageToolRegistryExtensions
 {
     public static IToolRegistry RegisterBallwarePageTools(this IToolRegistry registry)
     {
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.page.list",
             Description = "Returns list of available pages for current tenant",
@@ -25,7 +25,7 @@ public static class PageToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "page", "view")
         });
         
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.page.by.identifier",
             Description = "Returns page summary by given identifier for page",

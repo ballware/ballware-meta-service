@@ -302,7 +302,7 @@ public class ProcessingStateEndpointTests
     {
         var registryMock = new Mock<IToolRegistry>();
         var registeredTools = new List<Tool>();
-        registryMock.Setup(r => r.RegisterTool(It.IsAny<Tool>())).Callback<Tool>(t => registeredTools.Add(t));
+        registryMock.Setup(r => r.RegisterStaticTool(It.IsAny<Tool>())).Callback<Tool>(t => registeredTools.Add(t));
 
         registryMock.Object.RegisterBallwareProcessingStateTools();
 

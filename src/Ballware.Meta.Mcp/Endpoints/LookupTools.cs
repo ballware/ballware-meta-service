@@ -15,7 +15,7 @@ public static class LookupToolRegistryExtensions
 {
     public static IToolRegistry RegisterBallwareLookupTools(this IToolRegistry registry)
     {
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.lookup.list",
             Description = "Returns list of available lookups for current tenant",
@@ -25,7 +25,7 @@ public static class LookupToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "lookup", "view")
         });
 
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.lookup.by.id",
             Description = "Returns lookup summary by given id for lookup",

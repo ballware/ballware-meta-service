@@ -15,7 +15,7 @@ public static class StatisticToolRegistryExtensions
 {
     public static IToolRegistry RegisterBallwareStatisticTools(this IToolRegistry registry)
     {
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.statistic.list",
             Description = "Returns list of available statistics for current tenant",
@@ -25,7 +25,7 @@ public static class StatisticToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "statistic", "view")
         });
 
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.statistic.by.id",
             Description = "Returns statistic summary by given id for current tenant",
@@ -44,7 +44,7 @@ public static class StatisticToolRegistryExtensions
             IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "statistic", "view")
         });
 
-        registry.RegisterTool(new Tool()
+        registry.RegisterStaticTool(new Tool()
         {
             Name = "ballware.meta.statistic.metadata.by.identifier",
             Description = "Returns full metadata for a statistic by its identifier for current tenant",
