@@ -136,6 +136,7 @@ public class EntityMetadata : IEditable, IEntityAuthorizationMetadata
     public bool Meta { get; set; }
 
     public bool GeneratedSchema { get; set; }
+    public string? KeyColumn { get; set; }
 
     public bool NoIdentity { get; set; }
     public string? Application { get; set; }

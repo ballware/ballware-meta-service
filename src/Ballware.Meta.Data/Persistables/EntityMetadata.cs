@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Ballware.Shared.Data.Persistables;
 
 namespace Ballware.Meta.Data.Persistables;
@@ -17,6 +18,9 @@ public class EntityMetadata : IEntity, IAuditable, ITenantable
 
     public bool GeneratedSchema { get; set; }
 
+    [MaxLength(50)]
+    public string? KeyColumn { get; set; }
+    
     public bool NoIdentity { get; set; }
     public string? Application { get; set; }
     public string? Entity { get; set; }

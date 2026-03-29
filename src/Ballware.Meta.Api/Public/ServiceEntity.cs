@@ -12,6 +12,8 @@ public class ServiceEntity
     public bool GeneratedSchema { get; set; }
     public bool NoIdentity { get; set; }
     
+    public string? KeyColumn { get; set; }
+    
     public IEnumerable<ServiceEntityCustomFunction>? CustomFunctions { get; set; }
     public IEnumerable<ServiceEntityQueryEntry>? ListQuery { get; set; }
     public IEnumerable<ServiceEntityQueryEntry>? ByIdQuery { get; set; }
