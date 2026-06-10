@@ -218,8 +218,8 @@ public class PickvalueEndpointTests
         registryMock.Object.RegisterBallwarePickvalueTools();
 
         Assert.That(registeredTools, Has.Count.EqualTo(3));
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.pickvalue.availability"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.pickvalue.selectlistforentityandfield"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.pickvalue.selectbyvalueforentityandfield"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_pickvalue_availability"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_pickvalue_selectlistforentityandfield"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_pickvalue_selectbyvalueforentityandfield"), Is.True);
     }
 }

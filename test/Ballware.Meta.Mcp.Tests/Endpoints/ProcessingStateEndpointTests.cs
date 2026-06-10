@@ -307,10 +307,10 @@ public class ProcessingStateEndpointTests
         registryMock.Object.RegisterBallwareProcessingStateTools();
 
         Assert.That(registeredTools, Has.Count.EqualTo(5));
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.processingstate.list"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.processingstate.by.id"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.processingstate.listforentity"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.processingstate.bystateforentity"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.processingstate.successorsforentityandstate"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_processingstate_list"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_processingstate_by_id"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_processingstate_listforentity"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_processingstate_bystateforentity"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_processingstate_successorsforentityandstate"), Is.True);
     }
 }

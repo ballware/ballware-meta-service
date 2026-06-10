@@ -132,7 +132,7 @@ public class LookupEndpointTests
         registryMock.Object.RegisterBallwareLookupTools();
 
         Assert.That(registeredTools, Has.Count.EqualTo(2));
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.lookup.list"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.lookup.by.id"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_lookup_list"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_lookup_by_id"), Is.True);
     }
 }

@@ -148,7 +148,7 @@ public class EntityEndpointTests
 
         // Assert
         Assert.That(registeredTools, Has.Count.EqualTo(2));
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.entity.list"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.entity.by.identifier"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_entity_list"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_entity_by_identifier"), Is.True);
     }
 }

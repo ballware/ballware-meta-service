@@ -190,7 +190,7 @@ public class TenantEndpointTests
 
         // Assert
         Assert.That(registeredTools, Has.Count.EqualTo(2));
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.tenant.current.summary"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.tenant.current.navigation"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_tenant_current_summary"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_tenant_current_navigation"), Is.True);
     }
 }

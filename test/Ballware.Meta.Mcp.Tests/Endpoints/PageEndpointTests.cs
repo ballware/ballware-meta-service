@@ -148,7 +148,7 @@ public class PageEndpointTests
 
         // Assert
         Assert.That(registeredTools, Has.Count.EqualTo(2));
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.page.list"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.page.by.identifier"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_page_list"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_page_by_identifier"), Is.True);
     }
 }

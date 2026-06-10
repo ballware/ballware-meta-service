@@ -193,8 +193,8 @@ public class StatisticEndpointTests
         registryMock.Object.RegisterBallwareStatisticTools();
 
         Assert.That(registeredTools, Has.Count.EqualTo(3));
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.statistic.list"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.statistic.by.id"), Is.True);
-        Assert.That(registeredTools.Any(t => t.Name == "ballware.meta.statistic.metadata.by.identifier"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_statistic_list"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_statistic_by_id"), Is.True);
+        Assert.That(registeredTools.Any(t => t.Name == "ballware_meta_statistic_metadata_by_identifier"), Is.True);
     }
 }
