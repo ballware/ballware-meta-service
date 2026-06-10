@@ -17,7 +17,7 @@ public static class StatisticToolRegistryExtensions
     {
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.statistic.list",
+            Name = "ballware_meta_statistic_list",
             Description = "Returns list of available statistics for current tenant",
             OutputSchema = JsonSchema.FromType<StatisticList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
@@ -27,7 +27,7 @@ public static class StatisticToolRegistryExtensions
 
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.statistic.by.id",
+            Name = "ballware_meta_statistic_by_id",
             Description = "Returns statistic summary by given id for current tenant",
             OutputSchema = JsonSchema.FromType<StatisticSummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params =
@@ -46,7 +46,7 @@ public static class StatisticToolRegistryExtensions
 
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.statistic.metadata.by.identifier",
+            Name = "ballware_meta_statistic_metadata_by_identifier",
             Description = "Returns full metadata for a statistic by its identifier for current tenant",
             OutputSchema = JsonSchema.FromType<StatisticMetadata>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params =

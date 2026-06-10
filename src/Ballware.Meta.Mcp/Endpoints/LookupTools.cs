@@ -17,7 +17,7 @@ public static class LookupToolRegistryExtensions
     {
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.lookup.list",
+            Name = "ballware_meta_lookup_list",
             Description = "Returns list of available lookups for current tenant",
             OutputSchema = JsonSchema.FromType<LookupList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
@@ -27,7 +27,7 @@ public static class LookupToolRegistryExtensions
 
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.lookup.by.id",
+            Name = "ballware_meta_lookup_by_id",
             Description = "Returns lookup summary by given id for lookup",
             OutputSchema = JsonSchema.FromType<LookupSummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params =

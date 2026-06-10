@@ -17,7 +17,7 @@ public static class PageToolRegistryExtensions
     {
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.page.list",
+            Name = "ballware_meta_page_list",
             Description = "Returns list of available pages for current tenant",
             OutputSchema = JsonSchema.FromType<PageList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
@@ -27,7 +27,7 @@ public static class PageToolRegistryExtensions
         
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.page.by.identifier",
+            Name = "ballware_meta_page_by_identifier",
             Description = "Returns page summary by given identifier for page",
             OutputSchema = JsonSchema.FromType<PageSummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [

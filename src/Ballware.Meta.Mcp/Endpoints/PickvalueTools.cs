@@ -17,7 +17,7 @@ public static class PickvalueToolRegistryExtensions
     {
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.pickvalue.availability",
+            Name = "ballware_meta_pickvalue_availability",
             Description = "Returns list of available entity/field combinations with pickvalues for current tenant",
             OutputSchema = JsonSchema.FromType<PickvalueAvailabilityList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
@@ -27,7 +27,7 @@ public static class PickvalueToolRegistryExtensions
 
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.pickvalue.selectlistforentityandfield",
+            Name = "ballware_meta_pickvalue_selectlistforentityandfield",
             Description = "Returns list of pickvalue entries for a given entity and field for current tenant",
             OutputSchema = JsonSchema.FromType<PickvalueSelectList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params =
@@ -53,7 +53,7 @@ public static class PickvalueToolRegistryExtensions
 
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.pickvalue.selectbyvalueforentityandfield",
+            Name = "ballware_meta_pickvalue_selectbyvalueforentityandfield",
             Description = "Returns a single pickvalue entry by numeric value for a given entity and field for current tenant",
             OutputSchema = JsonSchema.FromType<PickvalueSelectEntrySummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params =

@@ -17,7 +17,7 @@ public static class EntityToolRegistryExtensions
     {
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.entity.list",
+            Name = "ballware_meta_entity_list",
             Description = "Returns list of available entities for current tenant",
             OutputSchema = JsonSchema.FromType<EntityList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
@@ -27,7 +27,7 @@ public static class EntityToolRegistryExtensions
         
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.entity.by.identifier",
+            Name = "ballware_meta_entity_by_identifier",
             Description = "Returns entity metadata by given identifier for entity",
             OutputSchema = JsonSchema.FromType<EntitySummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [

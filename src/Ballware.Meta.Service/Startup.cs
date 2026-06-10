@@ -162,6 +162,25 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             options.Authority = authorizationOptions.Authority;
             options.Audience = authorizationOptions.Audience;
             options.RequireHttpsMetadata = authorizationOptions.RequireHttpsMetadata;
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var authorizationHeader = context.Request.Headers.Authorization.ToString();
+
+                    if (authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var token = authorizationHeader["Bearer ".Length..].Trim();
+
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            context.Token = token;
+                        }
+                    }
+
+                    return Task.CompletedTask;
+                }
+            };
             options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
             {
                 ValidIssuer = authorizationOptions.Issuer ?? authorizationOptions.Authority

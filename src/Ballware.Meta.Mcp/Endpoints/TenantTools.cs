@@ -18,7 +18,7 @@ public static class TenantToolRegistryExtensions
     {
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.tenant.current.summary",
+            Name = "ballware_meta_tenant_current_summary",
             Description = "Returns summarized metadata for current tenant of authenticated user",
             OutputSchema = JsonSchema.FromType<TenantSummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
@@ -28,7 +28,7 @@ public static class TenantToolRegistryExtensions
         
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.tenant.current.navigation",
+            Name = "ballware_meta_tenant_current_navigation",
             Description = "Returns user navigation for current tenant of authenticated user",
             OutputSchema = JsonSchema.FromType<NavigationLayout>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],

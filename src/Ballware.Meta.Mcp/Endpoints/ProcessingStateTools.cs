@@ -17,7 +17,7 @@ public static class ProcessingStateToolRegistryExtensions
     {
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.processingstate.list",
+            Name = "ballware_meta_processingstate_list",
             Description = "Returns list of all processing states for current tenant",
             OutputSchema = JsonSchema.FromType<ProcessingStateList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
@@ -27,7 +27,7 @@ public static class ProcessingStateToolRegistryExtensions
 
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.processingstate.by.id",
+            Name = "ballware_meta_processingstate_by_id",
             Description = "Returns processing state by given id for current tenant",
             OutputSchema = JsonSchema.FromType<ProcessingStateSummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params =
@@ -46,7 +46,7 @@ public static class ProcessingStateToolRegistryExtensions
 
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.processingstate.listforentity",
+            Name = "ballware_meta_processingstate_listforentity",
             Description = "Returns all processing states for a given entity for current tenant",
             OutputSchema = JsonSchema.FromType<ProcessingStateList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params =
@@ -65,7 +65,7 @@ public static class ProcessingStateToolRegistryExtensions
 
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.processingstate.bystateforentity",
+            Name = "ballware_meta_processingstate_bystateforentity",
             Description = "Returns a single processing state by numeric state code for a given entity for current tenant",
             OutputSchema = JsonSchema.FromType<ProcessingStateSummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params =
@@ -91,7 +91,7 @@ public static class ProcessingStateToolRegistryExtensions
 
         registry.RegisterStaticTool(new Tool()
         {
-            Name = "ballware.meta.processingstate.successorsforentityandstate",
+            Name = "ballware_meta_processingstate_successorsforentityandstate",
             Description = "Returns all possible successor processing states for a given entity and current state for current tenant",
             OutputSchema = JsonSchema.FromType<ProcessingStateList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params =
