@@ -22,7 +22,7 @@ public static class PageToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<PageList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = PageTools.HandlePageListAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "page", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "page", "view")
         });
         
         registry.RegisterStaticTool(new Tool()
@@ -40,7 +40,7 @@ public static class PageToolRegistryExtensions
                 }
             ],
             ExecuteAsync = PageTools.HandlePageByIdentifierAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "page", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "page", "view")
         });
         
         return registry;

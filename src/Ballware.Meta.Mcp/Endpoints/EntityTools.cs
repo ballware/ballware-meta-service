@@ -22,7 +22,7 @@ public static class EntityToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<EntityList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = EntityTools.HandleEntityListAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "entity", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "entity", "view")
         });
         
         registry.RegisterStaticTool(new Tool()
@@ -40,7 +40,7 @@ public static class EntityToolRegistryExtensions
                 }
             ],
             ExecuteAsync = EntityTools.HandleEntityByIdentifierAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "entity", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "entity", "view")
         });
         
         return registry;

@@ -22,7 +22,7 @@ public static class ProcessingStateToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<ProcessingStateList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = ProcessingStateTools.HandleProcessingStateListAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "processingstate", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "processingstate", "view")
         });
 
         registry.RegisterStaticTool(new Tool()
@@ -41,7 +41,7 @@ public static class ProcessingStateToolRegistryExtensions
                 }
             ],
             ExecuteAsync = ProcessingStateTools.HandleProcessingStateByIdAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "processingstate", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "processingstate", "view")
         });
 
         registry.RegisterStaticTool(new Tool()
@@ -60,7 +60,7 @@ public static class ProcessingStateToolRegistryExtensions
                 }
             ],
             ExecuteAsync = ProcessingStateTools.HandleProcessingStateListForEntityAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "processingstate", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "processingstate", "view")
         });
 
         registry.RegisterStaticTool(new Tool()
@@ -86,7 +86,7 @@ public static class ProcessingStateToolRegistryExtensions
                 }
             ],
             ExecuteAsync = ProcessingStateTools.HandleProcessingStateByStateForEntityAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "processingstate", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "processingstate", "view")
         });
 
         registry.RegisterStaticTool(new Tool()
@@ -112,7 +112,7 @@ public static class ProcessingStateToolRegistryExtensions
                 }
             ],
             ExecuteAsync = ProcessingStateTools.HandleProcessingStateSuccessorsForEntityAndStateAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "processingstate", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "processingstate", "view")
         });
 
         return registry;

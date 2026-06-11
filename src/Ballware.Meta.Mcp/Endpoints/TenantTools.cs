@@ -23,7 +23,7 @@ public static class TenantToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<TenantSummary>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = TenantTools.HandleTenantCurrentSummaryAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "tenant", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "tenant", "view")
         });
         
         registry.RegisterStaticTool(new Tool()
@@ -33,7 +33,7 @@ public static class TenantToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<NavigationLayout>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = TenantTools.HandleTenantCurrentNavigationAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "tenant", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "tenant", "view")
         });
 
         return registry;

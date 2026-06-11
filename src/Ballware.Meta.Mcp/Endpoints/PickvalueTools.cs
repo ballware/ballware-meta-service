@@ -22,7 +22,7 @@ public static class PickvalueToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<PickvalueAvailabilityList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = PickvalueTools.HandlePickvalueAvailabilityAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "pickvalue", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "pickvalue", "view")
         });
 
         registry.RegisterStaticTool(new Tool()
@@ -48,7 +48,7 @@ public static class PickvalueToolRegistryExtensions
                 }
             ],
             ExecuteAsync = PickvalueTools.HandlePickvalueSelectListAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "pickvalue", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "pickvalue", "view")
         });
 
         registry.RegisterStaticTool(new Tool()
@@ -81,7 +81,7 @@ public static class PickvalueToolRegistryExtensions
                 }
             ],
             ExecuteAsync = PickvalueTools.HandlePickvalueSelectByValueAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "pickvalue", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "pickvalue", "view")
         });
 
         return registry;

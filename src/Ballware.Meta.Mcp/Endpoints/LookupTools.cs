@@ -22,7 +22,7 @@ public static class LookupToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<LookupList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = LookupTools.HandleLookupListAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "lookup", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "lookup", "view")
         });
 
         registry.RegisterStaticTool(new Tool()
@@ -41,7 +41,7 @@ public static class LookupToolRegistryExtensions
                 }
             ],
             ExecuteAsync = LookupTools.HandleLookupByIdAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "lookup", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "lookup", "view")
         });
         
         return registry;

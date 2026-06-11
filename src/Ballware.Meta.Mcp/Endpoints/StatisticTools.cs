@@ -22,7 +22,7 @@ public static class StatisticToolRegistryExtensions
             OutputSchema = JsonSchema.FromType<StatisticList>(JsonSchemaDefaults.SchemaSettings).ToJson(),
             Params = [],
             ExecuteAsync = StatisticTools.HandleStatisticListAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "statistic", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "statistic", "view")
         });
 
         registry.RegisterStaticTool(new Tool()
@@ -41,7 +41,7 @@ public static class StatisticToolRegistryExtensions
                 }
             ],
             ExecuteAsync = StatisticTools.HandleStatisticByIdAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "statistic", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "statistic", "view")
         });
 
         registry.RegisterStaticTool(new Tool()
@@ -60,7 +60,7 @@ public static class StatisticToolRegistryExtensions
                 }
             ],
             ExecuteAsync = StatisticTools.HandleStatisticMetadataByIdentifierAsync,
-            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("meta", "statistic", "view")
+            IsAuthorizedAsync = McpAuthorizationHandlerFactory.CreateStaticEntityRightAuthorizationHandler("mcp", "statistic", "view")
         });
 
         return registry;
