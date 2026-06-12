@@ -284,6 +284,7 @@ public class ProcessingStateTools
         {
             int i => (value = i) == i,
             long l => (value = (int)l) == l,
+            double l => Math.Abs((value = Convert.ToInt32(l)) - l) < 1.0,
             string s => int.TryParse(s, out value),
             _ => false
         };
