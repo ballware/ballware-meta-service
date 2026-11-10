@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Api.Public;
 using Ballware.Shared.Authorization;
-using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Microsoft.AspNetCore.Builder;
@@ -84,6 +80,15 @@ public static class EntityMetaEndpoint
         string authorizationScope = "serviceApi",
         string apiGroup = "service")
     {   
+        app.MapGet(basePath + "/selectlistfortenant/{tenantId}", HandleServiceSelectListAsync)
+            .RequireAuthorization(authorizationScope)
+            .Produces<IEnumerable<EntitySelectListEntry>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .WithName(apiOperationPrefix + "SelectListForTenant")
+            .WithGroupName(apiGroup)
+            .WithTags(apiTag)
+            .WithSummary("Query list of all entities");
+        
         app.MapGet(basePath + "/servicemetadatafortenantbyidentifier/{tenantId}/{identifier}", HandleServiceMetadataByIdentifierAsync)
             .RequireAuthorization(authorizationScope)
             .Produces<ServiceEntity>()
@@ -121,6 +126,11 @@ public static class EntityMetaEndpoint
         }
         
         return Results.Ok(mapper.Map<ServiceEntity>(entry));
+    }
+    
+    internal static async Task<IResult> HandleServiceSelectListAsync(IEntityMetaRepository repository, ClaimsPrincipal user, Guid tenantId)
+    {
+        return Results.Ok(await repository.SelectListForTenantAsync(tenantId));
     }
     
     internal static async Task<IResult> HandleSelectListAsync(IPrincipalUtils principalUtils, IEntityMetaRepository repository, ClaimsPrincipal user)

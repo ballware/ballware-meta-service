@@ -13,6 +13,8 @@ public class MetaEntity
     public string? ItemMappingScript { get; set; }
     public string? ItemReverseMappingScript { get; set; }
 
+    public string? KeyColumn { get; set; }
+    
     public string? Lookups { get; set; }
     public string? Picklists { get; set; }
     public string? CustomScripts { get; set; }

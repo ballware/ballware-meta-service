@@ -1,28 +1,27 @@
-using AutoMapper;
+using Mapster;
 using Ballware.Meta.Api.Public;
 using Ballware.Meta.Data.Public;
 using Newtonsoft.Json;
 
 namespace Ballware.Meta.Api.Mappings;
 
-public class ServiceApiProfile : Profile
+public class ServiceApiProfile : IRegister
 {
-    public ServiceApiProfile()
+    public void Register(TypeAdapterConfig config)
     {
-        CreateMap<EntityMetadata, ServiceEntity>()
-            .ForMember(dst => dst.CustomScripts, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<EntityCustomScripts>(src.CustomScripts ?? "{}")))
-            .ForMember(dst => dst.ListQuery, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<ServiceEntityQueryEntry[]>(src.ListQuery ?? "[]")))
-            .ForMember(dst => dst.NewQuery, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<ServiceEntityQueryEntry[]>(src.NewQuery ?? "[]")))
-            .ForMember(dst => dst.ByIdQuery, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<ServiceEntityQueryEntry[]>(src.ByIdQuery ?? "[]")))
-            .ForMember(dst => dst.SaveStatement, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<ServiceEntityQueryEntry[]>(src.SaveStatement ?? "[]")))
-            .ForMember(dst => dst.CustomFunctions, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<ServiceEntityCustomFunction[]>(src.CustomFunctions ?? "[]")));
+        config.NewConfig<EntityMetadata, ServiceEntity>()
+            .Map(dst => dst.CustomScripts, src => JsonConvert.DeserializeObject<EntityCustomScripts>(src.CustomScripts ?? "{}"))
+            .Map(dst => dst.ListQuery, src => JsonConvert.DeserializeObject<ServiceEntityQueryEntry[]>(src.ListQuery ?? "[]"))
+            .Map(dst => dst.NewQuery, src => JsonConvert.DeserializeObject<ServiceEntityQueryEntry[]>(src.NewQuery ?? "[]"))
+            .Map(dst => dst.ByIdQuery, src => JsonConvert.DeserializeObject<ServiceEntityQueryEntry[]>(src.ByIdQuery ?? "[]"))
+            .Map(dst => dst.SaveStatement, src => JsonConvert.DeserializeObject<ServiceEntityQueryEntry[]>(src.SaveStatement ?? "[]"))
+            .Map(dst => dst.CustomFunctions, src => JsonConvert.DeserializeObject<ServiceEntityCustomFunction[]>(src.CustomFunctions ?? "[]"));
 
-        CreateMap<EntityCustomScripts, ServiceEntityCustomScripts>();
+        config.NewConfig<EntityCustomScripts, ServiceEntityCustomScripts>();
+        config.NewConfig<Tenant, ServiceTenant>()
+            .Map(dst => dst.ReportDatasourceDefinitions, src => JsonConvert.DeserializeObject<IEnumerable<ServiceTenantReportDatasourceDefinition>>(src.ReportSchemaDefinition ?? "[]"));
 
-        CreateMap<Tenant, ServiceTenant>()
-            .ForMember(dst => dst.ReportDatasourceDefinitions, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<IEnumerable<ServiceTenantReportDatasourceDefinition>>(src.ReportSchemaDefinition ?? "[]")));
-        
-        CreateMap<ReportDatasourceDefinition, ServiceTenantReportDatasourceDefinition>();
-        CreateMap<ReportDatasourceTable, ServiceTenantReportDatasourceTable>();
+        config.NewConfig<ReportDatasourceDefinition, ServiceTenantReportDatasourceDefinition>();
+        config.NewConfig<ReportDatasourceTable, ServiceTenantReportDatasourceTable>();
     }
 }

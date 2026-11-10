@@ -1,8 +1,7 @@
-using System.Reflection;
 using Ballware.Meta.Data.Ef.Configuration;
-using Ballware.Meta.Data.Ef.Postgres;
 using Ballware.Meta.Data.Ef.Postgres.Tests.Utils;
-using Microsoft.AspNetCore.Builder;
+using Mapster;
+using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,10 +13,11 @@ public class AdminTenantSeedTest : DatabaseBackedBaseTest
     [SetUp]
     public void Setup()
     {
-        PreparedBuilder.Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareStorageMappings();
-        });
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareStorageMappings();
+        
+        PreparedBuilder.Services.AddSingleton(mapsterConfig);
+        PreparedBuilder.Services.AddScoped<IMapper, ServiceMapper>();
     }
 
     [Test]

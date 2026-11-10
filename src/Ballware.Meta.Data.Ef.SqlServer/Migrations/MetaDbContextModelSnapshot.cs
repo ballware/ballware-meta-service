@@ -17,18 +17,18 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.17")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Documentation", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
@@ -56,7 +56,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 
@@ -74,11 +74,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.EntityMetadata", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Application")
                         .HasColumnType("nvarchar(max)");
@@ -130,6 +130,10 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<string>("ItemReverseMappingScript")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KeyColumn")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("LastChangeStamp")
                         .HasColumnType("datetime2");
@@ -196,7 +200,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 
@@ -210,11 +214,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.EntityRight", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Container")
                         .HasColumnType("nvarchar(max)");
@@ -245,7 +249,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 
@@ -259,11 +263,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Export", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Application")
                         .HasColumnType("nvarchar(max)");
@@ -297,7 +301,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 
@@ -311,11 +315,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Job", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime?>("CreateStamp")
                         .HasColumnType("datetime2");
@@ -352,7 +356,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 
@@ -368,11 +372,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Lookup", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ByIdQuery")
                         .HasColumnType("nvarchar(max)");
@@ -413,7 +417,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 
@@ -430,11 +434,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Page", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime?>("CreateStamp")
                         .HasColumnType("datetime2");
@@ -471,7 +475,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 
@@ -489,11 +493,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Pickvalue", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime?>("CreateStamp")
                         .HasColumnType("datetime2");
@@ -524,7 +528,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.Property<int>("Value")
                         .HasColumnType("int");
@@ -541,11 +545,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.ProcessingState", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime?>("CreateStamp")
                         .HasColumnType("datetime2");
@@ -585,7 +589,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 
@@ -599,11 +603,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Statistic", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime?>("CreateStamp")
                         .HasColumnType("datetime2");
@@ -649,7 +653,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 
@@ -667,11 +671,11 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
             modelBuilder.Entity("Ballware.Meta.Data.Persistables.Tenant", b =>
                 {
-                    b.Property<long?>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Catalog")
                         .HasColumnType("nvarchar(max)");
@@ -731,7 +735,7 @@ namespace Ballware.Meta.Data.Ef.SqlServer.Migrations
 
                     b.Property<Guid>("Uuid")
                         .HasColumnType("uniqueidentifier")
-                        .HasAnnotation("Relational:JsonPropertyName", "Id");
+                        .HasJsonPropertyName("Id");
 
                     b.HasKey("Id");
 

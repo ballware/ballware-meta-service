@@ -1,15 +1,11 @@
 using System.Net;
-using System.Net.Http.Json;
-using System.Security.Claims;
 using System.Text.Json;
-using AutoMapper;
 using Ballware.Meta.Api.Endpoints;
 using Ballware.Meta.Api.Mappings;
-using Ballware.Meta.Api.Public;
 using Ballware.Meta.Api.Tests.Utils;
-using Ballware.Shared.Authorization;
 using Ballware.Meta.Data.Repository;
-using Ballware.Meta.Data.SelectLists;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -33,12 +29,13 @@ public class LookupServiceApiTest : ApiMappingBaseTest
             HasParam = false
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new ServiceApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var repositoryMock = new Mock<ILookupMetaRepository>();
 
@@ -87,12 +84,13 @@ public class LookupServiceApiTest : ApiMappingBaseTest
             HasParam = false
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new ServiceApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var repositoryMock = new Mock<ILookupMetaRepository>();
 
@@ -154,12 +152,13 @@ public class LookupServiceApiTest : ApiMappingBaseTest
             }
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new ServiceApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var repositoryMock = new Mock<ILookupMetaRepository>();
 

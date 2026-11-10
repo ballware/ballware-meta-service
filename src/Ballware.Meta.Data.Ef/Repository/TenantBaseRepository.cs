@@ -1,7 +1,8 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Ballware.Shared.Data.Ef.Repository;
 using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,15 +10,17 @@ namespace Ballware.Meta.Data.Ef.Repository;
 
 public abstract class TenantBaseRepository : BaseRepository<Public.Tenant, Persistables.Tenant>, ITenantMetaRepository
 {
+    private IMetaDbContext MetaContext { get; }
+    
     protected TenantBaseRepository(IMapper mapper, IMetaDbContext dbContext,
         IRepositoryHook<Public.Tenant, Persistables.Tenant>? hook = null) : base(mapper, dbContext, hook)
     {
-        
+        MetaContext = dbContext;
     }
 
     public virtual async Task<Public.Tenant?> ByIdAsync(Guid id)
     {
-        var result = await Context.Tenants.SingleOrDefaultAsync(t => t.Uuid == id);
+        var result = await MetaContext.Tenants.SingleOrDefaultAsync(t => t.Uuid == id);
         
         return result != null ? Mapper.Map<Public.Tenant>(result) : null;
     }
@@ -26,14 +29,14 @@ public abstract class TenantBaseRepository : BaseRepository<Public.Tenant, Persi
     
     public virtual async Task<IEnumerable<TenantSelectListEntry>> SelectListAsync()
     {
-        return await Task.FromResult(Context.Tenants
+        return await Task.FromResult(MetaContext.Tenants
             .OrderBy(d => d.Name)
             .Select(d => new TenantSelectListEntry { Id = d.Uuid, Name = d.Name }));
     }
     
     public virtual async Task<TenantSelectListEntry?> SelectByIdAsync(Guid id)
     {
-        return await Context.Tenants.Where(r => r.Uuid == id)
+        return await MetaContext.Tenants.Where(r => r.Uuid == id)
             .Select(d => new TenantSelectListEntry { Id = d.Uuid, Name = d.Name })
             .FirstOrDefaultAsync();
     }

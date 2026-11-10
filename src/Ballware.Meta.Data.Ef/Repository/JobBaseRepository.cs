@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Data.Common;
 using Ballware.Meta.Data.Repository;
 using Ballware.Shared.Data.Ef.Repository;
@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Repository;
 
-public class JobBaseRepository : TenantableRepository<Public.Job, Persistables.Job>, IJobMetaRepository
+public class JobBaseRepository : TenantableBaseRepository<Public.Job, Persistables.Job>, IJobMetaRepository
 {
     private IMetaDbContext MetaContext { get; }
 

@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 5000
 EXPOSE 5001
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 ARG GITHUB_USERNAME
 ARG GITHUB_PAT
@@ -18,6 +18,7 @@ COPY ./Ballware.Meta.Data.Ef ./Ballware.Meta.Data.Ef
 COPY ./Ballware.Meta.Data.Ef.SqlServer ./Ballware.Meta.Data.Ef.SqlServer
 COPY ./Ballware.Meta.Data.Ef.Postgres ./Ballware.Meta.Data.Ef.Postgres
 COPY ./Ballware.Meta.Jobs ./Ballware.Meta.Jobs
+COPY ./Ballware.Meta.Mcp ./Ballware.Meta.Mcp
 COPY ./Ballware.Meta.Service ./Ballware.Meta.Service
 
 WORKDIR "/src/Ballware.Meta.Service"

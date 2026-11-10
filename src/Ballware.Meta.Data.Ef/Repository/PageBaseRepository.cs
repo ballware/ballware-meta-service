@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
 using Ballware.Shared.Data.Ef.Repository;
@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Repository;
 
-public abstract class PageBaseRepository : TenantableRepository<Public.Page, Persistables.Page>, IPageMetaRepository
+public abstract class PageBaseRepository : TenantableBaseRepository<Public.Page, Persistables.Page>, IPageMetaRepository
 {
     private IMetaDbContext MetaContext { get; }
 
@@ -30,14 +30,14 @@ public abstract class PageBaseRepository : TenantableRepository<Public.Page, Per
         return await Task.FromResult(MetaContext.Pages.Where(r => r.TenantId == tenantId)
             .OrderBy(r => r.Identifier)
             .Select(r => new PageSelectListEntry
-                { Id = r.Uuid, Name = r.Name }));
+                { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name }));
     }
     
     public virtual async Task<PageSelectListEntry?> SelectByIdForTenantAsync(Guid tenantId, Guid id)
     {
         return await MetaContext.Pages.Where(r => r.TenantId == tenantId && r.Uuid == id)
             .Select(r => new PageSelectListEntry
-                { Id = r.Uuid, Name = r.Name })
+                { Id = r.Uuid, Identifier = r.Identifier, Name = r.Name })
             .FirstOrDefaultAsync();
     }
 

@@ -1,6 +1,7 @@
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
 using Ballware.Generic.Schema.Client;
+using Ballware.Shared.Data.Repository;
 using Newtonsoft.Json;
 using Quartz;
 

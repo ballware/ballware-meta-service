@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Data.Persistables;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Meta.Data.Ef.Repository;
 
-public class EntityRightBaseRepository : TenantableRepository<Public.EntityRight, Persistables.EntityRight>, IEntityRightMetaRepository
+public class EntityRightBaseRepository : TenantableBaseRepository<Public.EntityRight, Persistables.EntityRight>, IEntityRightMetaRepository
 {
     private IMetaDbContext MetaContext { get; }
 

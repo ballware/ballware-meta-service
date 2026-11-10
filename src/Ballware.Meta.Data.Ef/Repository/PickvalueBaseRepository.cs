@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Meta.Data.Ef.Internal;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
@@ -10,7 +10,7 @@ using Pickvalue = Ballware.Meta.Data.Persistables.Pickvalue;
 
 namespace Ballware.Meta.Data.Ef.Repository;
 
-public abstract class PickvalueBaseRepository : TenantableRepository<Public.Pickvalue, Persistables.Pickvalue>, IPickvalueMetaRepository
+public abstract class PickvalueBaseRepository : TenantableBaseRepository<Public.Pickvalue, Persistables.Pickvalue>, IPickvalueMetaRepository
 {
     private IMetaDbContext MetaContext { get; }
 

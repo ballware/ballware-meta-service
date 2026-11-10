@@ -1,15 +1,14 @@
-using AutoMapper;
+using Mapster;
 using Ballware.Meta.Api.Public;
 using Ballware.Meta.Data.Public;
 
 namespace Ballware.Meta.Api.Mappings;
 
-public class MetaApiProfile : Profile
+public class MetaApiProfile : IRegister
 {
-    public MetaApiProfile()
+    public void Register(TypeAdapterConfig config)
     {
-        CreateMap<EntityMetadata, MetaEntity>();
-        
-        CreateMap<Tenant, MetaTenant>();
+        config.NewConfig<EntityMetadata, MetaEntity>();
+        config.NewConfig<Tenant, MetaTenant>();
     }
 }

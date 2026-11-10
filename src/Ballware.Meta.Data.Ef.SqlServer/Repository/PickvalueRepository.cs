@@ -1,13 +1,6 @@
-using AutoMapper;
-using Ballware.Meta.Data.Ef.Internal;
+using MapsterMapper;
 using Ballware.Meta.Data.Ef.Repository;
-using Ballware.Meta.Data.Public;
-using Ballware.Meta.Data.Repository;
-using Ballware.Meta.Data.SelectLists;
-using Ballware.Shared.Data.Ef.Repository;
 using Ballware.Shared.Data.Repository;
-using Microsoft.EntityFrameworkCore;
-using Pickvalue = Ballware.Meta.Data.Persistables.Pickvalue;
 
 namespace Ballware.Meta.Data.Ef.SqlServer.Repository;
 

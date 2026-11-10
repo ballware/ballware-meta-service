@@ -1,86 +1,86 @@
-using AutoMapper;
+using Mapster;
 
 namespace Ballware.Meta.Data.Ef.Mapping;
 
-class StorageMappingProfile : Profile
+class StorageMappingProfile : IRegister
 {
-    public StorageMappingProfile()
+    public void Register(TypeAdapterConfig config)
     {
-        CreateMap<Public.Tenant, Persistables.Tenant>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Tenant, Public.Tenant>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Documentation, Persistables.Documentation>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Documentation, Public.Documentation>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        config.NewConfig<Public.Tenant, Persistables.Tenant>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
         
-        CreateMap<Public.EntityMetadata, Persistables.EntityMetadata>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.EntityMetadata, Public.EntityMetadata>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Export, Persistables.Export>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Export, Public.Export>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Job, Persistables.Job>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Job, Public.Job>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Lookup, Persistables.Lookup>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Lookup, Public.Lookup>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Page, Persistables.Page>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Page, Public.Page>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.Pickvalue, Persistables.Pickvalue>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.Pickvalue, Public.Pickvalue>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.ProcessingState, Persistables.ProcessingState>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.ProcessingState, Public.ProcessingState>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
-
-        CreateMap<Public.EntityRight, Persistables.EntityRight>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.EntityRight, Public.EntityRight>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        config.NewConfig<Persistables.Tenant, Public.Tenant>()
+            .Map(dest => dest.Id, src => src.Uuid);
         
-        CreateMap<Public.Statistic, Persistables.Statistic>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
+        config.NewConfig<Public.Documentation, Persistables.Documentation>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.Documentation, Public.Documentation>()
+            .Map(dest => dest.Id, src => src.Uuid);
 
-        CreateMap<Persistables.Statistic, Public.Statistic>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        config.NewConfig<Public.EntityMetadata, Persistables.EntityMetadata>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.EntityMetadata, Public.EntityMetadata>()
+            .Map(dest => dest.Id, src => src.Uuid);
+
+        config.NewConfig<Public.Export, Persistables.Export>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.Export, Public.Export>()
+            .Map(dest => dest.Id, src => src.Uuid);
+
+        config.NewConfig<Public.Job, Persistables.Job>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.Job, Public.Job>()
+            .Map(dest => dest.Id, src => src.Uuid);
+
+        config.NewConfig<Public.Lookup, Persistables.Lookup>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.Lookup, Public.Lookup>()
+            .Map(dest => dest.Id, src => src.Uuid);
+
+        config.NewConfig<Public.Page, Persistables.Page>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.Page, Public.Page>()
+            .Map(dest => dest.Id, src => src.Uuid);
+
+        config.NewConfig<Public.Pickvalue, Persistables.Pickvalue>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.Pickvalue, Public.Pickvalue>()
+            .Map(dest => dest.Id, src => src.Uuid);
+
+        config.NewConfig<Public.ProcessingState, Persistables.ProcessingState>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.ProcessingState, Public.ProcessingState>()
+            .Map(dest => dest.Id, src => src.Uuid);
+
+        config.NewConfig<Public.EntityRight, Persistables.EntityRight>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.EntityRight, Public.EntityRight>()
+            .Map(dest => dest.Id, src => src.Uuid);
+
+        config.NewConfig<Public.Statistic, Persistables.Statistic>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.Statistic, Public.Statistic>()
+            .Map(dest => dest.Id, src => src.Uuid);
     }
 }

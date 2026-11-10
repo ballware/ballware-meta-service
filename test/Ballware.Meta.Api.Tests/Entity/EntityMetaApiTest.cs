@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
-using AutoMapper;
 using Ballware.Meta.Api.Endpoints;
 using Ballware.Meta.Api.Mappings;
 using Ballware.Meta.Api.Public;
@@ -11,6 +10,8 @@ using Ballware.Shared.Authorization;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,13 +40,14 @@ public class EntityMetaApiTest : ApiMappingBaseTest
             Entity = "entity1"
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<MetaApiProfile>();
-        });
-        
-        var mapper = mapperConfig.CreateMapper();
+        var mapsterConfig = new TypeAdapterConfig();
 
+        new MetaApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
+        
+        var mapper = new Mapper(mapsterConfig);
+        
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
         var tenantRepositoryMock = new Mock<ITenantMetaRepository>();
@@ -107,23 +109,26 @@ public class EntityMetaApiTest : ApiMappingBaseTest
             new()
             {
                 Id = Guid.NewGuid(),
+                Application = "test", 
                 Entity = "entity1",
                 Name = "Name1"
             },
             new()
             {
                 Id = Guid.NewGuid(),
+                Application = "test", 
                 Entity = "entity2",
                 Name = "Name2"
             }
         };
 
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<MetaApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new MetaApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
         
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
@@ -176,16 +181,18 @@ public class EntityMetaApiTest : ApiMappingBaseTest
         var expectedEntry = new EntitySelectListEntry()
         {
             Id = Guid.NewGuid(),
+            Application = "test", 
             Entity = "entity1",
             Name = "Name1"
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<MetaApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new MetaApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
@@ -249,16 +256,18 @@ public class EntityMetaApiTest : ApiMappingBaseTest
         var expectedEntry = new EntitySelectListEntry()
         {
             Id = Guid.NewGuid(),
+            Application = "test", 
             Entity = "entity1",
             Name = "Name1"
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<MetaApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new MetaApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();
@@ -351,12 +360,13 @@ public class EntityMetaApiTest : ApiMappingBaseTest
             }
         };
 
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<MetaApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new MetaApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
         
         var principalUtilsMock = new Mock<IPrincipalUtils>();
         var tenantRightsCheckerMock = new Mock<ITenantRightsChecker>();

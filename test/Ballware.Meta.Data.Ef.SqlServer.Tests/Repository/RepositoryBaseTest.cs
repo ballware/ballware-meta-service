@@ -5,6 +5,8 @@ using Ballware.Meta.Data.Ef.Configuration;
 using Ballware.Meta.Data.Ef.SqlServer;
 using Ballware.Meta.Data.Ef.Tests.Utils;
 using Ballware.Meta.Data.Repository;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -90,11 +92,13 @@ public class RepositoryBaseTest : DatabaseBackedBaseTest
             
         PreparedBuilder.Services.AddSingleton<ITenantAwareEntityCache>(TenantAwareEntityCacheMock.Object);
         PreparedBuilder.Services.AddBallwareMetaStorageForSqlServer(storageOptions, connectionString);
-        PreparedBuilder.Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareStorageMappings();
-        });
-
+        
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareStorageMappings();
+        
+        PreparedBuilder.Services.AddSingleton(mapsterConfig);
+        PreparedBuilder.Services.AddScoped<IMapper, ServiceMapper>();
+        
         Application = PreparedBuilder.Build();
         
         TenantId = Guid.NewGuid();

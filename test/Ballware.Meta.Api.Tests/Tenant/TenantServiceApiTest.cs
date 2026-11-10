@@ -1,5 +1,4 @@
 using System.Net;
-using AutoMapper;
 using Ballware.Meta.Api.Endpoints;
 using Ballware.Meta.Api.Mappings;
 using Ballware.Meta.Api.Public;
@@ -8,6 +7,8 @@ using Ballware.Meta.Data;
 using Ballware.Meta.Data.Public;
 using Ballware.Meta.Data.Repository;
 using Ballware.Meta.Data.SelectLists;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -37,12 +38,13 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             Name = providedEntry.Name,
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new ServiceApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
@@ -213,12 +215,13 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             }
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new ServiceApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
@@ -359,12 +362,13 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             }
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new ServiceApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
@@ -452,12 +456,13 @@ public class TenantServiceApiTest : ApiMappingBaseTest
             { "lookupField", "field2" }
         };
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new ServiceApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
@@ -543,12 +548,13 @@ public class TenantServiceApiTest : ApiMappingBaseTest
         // Arrange
         var expectedTenantId = Guid.NewGuid();
         
-        var mapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceApiProfile>();
-        });
+        var mapsterConfig = new TypeAdapterConfig();
+
+        new ServiceApiProfile().Register(mapsterConfig);
+
+        mapsterConfig.Compile();
         
-        var mapper = mapperConfig.CreateMapper();
+        var mapper = new Mapper(mapsterConfig);
 
         var metaDbConnectionFactory = new Mock<IMetaDbConnectionFactory>();
         var entityMetaRepositoryMock = new Mock<IEntityMetaRepository>();
