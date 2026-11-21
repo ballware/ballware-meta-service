@@ -1,0 +1,1553 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "ballware Service API",
+    "version": "v1"
+  },
+  "paths": {
+    "/meta/entity/selectlistfortenant/{tenantId}": {
+      "get": {
+        "tags": [
+          "Entity"
+        ],
+        "summary": "Query list of all entities",
+        "operationId": "EntitySelectListForTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntitySelectListEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/meta/entity/servicemetadatafortenantbyidentifier/{tenantId}/{identifier}": {
+      "get": {
+        "tags": [
+          "Entity"
+        ],
+        "summary": "Query metadata for entity",
+        "operationId": "EntityServiceMetadataForTenantByIdentifier",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/meta/export/exportbyidfortenant/{tenantId}/{id}": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Fetch export for tenant by id",
+        "operationId": "ExportFetchForTenantById",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Export"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/meta/export/createexportfortenantbehalfofuser/{tenantId}/{userId}": {
+      "post": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Create new export for tenant behalf of user",
+        "operationId": "ExportCreateForTenantBehalfOfUser",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportCreatePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/meta/job/createjobfortenantbehalfofuser/{tenantId}/{userId}": {
+      "post": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Create new background job for tenant behalf of user",
+        "operationId": "JobCreateForTenantBehalfOfUser",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobCreatePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/meta/job/updatejobfortenantbehalfofuser/{tenantId}/{userId}": {
+      "post": {
+        "tags": [
+          "Job"
+        ],
+        "summary": "Update background job for tenant behalf of user",
+        "operationId": "JobUpdateForTenantBehalfOfUser",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobUpdatePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/meta/lookup/lookupmetadatabytenantandid/{tenantId}/{id}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query lookup metadata by tenant and identifier",
+        "operationId": "LookupMetadataForTenantAndId",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lookup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/meta/lookup/lookupmetadatabytenantandidentifier/{tenantId}/{identifier}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query lookup metadata by tenant and identifier",
+        "operationId": "LookupMetadataForTenantAndIdentifier",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lookup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/meta/lookup/lookupmetadatabytenant/{tenantId}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query lookup metadata by tenant",
+        "operationId": "LookupMetadataForTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Lookup"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/meta/pickvalue/selectbyvaluefortenantandentityandfield/{tenantId}/{entity}/{field}/{value}": {
+      "get": {
+        "tags": [
+          "Pickvalue"
+        ],
+        "summary": "Query single pickvalue for tenant and entity and field by value",
+        "operationId": "PickvalueSelectByValueForTenantEntityAndField",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "field",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PickvalueSelectEntry"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/meta/processingstate/selectlistallsuccessorsfortenantandentitybystate/{tenantId}/{identifier}/{state}": {
+      "get": {
+        "tags": [
+          "ProcessingState"
+        ],
+        "summary": "Query all possible successor processing states for entity by identifier and current state",
+        "operationId": "ProcessingStateSelectListAllSuccessorsForTenantAndEntityByIdentifier",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProcessingStateSelectListEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/meta/processingstate/selectbystatefortenantandentity/{tenantId}/{identifier}/{state}": {
+      "get": {
+        "tags": [
+          "ProcessingState"
+        ],
+        "summary": "Query single processing state for entity by identifier and state",
+        "operationId": "ProcessingStateSelectByStateForTenantAndEntityByIdentifier",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessingStateSelectListEntry"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/meta/statistic/metadatafortenantandidentifier/{tenantId}/{identifier}": {
+      "get": {
+        "tags": [
+          "Statistic"
+        ],
+        "summary": "Query metadata for statistic by tenant and identifier",
+        "operationId": "StatisticMetadataByTenantAndIdentifier",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Statistic"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/meta/tenant/servicemetadatafortenant/{tenantId}": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "summary": "Query tenant metadata by id",
+        "operationId": "TenantServiceMetadata",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceTenant"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/meta/tenant/reportallowedtenants": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "summary": "Query list of allowed tenants for user for reporting purposes",
+        "operationId": "TenantReportAllowedTenants",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantSelectListEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/meta/tenant/reportmetadatasourcesfortenant/{tenantId}": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "summary": "Query report meta datasources for tenant",
+        "operationId": "TenantReportMetaDatasources",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ServiceTenantReportDatasourceDefinition"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/meta/tenant/reportlookupmetadatafortenantdatasourceandidentifier/{tenantId}/{datasource}/{identifier}": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "summary": "Query additional metadata for lookup by tenant, datasource and identifier",
+        "operationId": "TenantReportLookupMetadataForTenantAndLookup",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "datasource",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": { }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EntityCustomFunctionTypes": {
+        "enum": [
+          "add",
+          "edit",
+          "default_add",
+          "default_view",
+          "default_edit",
+          "external",
+          "export",
+          "import"
+        ],
+        "type": "string"
+      },
+      "EntitySelectListEntry": {
+        "required": [
+          "Application",
+          "Entity"
+        ],
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Application": {
+            "type": "string",
+            "nullable": true
+          },
+          "Entity": {
+            "type": "string",
+            "nullable": true
+          },
+          "Name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Export": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Application": {
+            "type": "string",
+            "nullable": true
+          },
+          "Entity": {
+            "type": "string",
+            "nullable": true
+          },
+          "Query": {
+            "type": "string",
+            "nullable": true
+          },
+          "ExpirationStamp": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "MediaType": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExportCreatePayload": {
+        "required": [
+          "Application",
+          "Entity",
+          "MediaType",
+          "Query"
+        ],
+        "type": "object",
+        "properties": {
+          "Application": {
+            "type": "string",
+            "nullable": true
+          },
+          "Entity": {
+            "type": "string",
+            "nullable": true
+          },
+          "Query": {
+            "type": "string",
+            "nullable": true
+          },
+          "ExpirationStamp": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "MediaType": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Job": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Scheduler": {
+            "type": "string",
+            "nullable": true
+          },
+          "Identifier": {
+            "type": "string",
+            "nullable": true
+          },
+          "Owner": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "Options": {
+            "type": "string",
+            "nullable": true
+          },
+          "Result": {
+            "type": "string",
+            "nullable": true
+          },
+          "State": {
+            "$ref": "#/components/schemas/JobStates"
+          }
+        },
+        "additionalProperties": false
+      },
+      "JobCreatePayload": {
+        "required": [
+          "Identifier",
+          "Options",
+          "Scheduler"
+        ],
+        "type": "object",
+        "properties": {
+          "Scheduler": {
+            "type": "string",
+            "nullable": true
+          },
+          "Identifier": {
+            "type": "string",
+            "nullable": true
+          },
+          "Options": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "JobStates": {
+        "enum": [
+          "Unknown",
+          "Queued",
+          "InProgress",
+          "Finished",
+          "Error"
+        ],
+        "type": "string"
+      },
+      "JobUpdatePayload": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "State": {
+            "$ref": "#/components/schemas/JobStates"
+          },
+          "Result": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Lookup": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Meta": {
+            "type": "boolean"
+          },
+          "HasParam": {
+            "type": "boolean"
+          },
+          "Type": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Identifier": {
+            "type": "string",
+            "nullable": true
+          },
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "ListQuery": {
+            "type": "string",
+            "nullable": true
+          },
+          "ByIdQuery": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PickvalueSelectEntry": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "Value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProcessingStateSelectListEntry": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "State": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Locked": {
+            "type": "boolean"
+          },
+          "Finished": {
+            "type": "boolean"
+          },
+          "ReasonRequired": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceEntity": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Application": {
+            "type": "string",
+            "nullable": true
+          },
+          "Entity": {
+            "type": "string",
+            "nullable": true
+          },
+          "CustomScripts": {
+            "$ref": "#/components/schemas/ServiceEntityCustomScripts"
+          },
+          "GeneratedSchema": {
+            "type": "boolean"
+          },
+          "NoIdentity": {
+            "type": "boolean"
+          },
+          "KeyColumn": {
+            "type": "string",
+            "nullable": true
+          },
+          "CustomFunctions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceEntityCustomFunction"
+            },
+            "nullable": true
+          },
+          "ListQuery": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceEntityQueryEntry"
+            },
+            "nullable": true
+          },
+          "ByIdQuery": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceEntityQueryEntry"
+            },
+            "nullable": true
+          },
+          "NewQuery": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceEntityQueryEntry"
+            },
+            "nullable": true
+          },
+          "ScalarValueQuery": {
+            "type": "string",
+            "nullable": true
+          },
+          "StateColumn": {
+            "type": "string",
+            "nullable": true
+          },
+          "SaveStatement": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceEntityQueryEntry"
+            },
+            "nullable": true
+          },
+          "RemoveStatement": {
+            "type": "string",
+            "nullable": true
+          },
+          "RemovePreliminaryCheckScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "ListScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "RemoveScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "ByIdScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "BeforeSaveScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "SaveScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "StateAllowedScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "Indices": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceEntityCustomFunction": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/EntityCustomFunctionTypes"
+          },
+          "options": {
+            "$ref": "#/components/schemas/ServiceEntityCustomFunctionOptions"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceEntityCustomFunctionOptions": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "nullable": true
+          },
+          "delimiter": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceEntityCustomScripts": {
+        "type": "object",
+        "properties": {
+          "ExtendedRightsCheck": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceEntityQueryEntry": {
+        "required": [
+          "identifier",
+          "query"
+        ],
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "nullable": true
+          },
+          "query": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "ai_enabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceEntityQueryParameter"
+            },
+            "nullable": true
+          },
+          "result_columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceEntityQueryResultColumn"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceEntityQueryParameter": {
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceEntityQueryResultColumn": {
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceTenant": {
+        "required": [
+          "Name",
+          "Provider"
+        ],
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "RightsCheckScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "ServerScriptDefinitions": {
+            "type": "string",
+            "nullable": true
+          },
+          "ManagedDatabase": {
+            "type": "boolean"
+          },
+          "Provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "Server": {
+            "type": "string",
+            "nullable": true
+          },
+          "Catalog": {
+            "type": "string",
+            "nullable": true
+          },
+          "Schema": {
+            "type": "string",
+            "nullable": true
+          },
+          "User": {
+            "type": "string",
+            "nullable": true
+          },
+          "Password": {
+            "type": "string",
+            "nullable": true
+          },
+          "ReportDatasourceDefinitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceTenantReportDatasourceDefinition"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceTenantReportDatasourceDefinition": {
+        "required": [
+          "ConnectionString",
+          "Name",
+          "Provider"
+        ],
+        "type": "object",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "Provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "ConnectionString": {
+            "type": "string",
+            "nullable": true
+          },
+          "Tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceTenantReportDatasourceTable"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceTenantReportDatasourceRelation": {
+        "type": "object",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "ChildTable": {
+            "type": "string",
+            "nullable": true
+          },
+          "MasterColumn": {
+            "type": "string",
+            "nullable": true
+          },
+          "ChildColumn": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceTenantReportDatasourceTable": {
+        "type": "object",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "Entity": {
+            "type": "string",
+            "nullable": true
+          },
+          "Query": {
+            "type": "string",
+            "nullable": true
+          },
+          "Relations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceTenantReportDatasourceRelation"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Statistic": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Entity": {
+            "type": "string",
+            "nullable": true
+          },
+          "Identifier": {
+            "type": "string",
+            "nullable": true
+          },
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "MappingScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "CustomScripts": {
+            "type": "string",
+            "nullable": true
+          },
+          "FetchSql": {
+            "type": "string",
+            "nullable": true
+          },
+          "FetchScript": {
+            "type": "string",
+            "nullable": true
+          },
+          "Layout": {
+            "type": "string",
+            "nullable": true
+          },
+          "Meta": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TenantSelectListEntry": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "oidc": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://localhost/.well-known/openid-configuration"
+      }
+    }
+  },
+  "security": [
+    {
+      "oidc": [
+        "openid",
+        "metaApi"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Entity"
+    },
+    {
+      "name": "Export"
+    },
+    {
+      "name": "Job"
+    },
+    {
+      "name": "Lookup"
+    },
+    {
+      "name": "Pickvalue"
+    },
+    {
+      "name": "ProcessingState"
+    },
+    {
+      "name": "Statistic"
+    },
+    {
+      "name": "Tenant"
+    }
+  ]
+}

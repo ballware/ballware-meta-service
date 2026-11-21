@@ -52,7 +52,15 @@ Mounted routes (prefix → resource examples):
 - `/meta/lookup` – lookups
 - `/meta/entity` – entity metadata
 
-Use Swagger UI to explore the concrete operations and models.
+Use Swagger UI to explore the concrete operations and models. The generated OpenAPI documents are
+also available at `/swagger/meta/swagger.json` and `/swagger/service/swagger.json`.
+
+
+## Documentation
+
+- [docs/README.md](docs/README.md) – documentation index (concepts + API reference)
+- [docs/api/README.md](docs/api/README.md) – API surface and conventions
+- [docs/openapi/](docs/openapi/) – committed OpenAPI snapshots (`meta.json`, `service.json`) and how to regenerate them
 
 
 ## Quick start (local development)
