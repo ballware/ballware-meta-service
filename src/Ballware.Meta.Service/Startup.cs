@@ -1,5 +1,6 @@
 using Ballware.Meta.Api;
 using Ballware.Meta.Api.Endpoints;
+using Ballware.Shared.Authentication;
 using Ballware.Shared.Authorization;
 using Ballware.Shared.Authorization.Jint;
 using Ballware.Meta.Caching;
@@ -98,7 +99,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddOptionsWithValidateOnStart<ServiceClientOptions>()
             .Bind(Configuration.GetSection("StorageClient"))
             .ValidateDataAnnotations();
-        
+
         Services.AddOptionsWithValidateOnStart<ServiceClientOptions>()
             .Bind(Configuration.GetSection("SchemaClient"))
             .ValidateDataAnnotations();
@@ -180,7 +181,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
                     return Task.CompletedTask;
                 }
-            };
+            }.AttachUserInfoEnrichment();
             options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
             {
                 ValidIssuer = authorizationOptions.Issuer ?? authorizationOptions.Authority
@@ -270,6 +271,23 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             })
 #endif            
             .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("schema"));
+
+        Services.Configure<UserInfoEnrichmentOptions>(options =>
+            {
+                options.Authority ??= authorizationOptions.Authority;
+                options.Issuer ??= authorizationOptions.Issuer;
+            });
+
+        Services.AddBallwareSharedUserInfoEnrichment(Configuration);
+
+#if DEBUG
+        Services.AddHttpClient(UserInfoEnricher.HttpClientName)
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                AllowAutoRedirect = false,
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            });
+#endif
         
         var mapsterConfig = new TypeAdapterConfig()
             .AddBallwareStorageMappings()
